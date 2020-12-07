@@ -1,0 +1,49 @@
+configfile: "config.yaml"
+
+rule all:
+    input:
+        # best Tree and its model
+        expand("{prefix}/{prefix}.raxml.bestTree", prefix=config["prefixes"]),
+        expand("{prefix}/{prefix}.raxml.bestModel", prefix=config["prefixes"]),
+
+        # all trees
+        expand("{prefix}/{prefix}.raxml.mlTrees", prefix=config["prefixes"]),
+
+        # log file
+        expand("{prefix}/{prefix}.raxml.log", prefix=config["prefixes"]),
+
+        "result/mltrees",
+
+rule raxml_tree:
+    input:
+        msa             = config["data"]["input"],
+    output:
+        best_tree       = "{prefix}.raxml.bestTree",
+        best_model      = "{prefix}.raxml.bestModel",
+        ml_trees        = "{prefix}.raxml.mlTrees",
+        log             = "{prefix}.raxml.log",
+
+    params:
+        command         = config["parameters"]["raxml-ng"]["command"],
+        threads         = config["parameters"]["raxml-ng"]["threads"],
+        seed            = config["parameters"]["raxml-ng"]["seed"],
+        model           = config["parameters"]["raxml-ng"]["model"],
+        num_pars_trees  = config["parameters"]["raxml-ng"]["num_pars_trees"],
+        num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],
+        blmin           = config["parameters"]["raxml-ng"]["blmin"],
+        blmax           = config["parameters"]["raxml-ng"]["blmax"],
+    shell:
+        "{params.command} --msa {input} --model {params.model} --prefix {wildcards.prefix} "
+        "--blmin {params.blmin} --blmax {params.blmax} "
+        "--threads {params.threads} --seed {params.seed} "
+        "--tree pars{{{params.num_pars_trees}}},rand{{{params.num_rand_trees}}} "
+
+rule collect_trees:
+    input:  
+        expand("{prefix}/{prefix}.raxml.mlTrees", prefix=config["prefixes"]),
+    output:
+        "result/mltrees",
+    shell:
+        "cat {input} > {output}"
+
+

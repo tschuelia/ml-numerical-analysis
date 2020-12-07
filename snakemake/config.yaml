@@ -1,0 +1,19 @@
+data:
+  input: "data/prim.phy"
+
+prefixes:
+  T1:
+  T2:
+  #T3:
+
+# raxml-ng settings
+parameters:
+  raxml-ng:
+    command: raxml-ng
+    threads: 2
+    seed: 2
+    model: GTR+G
+    num_pars_trees: 10
+    num_rand_trees: 10
+    blmin: 1e-6
+    blmax: 100
