@@ -1,27 +1,36 @@
 configfile: "config.yaml"
 
+outdir = config["data"]["outdir"]
+prefixes = config["prefixes"]
+blmin_opts = config["parameters"]["raxml-ng"]["blmin"]
+blmax_opts = config["parameters"]["raxml-ng"]["blmax"]
+
+base_file_name = "blmin_{blmin}_blmax_{blmax}"
+base_file_dir = "result_blmin_{blmin}_blmax_{blmax}/"
+full_file_path = "{outdir}/" + base_file_dir + base_file_name
+
 rule all:
     input:
         # best Tree and its model
-        expand("{prefix}/{prefix}.raxml.bestTree", prefix=config["prefixes"]),
-        expand("{prefix}/{prefix}.raxml.bestModel", prefix=config["prefixes"]),
+        expand(full_file_path + ".raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(full_file_path + ".raxml.bestModel", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # all trees
-        expand("{prefix}/{prefix}.raxml.mlTrees", prefix=config["prefixes"]),
+        expand(full_file_path + ".raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # log file
-        expand("{prefix}/{prefix}.raxml.log", prefix=config["prefixes"]),
+        expand(full_file_path + ".raxml.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        "result/mltrees",
+        expand("{outdir}/mltrees", outdir=outdir),
 
 rule raxml_tree:
     input:
         msa             = config["data"]["input"],
     output:
-        best_tree       = "{prefix}.raxml.bestTree",
-        best_model      = "{prefix}.raxml.bestModel",
-        ml_trees        = "{prefix}.raxml.mlTrees",
-        log             = "{prefix}.raxml.log",
+        best_tree       = full_file_path + ".raxml.bestTree",
+        best_model      = full_file_path + ".raxml.bestModel",
+        ml_trees        = full_file_path + ".raxml.mlTrees",
+        log             = full_file_path + ".raxml.log",
 
     params:
         command         = config["parameters"]["raxml-ng"]["command"],
@@ -30,20 +39,21 @@ rule raxml_tree:
         model           = config["parameters"]["raxml-ng"]["model"],
         num_pars_trees  = config["parameters"]["raxml-ng"]["num_pars_trees"],
         num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],
-        blmin           = config["parameters"]["raxml-ng"]["blmin"],
-        blmax           = config["parameters"]["raxml-ng"]["blmax"],
+        prefix          = full_file_path
+    
     shell:
-        "{params.command} --msa {input} --model {params.model} --prefix {wildcards.prefix} "
-        "--blmin {params.blmin} --blmax {params.blmax} "
+        "{params.command} --msa {input} --model {params.model} --prefix {params.prefix} "
+        "--blmin {wildcards.blmin} --blmax {wildcards.blmax} "
         "--threads {params.threads} --seed {params.seed} "
         "--tree pars{{{params.num_pars_trees}}},rand{{{params.num_rand_trees}}} "
 
 rule collect_trees:
     input:  
-        expand("{prefix}/{prefix}.raxml.mlTrees", prefix=config["prefixes"]),
+        expand(full_file_path + ".raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
     output:
-        "result/mltrees",
+        expand("{outdir}/mltrees", outdir=outdir),
     shell:
         "cat {input} > {output}"
+
 
 
