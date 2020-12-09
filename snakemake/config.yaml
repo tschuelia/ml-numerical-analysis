@@ -2,9 +2,6 @@ data:
   input: "data/prim.phy"
   outdir: "data/results"
 
-prefixes:
-  [T1, T2]
-
 # raxml-ng settings
 parameters:
   raxml-ng:
@@ -15,4 +12,4 @@ parameters:
     num_pars_trees: 10
     num_rand_trees: 10
     blmin: [1e-6, 1e-8]
-    blmax: 100
+    blmax: [100]
