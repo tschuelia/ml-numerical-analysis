@@ -1,15 +1,28 @@
 data:
-  input: "data/prim.phy"
-  outdir: "data/results"
+  input: "/Users/juliaschmid/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
+  outdir: "data/354/results"
+  #input: data/ng-tutorial/prim.phy
+  #outdir: data/ng-tutorial/results
 
-# raxml-ng settings
 parameters:
+  # general parameter settings
+  blmin: [1e-6, 1e-8]
+  blmax: [100]
+
+  # if you change the model: make sure to change both raxml and iqtree to the respective model
+  model:
+    raxml-ng: GTR+G
+    iqtree: GTR+FO+G4
+  
+  # iqtree specific settings
+  iqtree:
+    command: software/iqtree/bin/iqtree
+    threads: 2
+  
+  # raxml-ng specific settings
   raxml-ng:
     command: raxml-ng
     threads: 2
     seed: 2
-    model: GTR+G
     num_pars_trees: 10
     num_rand_trees: 10
-    blmin: [1e-6, 1e-8]
-    blmax: [100]

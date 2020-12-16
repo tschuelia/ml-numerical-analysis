@@ -1,33 +1,53 @@
 configfile: "config.yaml"
 
-outdir = config["data"]["outdir"]
-raxml_command = config["parameters"]["raxml-ng"]["command"]
-blmin_opts = config["parameters"]["raxml-ng"]["blmin"]
-blmax_opts = config["parameters"]["raxml-ng"]["blmax"]
+outdir          = config["data"]["outdir"]
+blmin_opts      = config["parameters"]["blmin"]
+blmax_opts      = config["parameters"]["blmax"]
 
-file_name = "blmin_{blmin}_blmax_{blmax}"
-base_dir = "result_blmin_{blmin}_blmax_{blmax}/"
-full_dir = "{outdir}/" + base_dir
-full_file_path = full_dir + file_name
+raxml_command   = config["parameters"]["raxml-ng"]["command"]
+iqtree_command  = config["parameters"]["iqtree"]["command"]
+
+file_name       = "blmin_{blmin}_blmax_{blmax}"
+base_dir        = "result_blmin_{blmin}_blmax_{blmax}/"
+full_dir        = "{outdir}/" + base_dir
+
+full_dir_raxml          = full_dir + "raxml-ng/"
+full_file_path_raxml    = full_dir_raxml + file_name
+
+full_dir_iqtree         = full_dir + "iqtree/"
+full_file_path_iqtree   = full_dir_iqtree + file_name
+
+#full_file_path  = full_dir + file_name
+
 
 rule all:
     input:
         # best Tree and its model
-        expand(f"{full_file_path}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        expand(f"{full_file_path}.raxml.bestModel", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.bestModel", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # all trees
-        expand(f"{full_file_path}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # pairwise rf distances for all trees found for one combination of parameters
-        expand(f"{full_file_path}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # file that contains all trees for all parameter option
         expand("{outdir}/mltrees", outdir=outdir),
 
         # pairwise rf distances for all trees
-        expand("{outdir}/mltrees.raxml.rfDistances", outdir=outdir)
+        expand("{outdir}/mltrees.raxml.rfDistances", outdir=outdir),
+
+        # iqtree significance test results
+        expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # filtered ml_tree set
+        expand(f"{full_dir}filtered_trees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # collected llhs from raxml-ng run and iqtree run
+        expand(f"{full_dir}llh_bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
 
 include: "rules/tree_search.smk"
+include: "rules/iqtree_tests.smk"
 include: "rules/rf_distances.smk"
