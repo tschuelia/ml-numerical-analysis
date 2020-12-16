@@ -1,4 +1,4 @@
-# Snakemake Playground
+# Snakemake Pipeline
 
 1. Create a conda environment using the given environment file by executing
     ```
@@ -6,15 +6,19 @@
     ```
 2. Activate the conda environment
 
-3. Download the [raxml-ng tutorial dataset](https://github.com/amkozlov/ng-tutorial) into a folder named ```data```
+3. Download the IQ-Tree binaries into a folder ```software/iqtree```
 
-4. Check the execution graph by running 
+4. Download the data you want to use, for example the [raxml-ng tutorial dataset](https://github.com/amkozlov/ng-tutorial) into a folder named ```data```
+
+5. In the config.yaml file: specifiy the path to the input data and the output path by changing the variables ```data.input``` and ```data.outdir``` . 
+
+6. In your terminal: check the execution graph and the commands snakemake will execute by running.
     ```
-    snakemake -n
+    snakemake -np
     ```
 
-5. Execute the snakemake file with 
+7. Finally execute the snakemake file with 
     ```
-    snakemake --cores 1
+    snakemake --cores [however many cores you have available]
     ```
 
