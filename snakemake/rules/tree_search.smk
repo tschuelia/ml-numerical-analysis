@@ -2,9 +2,9 @@ rule raxml_tree:
     input:
         msa             = config["data"]["input"],
     output:
-        best_tree       = f"{full_file_path_raxml}.raxml.bestTree",
-        best_model      = f"{full_file_path_raxml}.raxml.bestModel",
-        ml_trees        = f"{full_file_path_raxml}.raxml.mlTrees",
+        raxml_best_tree       = f"{full_file_path_raxml}.raxml.bestTree",
+        raxml_best_model      = f"{full_file_path_raxml}.raxml.bestModel",
+        raxml_ml_trees        = f"{full_file_path_raxml}.raxml.mlTrees",
     params:
         # general params
         model           = config["parameters"]["model"]["raxml-ng"],
@@ -15,7 +15,7 @@ rule raxml_tree:
         num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],
         prefix          = full_file_path_raxml,
     log:
-        f"{full_file_path_raxml}.raxml.treesearch.log",
+        raxml_treesearch_log    = f"{full_file_path_raxml}.raxml.treesearch.log",
     shell:
         "{raxml_command} " 
         "--msa {input.msa} "

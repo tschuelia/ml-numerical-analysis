@@ -1,12 +1,12 @@
 data:
-  input: "/Users/juliaschmid/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
-  outdir: "data/354/results"
-  #input: data/ng-tutorial/prim.phy
-  #outdir: data/ng-tutorial/results
+  #input: "/Users/juliaschmid/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
+  #outdir: "data/354/results"
+  input: data/ng-tutorial/prim.phy
+  outdir: data/ng-tutorial/results
 
 parameters:
   # general parameter settings
-  blmin: [1e-6, 1e-8]
+  blmin: [1e-2, 1e-4, 1e-6, 1e-8, 1e-10]
   blmax: [100]
 
   # if you change the model: make sure to change both raxml and iqtree to the respective model

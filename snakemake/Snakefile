@@ -22,6 +22,9 @@ full_file_path_iqtree   = full_dir_iqtree + file_name
 
 rule all:
     input:
+        # parameter settings for each run
+        expand(f"{full_dir}parameters.json", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
         # best Tree and its model
         expand(f"{full_file_path_raxml}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         expand(f"{full_file_path_raxml}.raxml.bestModel", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
@@ -30,24 +33,33 @@ rule all:
         expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # pairwise rf distances for all trees found for one combination of parameters
-        expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        #expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # file that contains all trees for all parameter option
-        expand("{outdir}/mltrees", outdir=outdir),
+        # file that contains all trees for all parameter options
+        #expand("{outdir}/mltrees", outdir=outdir),
 
         # pairwise rf distances for all trees
-        expand("{outdir}/mltrees.raxml.rfDistances", outdir=outdir),
+        #expand("{outdir}/mltrees.raxml.rfDistances", outdir=outdir),
 
         # iqtree significance test results
         expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # filtered ml_tree set
-        expand(f"{full_dir}filtered_trees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{outdir}/results.sqlite3", outdir=outdir),
+        
 
-        # collected llhs from raxml-ng run and iqtree run
-        expand(f"{full_dir}llh_bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+rule save_parameter_settings_in_file:
+    output:
+        params = f"{full_dir}parameters.json"
+    run:
+        import json
+        data = {}
+        data["blmin"] = wildcards.blmin
+        data["blmax"] = wildcards.blmax
+        with open(output.params, 'w') as f:
+            json.dump(data, f)
 
 
 include: "rules/tree_search.smk"
 include: "rules/iqtree_tests.smk"
-include: "rules/rf_distances.smk"
+#include: "rules/rf_distances.smk"
+include: "rules/save_results_to_database.smk"

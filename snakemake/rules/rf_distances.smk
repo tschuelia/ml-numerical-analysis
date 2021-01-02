@@ -4,7 +4,7 @@ rule topo_distance_per_setting:
     This rule computes the pairwise topological RF distances between found ML trees for one parameter combination.
     """
     input:
-        mlTrees = f"{full_file_path_raxml}.raxml.mlTrees",
+        mlTrees = rules.raxml_tree.output.raxml_ml_trees
     output:
         rfDistances = f"{full_file_path_raxml}.raxml.rfDistances",
     params:
@@ -25,7 +25,7 @@ rule _collect_trees:
     input:  
         expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
     output:
-        f"{outdir}/mltrees",
+        all_trees_all_runs = f"{outdir}/mltrees",
     shell:
         "cat {input} > {output} "
 
@@ -34,7 +34,7 @@ rule topo_rf_distance_all_settings:
     This rule computes the pairwise RF distances between all obtained ML trees for all parameter combinations.
     """
     input:
-        f"{outdir}/mltrees",
+        rules._collect_trees.output.all_trees_all_runs
     output:
         f"{outdir}/mltrees.raxml.rfDistances",
     log:

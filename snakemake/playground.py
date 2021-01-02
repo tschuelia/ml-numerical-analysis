@@ -10,16 +10,23 @@ llh_re = rf"{sign}{float_re}"  # likelihood is a signed floating point
 deltaL_re = rf"{sign}{float_re}"  # deltaL is a signed floating point
 test_result_re = rf"{float_re}{blanks}{sign}"  # test result entry is of form '0.123 +'
 
+stat_test_name = r"[a-zA-Z-]+"
+
+# table header is of form:
+# Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW       p-AU
+table_header = rf"Tree{blanks}logL{blanks}deltaL{blanks}(?:({stat_test_name})\s*)*"
+table_header_re = regex.compile(table_header)
+
 # a table entry in the .iqtree file looks for example like this:
 # 5 -5708.931281 1.7785e-06  0.0051 -  0.498 +  0.987 +  0.498 +  0.987 +      0.05 +    0.453 +
-table_entry = rf"({tree_id_re}){blanks}({llh_re}){blanks}({deltaL_re}){blanks}(?:({test_result_re}){blanks})*"
+table_entry = rf"({tree_id_re}){blanks}({llh_re}){blanks}({deltaL_re}){blanks}(?:({test_result_re})\s*)*"
 table_entry_re = regex.compile(table_entry)
 
 START_STRING = "USER TREES"
 END_STRING = "TIME STAMP"
 
 
-def get_relevant_section(input_file):
+def _get_relevant_section(input_file):
     """
     Returns the content of input_file between START_STRING and END_STRING.
     Throws ValueError if the section between START_STRING and END_STRING is empty.
@@ -51,7 +58,23 @@ def get_relevant_section(input_file):
     return content[start:end]
 
 
-def get_cleaned_table_entries(table_section):
+def _get_names_of_performed_tests(table_section):
+    test_names = []
+
+    for line in table_section:
+        m = regex.match(table_header_re, line)
+        if m:
+            # m captures 2 groups: the first is Tree, logL, deltaL, the second are the tests
+            test_names = m.captures(1)
+
+    if not test_names:
+        raise ValueError(
+            "No line in the given section matches the regex. Compare the regex and the given section. Maybe the format has changed."
+        )
+    return test_names
+
+
+def _get_cleaned_table_entries(table_section):
     """
     Returns the cleaned table entries in the given section.
     If the format of the table entries in future IQTREE versions change, make sure to change the defined regex above.
@@ -76,7 +99,7 @@ def get_cleaned_table_entries(table_section):
     return entries
 
 
-def get_indices_of_trees_passing_all_tests(entries):
+def _get_indices_of_trees_passing_all_tests(entries):
     def _has_significant_exclusion(test_results):
         return any("-" in t for t in test_results)
 
@@ -87,25 +110,39 @@ def get_indices_of_trees_passing_all_tests(entries):
     ]
 
 
-def save_filtered_trees(ml_trees, indices, save_path):
-    with open(ml_trees) as f:
-        trees = f.readlines()
+def get_iqtree_results(iqtree_file):
+    results = []
 
-    if len(trees) < max(indices):
-        raise ValueError(
-            "The tree indices and the number of raxml-ng ml_trees do not match. Make sure you input the correct files."
-        )
+    section = _get_relevant_section(iqtree_file)
+    entries = _get_cleaned_table_entries(section)
+    test_names = _get_names_of_performed_tests(section)
 
-    filtered_trees = [trees[i - 1] for i in indices]
-    filtered_trees = "".join(filtered_trees)
-    with open(save_path, "w") as w:
-        w.write(filtered_trees)
+    for tree_id, llh, deltaL, test_results in entries:
+        assert len(test_names) == len(test_results)
+
+        data = {}
+        data["tree_id"] = int(tree_id)
+        data["logL"] = float(llh)
+        data["deltaL"] = float(deltaL)
+        data["tests"] = {}
+
+        for i, test in enumerate(test_names):
+            test_result = test_results[i]
+            score, significant = test_result.split(" ")
+            score = score.strip()
+            significant = significant.strip()
+            data["tests"][test] = {}
+            data["tests"][test]["score"] = float(score)
+            data["tests"][test]["significant"] = True if significant == "+" else False
+
+        results.append(data)
+
+    return results
 
 
-# first get the section containing the result table
-section = get_relevant_section(snakemake.input.summary)
-entries = get_cleaned_table_entries(section)
-
-# for now: check which trees passed ALL tests (only + in test results)
-indices = get_indices_of_trees_passing_all_tests(entries)
-save_filtered_trees(snakemake.input.ml_trees, indices, snakemake.output.outfile)
+res = get_iqtree_results(
+    "/Users/juliaschmid/Desktop/Masterarbeit/snakemake/data/354/results/result_blmin_1e-2_blmax_100/iqtree/blmin_1e-2_blmax_100.iqtree"
+)
+print(len(res))
+print(len(res[7]["tests"]))
+print("c-ELW" in res[7]["tests"])
