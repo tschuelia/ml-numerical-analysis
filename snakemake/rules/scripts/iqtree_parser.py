@@ -36,9 +36,6 @@ def _get_relevant_section(input_file):
     with open(input_file) as f:
         content = f.readlines()
 
-    # remove newline character and trailing white space
-    content = [l.strip("\n").strip() for l in content]
-
     # now let's find the relevant lines
     # the relevant lines are only between the start and end string
     start = 0
@@ -62,6 +59,7 @@ def _get_names_of_performed_tests(table_section):
     test_names = []
 
     for line in table_section:
+        line = line.strip()
         m = regex.match(table_header_re, line)
         if m:
             # m captures 2 groups: the first is Tree, logL, deltaL, the second are the tests
@@ -81,6 +79,7 @@ def _get_cleaned_table_entries(table_section):
     """
     entries = []
     for line in table_section:
+        line = line.strip()
         # match the line against the regex defined above for a table entry
         m = regex.match(table_entry_re, line)
         if m:
