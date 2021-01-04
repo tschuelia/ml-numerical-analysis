@@ -8,8 +8,9 @@ class Run(Model):
     blmax = FloatField()
     final_raxml_llh = FloatField()
     best_iqtree_llh = FloatField()
-    # raxml_best_tree = CharField()
-    # raxml_all_trees = CharField()
+    average_absolute_rf_distance = FloatField()
+    average_relative_rf_distance = FloatField()
+    unique_topos = IntegerField()
 
     class Meta:
         database = db
@@ -53,13 +54,21 @@ class IQ_Tree(Model):
     pWSH = FloatField(null=True)  # p-value of weighted SH test.
     pWSH_significant = BooleanField(null=True)
 
-    cELW = FloatField(
-        null=True
-    )  # Expected Likelihood Weight (Strimmer & Rambaut 2002).
+    cELW = FloatField(null=True)  # Expected Likelihood Weight
     cELW_significant = BooleanField(null=True)
 
     pAU = FloatField(null=True)  # p-value of approximately unbiased (AU) test.
     pAU_significant = BooleanField(null=True)
+
+    class Meta:
+        database = db
+
+
+class RFDistance(Model):
+    tree1 = ForeignKeyField(Raxml_Tree)
+    tree2 = ForeignKeyField(Raxml_Tree)
+    plain_rf_distance = FloatField()
+    normalized_rf_distance = FloatField()
 
     class Meta:
         database = db

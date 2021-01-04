@@ -1,7 +1,5 @@
 import json
-
-RAXML_INDICATOR = "Final LogLikelihood"
-IQTREE_INDICATOR = "BEST SCORE FOUND"
+import regex
 
 
 def get_parameter_value(filename: str, param_identifier: str) -> float:
@@ -16,40 +14,43 @@ def get_parameter_value(filename: str, param_identifier: str) -> float:
     return data[param_identifier]
 
 
+def _get_value_from_file(input_file, search_string):
+    with open(input_file) as f:
+        lines = f.readlines()
+
+    for l in lines:
+        l = l.strip()
+        if search_string in l:
+            # a line looks for example like this
+            # Number of unique topologies in this tree set: 100
+            _, value = l.rsplit(" ", 1)
+            return float(value)
+
+    raise ValueError(
+        f'The given input file {input_file} does not contain the search string "{search_string}".'
+    )
+
+
 def get_raxml_llh(raxml_file: str) -> float:
-    # read final llh as computed in raxml-ng run
-    with open(raxml_file) as f:
-        content = f.readlines()
-    if not any(RAXML_INDICATOR in l for l in content):
-        raise ValueError(
-            f"The given input file {raxml_file} does not contain a final llh. Make sure the files are correct and the indicator string has not changed."
-        )
-    llh_raxml = 0
-
-    for line in content:
-        if RAXML_INDICATOR in line:
-            _, llh = line.split(":")
-            llh_raxml = llh.strip()
-            break
-
-    return llh_raxml
+    STR = "Final LogLikelihood:"
+    return _get_value_from_file(raxml_file, STR)
 
 
 def get_iqtree_llh(iqtree_file: str) -> float:
-    # read final llh as reevaluated by iqtree
-    with open(iqtree_file) as f:
-        content = f.readlines()
-    if not any(IQTREE_INDICATOR in l for l in content):
-        raise ValueError(
-            f"The given input file {iqtree_file} does not contain a best score. Make sure the files are correct and the indicator string has not changed."
-        )
+    STR = "BEST SCORE FOUND :"
+    return _get_value_from_file(iqtree_file, STR)
 
-    llh_iqtree = 0
 
-    for line in content:
-        if IQTREE_INDICATOR in line:
-            _, llh = line.split(":")
-            llh_iqtree = llh.strip()
-            break
+def get_raxml_abs_rf_distance(log_file: str) -> float:
+    STR = "Average absolute RF distance in this tree set:"
+    return _get_value_from_file(log_file, STR)
 
-    return llh_iqtree
+
+def get_raxml_rel_rf_distance(log_file: str) -> float:
+    STR = "Average relative RF distance in this tree set:"
+    return _get_value_from_file(log_file, STR)
+
+
+def get_raxml_num_unique_topos(log_file: str) -> int:
+    STR = "Number of unique topologies in this tree set:"
+    return _get_value_from_file(log_file, STR)

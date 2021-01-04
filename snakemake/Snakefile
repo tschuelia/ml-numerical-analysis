@@ -33,13 +33,10 @@ rule all:
         expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # pairwise rf distances for all trees found for one combination of parameters
-        #expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-
-        # file that contains all trees for all parameter options
-        #expand("{outdir}/mltrees", outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # pairwise rf distances for all trees
-        #expand("{outdir}/mltrees.raxml.rfDistances", outdir=outdir),
+        expand("{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
 
         # iqtree significance test results
         expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
@@ -61,5 +58,5 @@ rule save_parameter_settings_in_file:
 
 include: "rules/tree_search.smk"
 include: "rules/iqtree_tests.smk"
-#include: "rules/rf_distances.smk"
+include: "rules/rf_distances.smk"
 include: "rules/save_results_to_database.smk"

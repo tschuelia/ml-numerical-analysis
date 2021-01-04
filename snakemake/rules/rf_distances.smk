@@ -1,5 +1,5 @@
 
-rule topo_distance_per_setting:
+rule topo_rf_distance_per_setting:
     """
     This rule computes the pairwise topological RF distances between found ML trees for one parameter combination.
     """
@@ -18,31 +18,31 @@ rule topo_distance_per_setting:
         "--prefix {params.prefix} "
         "> {log} "
 
-rule _collect_trees:
+rule _collect_best_trees:
     """ 
-    This rule collects all mlTrees for all parameter combinations in one file.
+    This rule collects all bestTrees for all parameter combinations in one file.
     """
     input:  
-        expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
     output:
-        all_trees_all_runs = f"{outdir}/mltrees",
+        best_trees_all_runs = f"{outdir}/bestTreesCollected",
     shell:
         "cat {input} > {output} "
 
 rule topo_rf_distance_all_settings:
     """
-    This rule computes the pairwise RF distances between all obtained ML trees for all parameter combinations.
+    This rule computes the pairwise RF distances between all bestTrees.
     """
     input:
-        rules._collect_trees.output.all_trees_all_runs
+        rules._collect_best_trees.output.best_trees_all_runs
     output:
-        f"{outdir}/mltrees.raxml.rfDistances",
+        f"{outdir}/bestTrees.raxml.rfDistances",
     log:
-        f"{outdir}/mltrees.raxml.rfDistances.log",
+        f"{outdir}/bestTrees.raxml.rfDistances.log",
     shell:
         "{raxml_command} "
         "--rfdist "
         "--tree {input} "
-        "--prefix {outdir}/mltrees "
+        "--prefix {outdir}/bestTrees "
         "> {log} "
 
