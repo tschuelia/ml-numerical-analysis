@@ -9,6 +9,8 @@ rule save_results_to_database:
         iqtree_test_log         = expand(f"{full_file_path_iqtree}.iqtree_tests.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         rfDistances_log         = expand(f"{full_file_path_raxml}.raxml.rfDistances.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         rfDistances             = expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        rfDistances_best_trees  = expand(f"{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
+        best_trees_collected    = expand(f"{outdir}/bestTreesCollected", outdir=outdir),
     output:
         database = f"{outdir}/results.sqlite3",    
     script:

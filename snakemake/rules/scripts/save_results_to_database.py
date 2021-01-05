@@ -80,6 +80,14 @@ def create_IQ_Trees(run, iqtree_trees_file, iqtree_results_file):
         iqtree.save()
 
 
+def get_cleaned_rf_dist(raw_line):
+    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d+)\s*")
+    tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
+        line_regex, line
+    ).groups()
+    return int(tree_idx1), int(tree_idx2), float(plain_dist), float(normalized_dist)
+
+
 db.init(snakemake.output.database)
 db.connect()
 db.create_tables([Run, Raxml_Tree, IQ_Tree, RFDistance])
@@ -94,6 +102,9 @@ iqtree_test_log_files = snakemake.input.iqtree_test_log
 rfDistances_log_files = snakemake.input.rfDistances_log
 rfDistances = snakemake.input.rfDistances
 
+rfDistances_best_trees = snakemake.input.rfDistances_best_trees
+best_trees_collected = snakemake.input.best_trees_collected
+
 num_runs = len(best_tree_files)
 
 assert (
@@ -105,6 +116,9 @@ assert (
     == len(rfDistances_log_files)
     == len(rfDistances)
 )
+
+best_tree_objects = []
+
 for i in range(num_runs):
 
     run = create_Run(
@@ -132,28 +146,62 @@ for i in range(num_runs):
 
     for tree in raxml_all_trees:
         is_best = tree == raxml_best_tree
-        tree_objects.append(
-            Raxml_Tree.create(
-                run=run,
-                raxml_tree=tree,
-                is_best=is_best,
-            )
+        t = Raxml_Tree.create(
+            run=run,
+            raxml_tree=tree,
+            is_best=is_best,
         )
+        tree_objects.append(t)
+        if is_best:
+            best_tree_objects.append(t)
 
     with open(rfDistances[i]) as f:
         rf_dist_lines = f.readlines()
 
+    # TODO: see http://docs.peewee-orm.com/en/latest/peewee/querying.html for correct implementation
     for line in rf_dist_lines:
-        line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d+)\s*")
-        tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
-            line_regex, line
-        ).groups()
+        tree_idx1, tree_idx2, plain_dist, normalized_dist = get_cleaned_rf_dist(line)
 
         RFDistance.create(
-            tree1=tree_objects[int(tree_idx1)],
-            tree2=tree_objects[int(tree_idx2)],
-            plain_rf_distance=float(plain_dist),
-            normalized_rf_distance=float(normalized_dist),
+            tree1=tree_objects[tree_idx1],
+            tree2=tree_objects[tree_idx2],
+            plain_rf_distance=plain_dist,
+            normalized_rf_distance=normalized_dist,
         )
 
     create_IQ_Trees(run, iqtree_trees_files[i], iqtree_results_files[i])
+
+with open(rfDistances_best_trees[0]) as f:
+    rf_dist_lines = f.readlines()
+
+with open(best_trees_collected[0]) as f:
+    best_trees = f.readlines()
+
+
+for line in rf_dist_lines:
+    tree_idx1, tree_idx2, plain_dist, normalized_dist = get_cleaned_rf_dist(line)
+
+    tree_str1 = best_trees[tree_idx1].strip()
+    tree_str2 = best_trees[tree_idx2].strip()
+
+    tree1 = None
+    tree2 = None
+
+    # find the matching trees
+    for tree in best_tree_objects:
+        if tree.raxml_tree == tree_str1:
+            tree1 = tree
+        elif tree.raxml_tree == tree_str2:
+            tree2 = tree
+
+    if not tree1 or not tree2:
+        raise ValueError(
+            f"Search for best trees with indices {tree_idx1} and {tree_idx2} failed: no corresponding best tree found."
+        )
+
+    RFDistance.create(
+        tree1=tree1,
+        tree2=tree2,
+        plain_rf_distance=plain_dist,
+        normalized_rf_distance=normalized_dist,
+    )
