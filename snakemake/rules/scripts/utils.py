@@ -1,5 +1,6 @@
 import json
 import regex
+from typing import Tuple
 
 
 def get_parameter_value(filename: str, param_identifier: str) -> float:
@@ -14,7 +15,7 @@ def get_parameter_value(filename: str, param_identifier: str) -> float:
     return data[param_identifier]
 
 
-def _get_value_from_file(input_file, search_string):
+def _get_value_from_file(input_file: str, search_string: str) -> float:
     with open(input_file) as f:
         lines = f.readlines()
 
@@ -54,3 +55,15 @@ def get_raxml_rel_rf_distance(log_file: str) -> float:
 def get_raxml_num_unique_topos(log_file: str) -> int:
     STR = "Number of unique topologies in this tree set:"
     return _get_value_from_file(log_file, STR)
+
+
+def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
+    """
+
+    """
+    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d+)\s*")
+    tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
+        line_regex, raw_line
+    ).groups()
+    return int(tree_idx1), int(tree_idx2), float(plain_dist), float(
+        normalized_dist)
