@@ -1,14 +1,19 @@
+from custom_types import *
+from typing import Dict, List, Tuple
+
 import regex
 
 # define some regex stuff
 blanks = r"\s+"  # matches >=1  subsequent whitespace characters
 sign = r"[-+]?"  # contains either a '-' or a '+' symbol or none of both
-float_re = r"\d+(?:\.\d+)?(?:[e][-+]?\d+)?"  # matches ints or floats of forms '1.105' or '1.105e-5' or '1.105e5' or '1.105e+5'
+# matches ints or floats of forms '1.105' or '1.105e-5' or '1.105e5' or '1.105e+5'
+float_re = r"\d+(?:\.\d+)?(?:[e][-+]?\d+)?"
 
 tree_id_re = r"\d+"  # tree ID is an int
 llh_re = rf"{sign}{float_re}"  # likelihood is a signed floating point
 deltaL_re = rf"{sign}{float_re}"  # deltaL is a signed floating point
-test_result_re = rf"{float_re}{blanks}{sign}"  # test result entry is of form '0.123 +'
+# test result entry is of form '0.123 +'
+test_result_re = rf"{float_re}{blanks}{sign}"
 
 stat_test_name = r"[a-zA-Z-]+"
 
@@ -26,12 +31,18 @@ START_STRING = "USER TREES"
 END_STRING = "TIME STAMP"
 
 
-def _get_relevant_section(input_file):
+def _get_relevant_section(input_file: FilePath) -> str:
     """
     Returns the content of input_file between START_STRING and END_STRING.
-    Throws ValueError if the section between START_STRING and END_STRING is empty.
 
-    input_file: the iqtree test summary
+    Args:
+        input_file: Path to the iqtree test summary file.
+
+    Returns:
+        String containing the content between START_STRING and END_STRING.
+
+    Raises:
+        ValueError if the section between START_STRING and END_STRING is empty.
     """
     with open(input_file) as f:
         content = f.readlines()
@@ -55,7 +66,19 @@ def _get_relevant_section(input_file):
     return content[start:end]
 
 
-def _get_names_of_performed_tests(table_section):
+def _get_names_of_performed_tests(table_section: str) -> List[str]:
+    """
+    Returns the names of the performed iqtree tests as stated in the table header.
+
+    Args:
+        table_section: String containing the iqtree test result table.
+
+    Returns:
+        A list of strings, each string is the name of a performed statistical test.
+
+    Raises:
+        ValueError if the section does not contain a table header matching the defined regex.
+    """
     test_names = []
 
     for line in table_section:
@@ -72,10 +95,20 @@ def _get_names_of_performed_tests(table_section):
     return test_names
 
 
-def _get_cleaned_table_entries(table_section):
+def _get_cleaned_table_entries(
+    table_section: str,
+) -> List[Tuple]:
     """
-    Returns the cleaned table entries in the given section.
-    If the format of the table entries in future IQTREE versions change, make sure to change the defined regex above.
+    Returns the content of the table in the given section.
+
+    Args:
+        table_section: String containing the iqtree test result table.
+
+    Returns:
+        A list of tuples, each containing the tree_id, llh, deltaL and a list of test results.
+
+    Raises:
+        ValueError if the section does not contain table entries matching the defined regex.
     """
     entries = []
     for line in table_section:
@@ -98,18 +131,17 @@ def _get_cleaned_table_entries(table_section):
     return entries
 
 
-def _get_indices_of_trees_passing_all_tests(entries):
-    def _has_significant_exclusion(test_results):
-        return any("-" in t for t in test_results)
+def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
+    """
+    Returns a list of dicts, each dict contains the iqtree test results for the respective tree.
 
-    return [
-        int(tree_id)
-        for (tree_id, _, _, test_results) in entries
-        if not _has_significant_exclusion(test_results)
-    ]
+    Args:
+        iqtree_file: Path to the iqtree test summary file.
 
-
-def get_iqtree_results(iqtree_file):
+    Returns:
+        A list of dicts. Each dict contains the tree_id, llh, deltaL and all results of the performed
+            iqtree tests.
+    """
     results = []
 
     section = _get_relevant_section(iqtree_file)
