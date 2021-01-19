@@ -7,6 +7,8 @@ blmax_opts      = config["parameters"]["blmax"]
 raxml_command   = config["parameters"]["raxml-ng"]["command"]
 iqtree_command  = config["parameters"]["iqtree"]["command"]
 
+
+#TODO: auto generate the filenames based on the config file
 file_name       = "blmin_{blmin}_blmax_{blmax}"
 base_dir        = "result_blmin_{blmin}_blmax_{blmax}/"
 full_dir        = "{outdir}/" + base_dir
@@ -16,8 +18,6 @@ full_file_path_raxml    = full_dir_raxml + file_name
 
 full_dir_iqtree         = full_dir + "iqtree/"
 full_file_path_iqtree   = full_dir_iqtree + file_name
-
-#full_file_path  = full_dir + file_name
 
 
 rule all:
@@ -47,6 +47,9 @@ rule all:
 rule save_parameter_settings_in_file:
     output:
         params = f"{full_dir}parameters.json"
+    resources:
+        mem_mb=1000 # 1GB (in MB)
+        runtime=60 # 1 hour (in minutes)
     run:
         import json
         data = {}

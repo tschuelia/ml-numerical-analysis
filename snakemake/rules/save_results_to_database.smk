@@ -13,5 +13,8 @@ rule save_results_to_database:
         best_trees_collected    = expand(f"{outdir}/bestTreesCollected", outdir=outdir),
     output:
         database = f"{outdir}/results.sqlite3",    
+    resources:
+        mem_mb=5000 # 5GB (in MB)
+        runtime=60 # 1 hour (in minutes)
     script:
         "scripts/save_results_to_database.py"
