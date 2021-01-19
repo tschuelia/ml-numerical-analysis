@@ -48,7 +48,7 @@ rule save_parameter_settings_in_file:
     output:
         params = f"{full_dir}parameters.json"
     resources:
-        mem_mb=1000 # 1GB (in MB)
+        mem_mb=1000, # 1GB (in MB)
         runtime=60 # 1 hour (in minutes)
     run:
         import json

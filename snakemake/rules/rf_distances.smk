@@ -38,7 +38,7 @@ rule topo_rf_distance_all_settings:
     output:
         f"{outdir}/bestTrees.raxml.rfDistances",
     resources:
-        mem_mb=5000 # 5GB (in MB)
+        mem_mb=5000, # 5GB (in MB)
         runtime=180 # 3 hours (in minutes)
     log:
         f"{outdir}/bestTrees.raxml.rfDistances.log",

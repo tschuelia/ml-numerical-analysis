@@ -15,7 +15,7 @@ rule raxml_tree:
         num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],
         prefix          = full_file_path_raxml,
     resources:
-        mem_mb=10000 # 10GB (in MB)
+        mem_mb=10000, # 10GB (in MB)
         runtime=1440 # 1 day (in minutes)
     log:
         raxml_treesearch_log    = f"{full_file_path_raxml}.raxml.treesearch.log",
