@@ -33,12 +33,12 @@ def _get_value_from_file(input_file: FilePath, search_string: str) -> float:
     )
 
 
-def get_final_raxml_llh(raxml_file: FilePath) -> float:
+def get_best_raxml_llh(raxml_file: FilePath) -> float:
     STR = "Final LogLikelihood:"
     return _get_value_from_file(raxml_file, STR)
 
 
-def get_final_iqtree_llh(iqtree_file: FilePath) -> float:
+def get_best_iqtree_llh(iqtree_file: FilePath) -> float:
     STR = "BEST SCORE FOUND :"
     return _get_value_from_file(iqtree_file, STR)
 
@@ -73,6 +73,23 @@ def get_raxml_lls_for_all_trees(log_file: FilePath) -> TreeIndexed[float]:
             llhs.append(float(m.groups()[0]))
 
     return llhs
+
+
+def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> float:
+    with open(log_file) as f:
+        content = f.readlines()
+
+    for line in content:
+        if not "Elapsed time:" in line:
+            continue
+
+        # correct line looks like this: "Elapsed time: 1976.056 seconds"
+        value = line.split(" ")[2]
+        return float(value)
+
+    raise ValueError(
+        f"The given input file {log_file} does not contain the elapsed time."
+    )
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:

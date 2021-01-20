@@ -4,11 +4,16 @@ db = P.SqliteDatabase(None)
 
 
 class Run(P.Model):
+    num_raxml_pars_trees = P.IntegerField()
+    num_raxml_rand_trees = P.IntegerField()
     blmin = P.FloatField()
     blmax = P.FloatField()
     average_absolute_rf_distance = P.FloatField()
     average_relative_rf_distance = P.FloatField()
     num_unique_topos = P.IntegerField()
+    raxml_best_llh = P.FloatField()
+    iqtree_best_llh = P.FloatField()
+    raxml_treesearch_elapsed_time = P.FloatField()
 
     class Meta:
         database = db

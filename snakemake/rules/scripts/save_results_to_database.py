@@ -34,6 +34,7 @@ for i in range(num_runs):
             raxml_treesearch_log_file_path=raxml_treesearch_log_file_paths[i],
             all_iqtree_trees_file_path=iqtree_trees_file_paths[i],
             iqtree_results_file_path=iqtree_results_file_paths[i],
+            iqtree_test_log_file_path=iqtree_test_log_file_paths[i],
             rfdistances_file_path=rfDistance_path[i],
             raxml_rfdistance_logfile_path=rfDistances_log_file_path[i],
         )
@@ -41,11 +42,16 @@ for i in range(num_runs):
 
 for run in run_python_objects:
     run.db_run_object = db.Run.create(
+        num_raxml_pars_trees=run.get_num_raxml_pars_trees(),
+        num_raxml_rand_trees=run.get_num_raxml_rand_trees(),
         blmin=run.get_blmin(),
         blmax=run.get_blmax(),
         average_absolute_rf_distance=run.get_average_absolute_rf_distance(),
         average_relative_rf_distance=run.get_average_relative_rf_distance(),
         num_unique_topos=run.get_num_unique_topos(),
+        raxml_best_llh=run.get_best_raxml_llh(),
+        iqtree_best_llh=run.get_best_iqtree_llh(),
+        raxml_treesearch_elapsed_time=run.get_raxml_treesearch_elapsed_time(),
     )
 
     tree_objects = []

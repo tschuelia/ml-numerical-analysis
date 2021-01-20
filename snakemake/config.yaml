@@ -1,8 +1,9 @@
 data:
-  #input: "/Users/juliaschmid/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
-  #outdir: "data/354/results"
-  input: data/ng-tutorial/prim.phy
-  outdir: data/ng-tutorial/results
+  input: "/Users/julia/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
+  outdir: "data/354/results"
+  #outdir: "data/354_cascade/results"
+  #input: data/ng-tutorial/prim.phy
+  #outdir: data/ng-tutorial/results
 
 parameters:
   # general parameter settings
@@ -13,12 +14,12 @@ parameters:
   model:
     raxml-ng: GTR+G
     iqtree: GTR+FO+G4
-  
+
   # iqtree specific settings
   iqtree:
-    command: software/iqtree/bin/iqtree
+    command: iqtree
     threads: 2
-  
+
   # raxml-ng specific settings
   raxml-ng:
     command: raxml-ng

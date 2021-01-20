@@ -16,7 +16,8 @@ rule raxml_tree:
         prefix          = full_file_path_raxml,
     resources:
         mem_mb=10000, # 10GB (in MB)
-        runtime=1440 # 1 day (in minutes)
+        runtime=1440, # 1 day (in minutes)
+        nodes=2
     log:
         raxml_treesearch_log    = f"{full_file_path_raxml}.raxml.treesearch.log",
     shell:

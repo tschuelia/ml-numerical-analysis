@@ -42,7 +42,6 @@ Create a sbatch file ```job.sh```:
     #SBATCH -t 00:20:00
     #SBATCH -p normal
     #SBATCH --mem=60000
-    #SBATCH --chdir=aa_rokasA1_10@4
     #SBATCH -o out.txt
     #SBATCH -e err.txt
 
@@ -53,65 +52,7 @@ and submit it using ```sbatch job.sh```
 
 
 ### Using snakemake:
-Snakemake uses profiles to run on different machines. To use slurm do the following setup (according to [these instructions](http://bluegenes.github.io/Using-Snakemake_Profiles/)):
-
-1. ssh to the cluster and run 
-    ``` 
-    mkdir -p ~/.config/snakemake && cd ~/.config/snakemake 
-    ```
-2. In this dir run 
-    ```
-        cookiecutter https://github.com/Snakemake-Profiles/slurm.git
-    ```
-    Leave all setup prompts empty for now (just press enter).
-3. In ```~/.config/snakemake``` should now be ```slurm``` folder containing
-    ```
-    config.yaml
-    slurm-jobscript.sh
-    slurm-status.py
-    slurm-submit.py
-    slurm_utils.py  
-    ```
-4. Open ```config.yaml``` and add the snakemake settings you wish to use. Mine looks like this:
-    ```
-    restart-times: 3
-    jobscript: "slurm-jobscript.sh"
-    cluster: "slurm-submit.py"
-    cluster-status: "slurm-status.py"
-    max-jobs-per-second: 1
-    max-status-checks-per-second: 10
-    local-cores: 1
-    latency-wait: 60
-    use-conda: True
-    jobs: 10
-    rerun-incomplete: True
-    printshellcmds: True
-    ```
-5. Now we have to define the resource utilization. For this create a file in the same dir called ```cluster_config.yml``` and add the desired default resources. Mine looks like this:
-    ```
-    __default__:
-        partition: partition # the partition you use
-        mail-user: your@email.com 
-        time: 60 # default time in minutes
-        nodes: 1 
-        cpus-per-task: 1 
-        threads-per-core: 1
-        output: out.txt
-        error: err.txt
-        mem: 1GB # default memory
-    ```
-If your rules do not specify custom ```resources``` snakemake will use these settings.
-
-6. Open ```slurm-submit.py``` and edit the ```CLUSTER_CONFIG``` constant so it points to your ```cluster_config.yml``` file.
-
-7. Open the folder containing the ```Snakefile``` and run 
-    ```
-    snakemake --profile slurm
-    ```
-
-**Note:** The above settings are use relatively little resources. Some of the rules, for example ```rules.tree_search.smk:raxml_tree``` need more resources. You can override the default settings by specifying resources in each rule. For some rules these options are already set. If you change the dataset, these options must probably be varied.
-
-
+Follow the instructions [here](https://github.com/tschuelia/snakemake-on-slurm-clusters).
 
 ## Useful stuff
 ### Open ssh tmux session in iTerm 

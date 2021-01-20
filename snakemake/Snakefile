@@ -50,11 +50,16 @@ rule save_parameter_settings_in_file:
     resources:
         mem_mb=1000, # 1GB (in MB)
         runtime=60 # 1 hour (in minutes)
+    params:
+        num_pars_trees  = config["parameters"]["raxml-ng"]["num_pars_trees"],
+        num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],
     run:
         import json
         data = {}
         data["blmin"] = wildcards.blmin
         data["blmax"] = wildcards.blmax
+        data["num_pars_trees"] = params.num_pars_trees
+        data["num_rand_trees"] = params.num_rand_trees
         with open(output.params, 'w') as f:
             json.dump(data, f)
 
