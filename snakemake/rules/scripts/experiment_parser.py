@@ -3,12 +3,13 @@ from typing import Dict, List, Tuple
 from custom_types import *
 from iqtree_parser import get_iqtree_results
 from utils import (
+    get_all_raxml_seeds,
     get_best_raxml_llh,
     get_best_iqtree_llh,
     get_cleaned_rf_dist,
     get_parameter_value,
     get_raxml_abs_rf_distance,
-    get_raxml_lls_for_all_trees,
+    get_all_raxml_llhs,
     get_raxml_num_unique_topos,
     get_raxml_rel_rf_distance,
     get_raxml_treesearch_elapsed_time,
@@ -25,6 +26,7 @@ class Run:
         raxml_best_llh: float,
         iqtree_best_llh: float,
         raxml_best_tree: Newick,
+        raxml_seeds: TreeIndexed[int],
         raxml_all_trees: TreeIndexed[Newick],
         raxml_llhs_all_trees: TreeIndexed[float],
         raxml_treesearch_elapsed_time: float,
@@ -42,6 +44,7 @@ class Run:
         self.raxml_best_llh = raxml_best_llh
         self.iqtree_best_llh = iqtree_best_llh
         self.raxml_best_tree = raxml_best_tree
+        self.raxml_seeds = raxml_seeds
         self.raxml_all_trees = raxml_all_trees
         self.raxml_llhs_all_trees = raxml_llhs_all_trees
         self.raxml_treesearch_elapsed_time = raxml_treesearch_elapsed_time
@@ -100,6 +103,9 @@ class Run:
 
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_raxml_tree_for_tree_index(i) == self.raxml_best_tree
+
+    def get_raxml_seed_for_tree_index(self, i: TreeIndex) -> bool:
+        return self.raxml_seeds[i]
 
     def get_iqtree_deltaL_for_tree_index(self, i: TreeIndex) -> float:
         results_for_tree_index = self.iqtree_results[i]
@@ -161,7 +167,7 @@ def read_raxml_best_tree(best_raxml_tree_file_path: FilePath) -> Newick:
 
 
 def read_raxml_llhs_all_trees(raxml_treesearch_log: FilePath) -> TreeIndexed[float]:
-    return get_raxml_lls_for_all_trees(raxml_treesearch_log)
+    return get_all_raxml_llhs(raxml_treesearch_log)
 
 
 def read_iqtree_all_trees(
@@ -238,6 +244,7 @@ def create_Run(
         raxml_best_llh=get_best_raxml_llh(raxml_treesearch_log_file_path),
         iqtree_best_llh=get_best_iqtree_llh(iqtree_test_log_file_path),
         raxml_best_tree=read_raxml_best_tree(best_raxml_tree_file_path),
+        raxml_seeds=get_all_raxml_seeds(raxml_treesearch_log_file_path),
         raxml_all_trees=read_raxml_all_trees(all_raxml_trees_file_path),
         raxml_llhs_all_trees=read_raxml_llhs_all_trees(raxml_treesearch_log_file_path),
         raxml_treesearch_elapsed_time=get_raxml_treesearch_elapsed_time(

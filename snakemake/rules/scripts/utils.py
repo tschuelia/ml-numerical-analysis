@@ -16,26 +16,59 @@ def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
     return data[param_identifier]
 
 
+def _get_value_from_line(line: str, search_string: str) -> float:
+    line = line.strip()
+    if search_string in line:
+        _, value = line.rsplit(" ", 1)
+        return float(value)
+
+    raise ValueError(
+        f'The given line "{line}" does not contain the search string "{search_string}".'
+    )
+
+
 def _get_value_from_file(input_file: FilePath, search_string: str) -> float:
     with open(input_file) as f:
         lines = f.readlines()
 
     for l in lines:
-        l = l.strip()
         if search_string in l:
-            # a line looks for example like this
-            # Number of unique topologies in this tree set: 100
-            _, value = l.rsplit(" ", 1)
-            return float(value)
+            return _get_value_from_line(l, search_string)
 
     raise ValueError(
         f'The given input file {input_file} does not contain the search string "{search_string}".'
     )
 
 
-def get_best_raxml_llh(raxml_file: FilePath) -> float:
+def get_all_raxml_seeds(raxml_file: FilePath) -> TreeIndexed[int]:
+    with open(raxml_file) as f:
+        content = f.readlines()
+
+    STR = "random seed:"
+    seeds = []
+    for line in content:
+        if STR in line:
+            seeds.append(_get_value_from_line(line, STR))
+
+    return seeds
+
+
+def get_all_raxml_llhs(raxml_file: FilePath) -> TreeIndexed[float]:
+    with open(raxml_file) as f:
+        content = f.readlines()
+
     STR = "Final LogLikelihood:"
-    return _get_value_from_file(raxml_file, STR)
+    llhs = []
+    for line in content:
+        if STR in line:
+            llhs.append(_get_value_from_line(line, STR))
+
+    return llhs
+
+
+def get_best_raxml_llh(raxml_file: FilePath) -> float:
+    all_llhs = get_all_raxml_llhs(raxml_file)
+    return max(all_llhs)
 
 
 def get_best_iqtree_llh(iqtree_file: FilePath) -> float:
@@ -58,26 +91,11 @@ def get_raxml_num_unique_topos(log_file: FilePath) -> int:
     return _get_value_from_file(log_file, STR)
 
 
-def get_raxml_lls_for_all_trees(log_file: FilePath) -> TreeIndexed[float]:
-    with open(log_file) as f:
-        content = f.readlines()
-
-    line_regex = regex.compile(
-        r".*logLikelihood\:\s+([-+]?\d+(?:\.\d+)?(?:[e][-+]?\d+)?)"
-    )
-
-    llhs = []
-    for line in content:
-        m = regex.search(line_regex, line.strip())
-        if m:
-            llhs.append(float(m.groups()[0]))
-
-    return llhs
-
-
 def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> float:
     with open(log_file) as f:
         content = f.readlines()
+
+    all_times = []
 
     for line in content:
         if not "Elapsed time:" in line:
@@ -85,11 +103,14 @@ def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> float:
 
         # correct line looks like this: "Elapsed time: 1976.056 seconds"
         value = line.split(" ")[2]
-        return float(value)
+        all_times.append(float(value))
 
-    raise ValueError(
-        f"The given input file {log_file} does not contain the elapsed time."
-    )
+    if not all_times:
+        raise ValueError(
+            f"The given input file {log_file} does not contain the elapsed time."
+        )
+
+    return sum(all_times)
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:

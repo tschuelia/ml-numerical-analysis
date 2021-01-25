@@ -22,6 +22,7 @@ class Run(P.Model):
 class Tree(P.Model):
     run = P.ForeignKeyField(Run)
     raxml_tree = P.CharField()
+    raxml_seed = P.IntegerField()
     iqtree_tree = P.CharField()
     raxml_llh = P.FloatField()
     iqtree_llh = P.FloatField()

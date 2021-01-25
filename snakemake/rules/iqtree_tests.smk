@@ -1,8 +1,8 @@
 rule perform_iqtree_tests:
     input: 
         msa         = config["data"]["input"],
-        ml_trees    = f"{full_file_path_raxml}.raxml.mlTrees",
-        best_tree   = f"{full_file_path_raxml}.raxml.bestTree",
+        all_trees    = f"{full_file_path_raxml}.allTreesCollected",
+        best_tree   = f"{full_file_path_raxml}.bestTreeOfRun",
     output:
         summary     = f"{full_file_path_iqtree}.iqtree",
         best_iqtree = f"{full_file_path_iqtree}.treefile",
@@ -19,7 +19,7 @@ rule perform_iqtree_tests:
         "-s {input.msa} "
         "-m {params.model} "
         "-pre {params.prefix} "
-        "-z {input.ml_trees} "
+        "-z {input.all_trees} "
         "-te {input.best_tree} "
         "-n 0 "
         "-zb 10000 "

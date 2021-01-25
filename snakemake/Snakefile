@@ -4,17 +4,26 @@ outdir          = config["data"]["outdir"]
 blmin_opts      = config["parameters"]["blmin"]
 blmax_opts      = config["parameters"]["blmax"]
 
+num_pars_trees = config["parameters"]["raxml-ng"]["num_pars_trees"]
+num_rand_trees = config["parameters"]["raxml-ng"]["num_rand_trees"]
+pars_seeds = list(range(num_pars_trees))
+rand_seeds = list(range(num_pars_trees, num_pars_trees + num_rand_trees))
+
 raxml_command   = config["parameters"]["raxml-ng"]["command"]
 iqtree_command  = config["parameters"]["iqtree"]["command"]
 
 
 #TODO: auto generate the filenames based on the config file
 file_name       = "blmin_{blmin}_blmax_{blmax}"
+file_name_pars  = "pars_seed_{seed}_" + file_name
+file_name_rand  = "rand_seed_{seed}_" + file_name
 base_dir        = "result_blmin_{blmin}_blmax_{blmax}/"
 full_dir        = "{outdir}/" + base_dir
 
-full_dir_raxml          = full_dir + "raxml-ng/"
-full_file_path_raxml    = full_dir_raxml + file_name
+full_dir_raxml              = full_dir + "raxml-ng/"
+full_file_path_raxml        = full_dir_raxml + file_name
+full_file_path_raxml_pars   = full_dir_raxml  + file_name_pars
+full_file_path_raxml_rand   = full_dir_raxml + file_name_rand
 
 full_dir_iqtree         = full_dir + "iqtree/"
 full_file_path_iqtree   = full_dir_iqtree + file_name
@@ -25,21 +34,39 @@ rule all:
         # parameter settings for each run
         expand(f"{full_dir}parameters.json", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # best Tree and its model
-        expand(f"{full_file_path_raxml}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        expand(f"{full_file_path_raxml}.raxml.bestModel", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        # tree of each iteration, its model and its log file
+        expand(f"{full_file_path_raxml_pars}.raxml.bestTree", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml_rand}.raxml.bestTree", seed=rand_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        
+        expand(f"{full_file_path_raxml_pars}.raxml.bestModel", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml_rand}.raxml.bestModel", seed=rand_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # all trees
-        expand(f"{full_file_path_raxml}.raxml.mlTrees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml_pars}.raxml.treesearch.log", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml_rand}.raxml.treesearch.log", seed=rand_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # pairwise rf distances for all trees found for one combination of parameters
+        # all infered trees for one combination of parameters collected in a single file
+        expand(f"{full_file_path_raxml}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # all logs for one run
+        expand(f"{full_file_path_raxml}.allTreesearchLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # best tree per run
+        expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # pairwise rf distances for all infered trees for one combination of parameters
         expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_raxml}.raxml.rfDistances.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # pairwise rf distances for all trees
-        expand("{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
+        # all best trees in one file
+        expand(f"{outdir}/bestTreesCollected", outdir=outdir),
 
-        # iqtree significance test results
+        # pairwise rf distances for all best trees
+        expand(f"{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
+
+        # iqtree significance test results, trees and log file
         expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_iqtree}.trees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_iqtree}.iqtree_tests.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         expand(f"{outdir}/results.sqlite3", outdir=outdir),
         
@@ -47,9 +74,6 @@ rule all:
 rule save_parameter_settings_in_file:
     output:
         params = f"{full_dir}parameters.json"
-    resources:
-        mem_mb=1000, # 1GB (in MB)
-        runtime=60 # 1 hour (in minutes)
     params:
         num_pars_trees  = config["parameters"]["raxml-ng"]["num_pars_trees"],
         num_rand_trees  = config["parameters"]["raxml-ng"]["num_rand_trees"],

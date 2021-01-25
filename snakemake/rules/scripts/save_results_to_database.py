@@ -63,6 +63,7 @@ for run in run_python_objects:
         tree_values["iqtree_tree"] = run.get_iqtree_tree_for_tree_index(i)
         tree_values["raxml_llh"] = run.get_raxml_llh_for_tree_index(i)
         tree_values["iqtree_llh"] = run.get_iqtree_llh_for_tree_index(i)
+        tree_values["raxml_seed"] = run.get_raxml_seed_for_tree_index(i)
 
         is_best = run.tree_for_index_is_best(i)
         tree_values["is_best"] = is_best
