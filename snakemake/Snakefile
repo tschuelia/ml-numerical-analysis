@@ -78,9 +78,11 @@ rule all:
 
         # all best trees in one file
         expand(f"{outdir}/bestTreesCollected", outdir=outdir),
+        expand(f"{outdir}/bestEvalTreesCollected", outdir=outdir),
 
         # pairwise rf distances for all best trees
         expand(f"{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
+        expand(f"{outdir}/bestEvalTrees.raxml.rfDistances", outdir=outdir),
 
         # iqtree significance test results, trees and log file
         expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),

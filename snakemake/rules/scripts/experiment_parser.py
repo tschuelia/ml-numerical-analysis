@@ -12,7 +12,9 @@ from utils import (
     get_all_raxml_llhs,
     get_raxml_num_unique_topos,
     get_raxml_rel_rf_distance,
+    get_raxml_run_param_values_from_file,
     get_raxml_treesearch_elapsed_time,
+    get_raxml_treesearch_elapsed_time_entire_run,
 )
 
 
@@ -27,10 +29,17 @@ class Run:
         iqtree_best_llh: float,
         raxml_best_eval_llh: float,
         raxml_best_tree: Newick,
+        raxml_best_eval_tree: Newick,
         raxml_seeds: TreeIndexed[int],
         raxml_all_trees: TreeIndexed[Newick],
         raxml_llhs_all_trees: TreeIndexed[float],
         raxml_treesearch_elapsed_time: float,
+        raxml_treesearch_elapsed_time_per_tree: TreeIndexed[float],
+        raxml_all_eval_trees: TreeIndexed[Newick],
+        raxml_llhs_all_eval_trees: TreeIndexed[float],
+        raxml_eval_blmins: TreeIndexed[float],
+        raxml_eval_blmaxs: TreeIndexed[float],
+        raxml_treesearch_elapsed_time_per_eval_tree: TreeIndexed[float],
         iqtree_all_trees: TreeIndexed[Newick],
         iqtree_results: TreeIndexed[IqTreeMetrics],
         average_absolute_rf_distance: float,
@@ -46,10 +55,21 @@ class Run:
         self.iqtree_best_llh = iqtree_best_llh
         self.raxml_best_eval_llh = raxml_best_eval_llh
         self.raxml_best_tree = raxml_best_tree
+        self.raxml_best_eval_tree = raxml_best_eval_tree
         self.raxml_seeds = raxml_seeds
         self.raxml_all_trees = raxml_all_trees
         self.raxml_llhs_all_trees = raxml_llhs_all_trees
         self.raxml_treesearch_elapsed_time = raxml_treesearch_elapsed_time
+        self.raxml_treesearch_elapsed_time_per_tree = (
+            raxml_treesearch_elapsed_time_per_tree
+        )
+        self.raxml_all_eval_trees = raxml_all_eval_trees
+        self.raxml_eval_blmins = raxml_eval_blmins
+        self.raxml_eval_blmaxs = raxml_eval_blmaxs
+        self.raxml_llhs_all_eval_trees = raxml_llhs_all_eval_trees
+        self.raxml_treesearch_elapsed_time_per_eval_tree = (
+            raxml_treesearch_elapsed_time_per_eval_tree
+        )
         self.iqtree_all_trees = iqtree_all_trees
         self.iqtree_results = iqtree_results
         self.average_absolute_rf_distance = average_absolute_rf_distance
@@ -90,17 +110,40 @@ class Run:
     def get_num_of_trees(self) -> int:
         return len(self.raxml_all_trees)
 
+    def get_num_of_eval_trees(self) -> int:
+        return len(self.raxml_all_eval_trees)
+
     def get_raxml_tree_for_tree_index(self, i: TreeIndex) -> Newick:
         return self.raxml_all_trees[i]
 
     def get_iqtree_tree_for_tree_index(self, i: TreeIndex) -> Newick:
         return self.iqtree_all_trees[i]
 
+    def get_raxml_eval_tree_for_tree_index(self, i: TreeIndex) -> Newick:
+        return self.raxml_all_eval_trees[i]
+
     def get_raxml_llh_for_tree_index(self, i: TreeIndex) -> float:
         return self.raxml_llhs_all_trees[i]
 
+    def get_raxml_eval_llh_for_tree_index(self, i: TreeIndex) -> float:
+        return self.raxml_llhs_all_eval_trees[i]
+
+    def get_raxml_eval_blmin_for_tree_index(self, i: TreeIndex) -> float:
+        return self.raxml_eval_blmins[i]
+
+    def get_raxml_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
+        return self.raxml_eval_blmaxs[i]
+
     def get_raxml_treesearch_elapsed_time(self) -> float:
         return self.raxml_treesearch_elapsed_time
+
+    def get_raxml_treesearch_elapsed_time_for_tree_index(self, i: TreeIndex) -> float:
+        return self.raxml_treesearch_elapsed_time_per_tree[i]
+
+    def get_raxml_treesearch_elapsed_time_for_eval_tree_index(
+        self, i: TreeIndex
+    ) -> float:
+        return self.raxml_treesearch_elapsed_time_per_eval_tree[i]
 
     def get_iqtree_llh_for_tree_index(self, i: TreeIndex) -> float:
         results_for_tree_index = self.iqtree_results[i]
@@ -108,6 +151,9 @@ class Run:
 
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_raxml_tree_for_tree_index(i) == self.raxml_best_tree
+
+    def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
+        return self.get_raxml_eval_tree_for_tree_index(i) == self.raxml_best_eval_tree
 
     def get_raxml_seed_for_tree_index(self, i: TreeIndex) -> bool:
         return self.raxml_seeds[i]
@@ -136,23 +182,44 @@ class Experiment:
         self,
         runs: RunIndexed[Run],
         best_trees: RunIndexed[Newick],
+        best_eval_trees: RunIndexed[Newick],
         rfdist_best_trees: RunRunIndexed,
+        rfdist_best_eval_trees: RunRunIndexed,
     ):
         self.runs = runs
         self.best_trees = best_trees
+        self.best_eval_trees = best_eval_trees
         self.rfdist_best_trees = rfdist_best_trees
+        self.rfdist_best_eval_trees = rfdist_best_eval_trees
 
-    def get_best_tree_for_run_index(self, i: RunIndex):
+    def get_best_tree_for_run_index(self, i: RunIndex) -> Newick:
         return self.best_trees[i]
 
-    def get_plain_rfdistance_for_trees(self, run_indices: Tuple[RunIndex, RunIndex]):
+    def get_best_eval_tree_for_run_index(self, i: RunIndex) -> Newick:
+        return self.best_eval_trees[i]
+
+    def get_plain_rfdistance_for_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
         rf_dist = self.rfdist_best_trees[run_indices]
         return rf_dist[0]
 
     def get_normalized_rfdistance_for_trees(
         self, run_indices: Tuple[RunIndex, RunIndex]
-    ):
+    ) -> float:
         rf_dist = self.rfdist_best_trees[run_indices]
+        return rf_dist[1]
+
+    def get_plain_rfdistance_for_eval_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        rf_dist = self.rfdist_best_eval_trees[run_indices]
+        return rf_dist[0]
+
+    def get_normalized_rfdistance_for_eval_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        rf_dist = self.rfdist_best_eval_trees[run_indices]
         return rf_dist[1]
 
 
@@ -230,11 +297,14 @@ def read_rfdistances_best_trees(
 
 
 def create_Run(
+    raxml_command: str,
     parameter_file_path: FilePath,
     best_raxml_tree_file_path: FilePath,
+    best_raxml_eval_tree_file_path: FilePath,
     all_raxml_trees_file_path: FilePath,
     raxml_treesearch_log_file_path: FilePath,
     raxml_eval_log_file_path: FilePath,
+    all_raxml_eval_trees_file_path: FilePath,
     all_iqtree_trees_file_path: FilePath,
     iqtree_results_file_path: FilePath,
     iqtree_test_log_file_path: FilePath,
@@ -251,11 +321,26 @@ def create_Run(
         iqtree_best_llh=get_best_iqtree_llh(iqtree_test_log_file_path),
         raxml_best_eval_llh=get_best_raxml_llh(raxml_eval_log_file_path),
         raxml_best_tree=read_raxml_best_tree(best_raxml_tree_file_path),
+        raxml_best_eval_tree=read_raxml_best_tree(best_raxml_eval_tree_file_path),
         raxml_seeds=get_all_raxml_seeds(raxml_treesearch_log_file_path),
         raxml_all_trees=read_raxml_all_trees(all_raxml_trees_file_path),
         raxml_llhs_all_trees=read_raxml_llhs_all_trees(raxml_treesearch_log_file_path),
-        raxml_treesearch_elapsed_time=get_raxml_treesearch_elapsed_time(
+        raxml_treesearch_elapsed_time=get_raxml_treesearch_elapsed_time_entire_run(
             raxml_treesearch_log_file_path
+        ),
+        raxml_treesearch_elapsed_time_per_tree=get_raxml_treesearch_elapsed_time(
+            raxml_treesearch_log_file_path
+        ),
+        raxml_all_eval_trees=read_raxml_all_trees(all_raxml_eval_trees_file_path),
+        raxml_llhs_all_eval_trees=read_raxml_llhs_all_trees(raxml_eval_log_file_path),
+        raxml_eval_blmins=get_raxml_run_param_values_from_file(
+            raxml_eval_log_file_path, raxml_command, "blmin"
+        ),
+        raxml_eval_blmaxs=get_raxml_run_param_values_from_file(
+            raxml_eval_log_file_path, raxml_command, "blmax"
+        ),
+        raxml_treesearch_elapsed_time_per_eval_tree=get_raxml_treesearch_elapsed_time(
+            raxml_eval_log_file_path
         ),
         iqtree_all_trees=read_iqtree_all_trees(all_iqtree_trees_file_path),
         iqtree_results=read_iqtree_results(iqtree_results_file_path),
@@ -271,10 +356,16 @@ def create_Run(
 
 
 def create_Experiment(
-    runs: List[Run], best_trees_path: FilePath, rfdist_best_trees_path: FilePath
+    runs: List[Run],
+    best_trees_path: FilePath,
+    best_eval_trees_path: FilePath,
+    rfdist_best_trees_path: FilePath,
+    rfdist_best_eval_trees_path: FilePath,
 ):
     return Experiment(
-        runs,
-        read_best_trees_collected(best_trees_path),
-        read_rfdistances_best_trees(rfdist_best_trees_path),
+        runs=runs,
+        best_trees=read_best_trees_collected(best_trees_path),
+        best_eval_trees=read_best_trees_collected(best_eval_trees_path),
+        rfdist_best_trees=read_rfdistances_best_trees(rfdist_best_trees_path),
+        rfdist_best_eval_trees=read_rfdistances_best_trees(rfdist_best_eval_trees_path),
     )

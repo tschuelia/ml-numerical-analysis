@@ -16,6 +16,29 @@ def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
     return data[param_identifier]
 
 
+def get_raxml_run_param_value(line: str, param_identifier: str) -> float:
+    raxml_run_param_regex = regex.compile(
+        rf"/*--{param_identifier}\s+(\d+(?:\.\d+)?(?:[e][-+]?\d+)?)/*"
+    )
+    value = regex.search(raxml_run_param_regex, line).groups()[0]
+    return float(value)
+
+
+def get_raxml_run_param_values_from_file(
+    raxml_log: FilePath, raxml_command: str, param_identifier: str
+) -> float:
+    with open(raxml_log) as f:
+        lines = f.readlines()
+
+    values = []
+
+    for l in lines:
+        if l.startswith(raxml_command):
+            values.append(get_raxml_run_param_value(l, param_identifier))
+
+    return values
+
+
 def _get_value_from_line(line: str, search_string: str) -> float:
     line = line.strip()
     if search_string in line:
@@ -27,7 +50,7 @@ def _get_value_from_line(line: str, search_string: str) -> float:
     )
 
 
-def _get_value_from_file(input_file: FilePath, search_string: str) -> float:
+def _get_single_value_from_file(input_file: FilePath, search_string: str) -> float:
     with open(input_file) as f:
         lines = f.readlines()
 
@@ -40,30 +63,28 @@ def _get_value_from_file(input_file: FilePath, search_string: str) -> float:
     )
 
 
+def _get_multiple_values_from_file(
+    input_file: FilePath, search_string: str
+) -> List[float]:
+    with open(input_file) as f:
+        lines = f.readlines()
+
+    values = []
+    for l in lines:
+        if search_string in l:
+            values.append(_get_value_from_line(l, search_string))
+
+    return values
+
+
 def get_all_raxml_seeds(raxml_file: FilePath) -> TreeIndexed[int]:
-    with open(raxml_file) as f:
-        content = f.readlines()
-
     STR = "random seed:"
-    seeds = []
-    for line in content:
-        if STR in line:
-            seeds.append(_get_value_from_line(line, STR))
-
-    return seeds
+    return _get_multiple_values_from_file(raxml_file, STR)
 
 
 def get_all_raxml_llhs(raxml_file: FilePath) -> TreeIndexed[float]:
-    with open(raxml_file) as f:
-        content = f.readlines()
-
     STR = "Final LogLikelihood:"
-    llhs = []
-    for line in content:
-        if STR in line:
-            llhs.append(_get_value_from_line(line, STR))
-
-    return llhs
+    return _get_multiple_values_from_file(raxml_file, STR)
 
 
 def get_best_raxml_llh(raxml_file: FilePath) -> float:
@@ -73,25 +94,25 @@ def get_best_raxml_llh(raxml_file: FilePath) -> float:
 
 def get_best_iqtree_llh(iqtree_file: FilePath) -> float:
     STR = "BEST SCORE FOUND :"
-    return _get_value_from_file(iqtree_file, STR)
+    return _get_single_value_from_file(iqtree_file, STR)
 
 
 def get_raxml_abs_rf_distance(log_file: FilePath) -> float:
     STR = "Average absolute RF distance in this tree set:"
-    return _get_value_from_file(log_file, STR)
+    return _get_single_value_from_file(log_file, STR)
 
 
 def get_raxml_rel_rf_distance(log_file: FilePath) -> float:
     STR = "Average relative RF distance in this tree set:"
-    return _get_value_from_file(log_file, STR)
+    return _get_single_value_from_file(log_file, STR)
 
 
 def get_raxml_num_unique_topos(log_file: FilePath) -> int:
     STR = "Number of unique topologies in this tree set:"
-    return _get_value_from_file(log_file, STR)
+    return _get_single_value_from_file(log_file, STR)
 
 
-def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> float:
+def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
     with open(log_file) as f:
         content = f.readlines()
 
@@ -110,7 +131,11 @@ def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> float:
             f"The given input file {log_file} does not contain the elapsed time."
         )
 
-    return sum(all_times)
+    return all_times
+
+
+def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
+    return sum(get_raxml_treesearch_elapsed_time(log_file))
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:

@@ -97,8 +97,8 @@ rule re_eval_best_tree:
         "--msa {input.msa} "
         "--model {params.model} "
         "--prefix {params.prefix} "
-        "--blmin {wildcards.blmin} "
-        "--blmax {wildcards.blmax} "
+        "--blmin {wildcards.blmin_eval} "
+        "--blmax {wildcards.blmax_eval} "
         "--threads {params.threads} "
         "> {log} "
 

@@ -3,7 +3,12 @@ import peewee as P
 db = P.SqliteDatabase(None)
 
 
-class Run(P.Model):
+class BaseModel(P.Model):
+    class Meta:
+        database = db
+
+
+class Run(BaseModel):
     num_raxml_pars_trees = P.IntegerField()
     num_raxml_rand_trees = P.IntegerField()
     blmin = P.FloatField()
@@ -16,18 +21,19 @@ class Run(P.Model):
     raxml_best_eval_llh = P.FloatField()
     raxml_treesearch_elapsed_time = P.FloatField()
 
-    class Meta:
-        database = db
 
-
-class Tree(P.Model):
-    run = P.ForeignKeyField(Run)
+class BaseTree(BaseModel):
     raxml_tree = P.CharField()
+    raxml_llh = P.FloatField()
+    is_best = P.BooleanField()
+    raxml_treesearch_elapsed_time = P.FloatField()
+
+
+class Tree(BaseTree):
+    run = P.ForeignKeyField(Run)
     raxml_seed = P.IntegerField()
     iqtree_tree = P.CharField()
-    raxml_llh = P.FloatField()
     iqtree_llh = P.FloatField()
-    is_best = P.BooleanField()
 
     # the following are the results of the iqtree run
     # achieved by comparing with best raxml tree
@@ -61,15 +67,23 @@ class Tree(P.Model):
     pAU = P.FloatField(null=True)
     pAU_significant = P.BooleanField(null=True)
 
-    class Meta:
-        database = db
+
+class EvalTree(BaseTree):
+    startTree = P.ForeignKeyField(Tree)
+    eval_blmin = P.FloatField()
+    eval_blmax = P.FloatField()
 
 
-class RFDistance(P.Model):
-    tree1 = P.ForeignKeyField(Tree)
-    tree2 = P.ForeignKeyField(Tree)
+class BaseRFDistance(BaseModel):
     plain_rf_distance = P.FloatField()
     normalized_rf_distance = P.FloatField()
 
-    class Meta:
-        database = db
+
+class RFDistanceTree(BaseRFDistance):
+    tree1 = P.ForeignKeyField(Tree)
+    tree2 = P.ForeignKeyField(Tree)
+
+
+class RFDistanceEvalTree(BaseRFDistance):
+    tree1 = P.ForeignKeyField(EvalTree)
+    tree2 = P.ForeignKeyField(EvalTree)

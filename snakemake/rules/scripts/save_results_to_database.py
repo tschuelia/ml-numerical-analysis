@@ -1,19 +1,24 @@
 import database as db
 from experiment_parser import create_Run, create_Experiment
 
+
 # initialize empty database
 db.db.init(snakemake.output.database)
 db.db.connect()
-db.db.create_tables([db.Run, db.Tree, db.RFDistance])
+db.db.create_tables(
+    [db.Run, db.Tree, db.EvalTree, db.RFDistanceTree, db.RFDistanceEvalTree]
+)
 
 # snakemake.input.[something] is a list of filepaths
 params_file_paths = snakemake.input.params_file
 best_tree_file_paths = snakemake.input.best_tree_raxml
+best_eval_tree_raxml_file_paths = snakemake.input.best_eval_tree_raxml
 all_trees_raxml_file_paths = snakemake.input.all_trees_raxml
 iqtree_results_file_paths = snakemake.input.iqtree_results
 iqtree_trees_file_paths = snakemake.input.iqtree_trees
 raxml_treesearch_log_file_paths = snakemake.input.raxml_treesearch_log
 raxml_eval_log_file_paths = snakemake.input.raxml_eval_log
+raxml_eval_trees_file_paths = snakemake.input.raxml_eval_trees
 iqtree_test_log_file_paths = snakemake.input.iqtree_test_log
 rfDistances_log_file_path = snakemake.input.rfDistances_log
 rfDistance_path = snakemake.input.rfDistances
@@ -21,6 +26,8 @@ rfDistance_path = snakemake.input.rfDistances
 # these are single files only
 rfDistances_best_trees = snakemake.input.rfDistances_best_trees[0]
 best_trees_collected = snakemake.input.best_trees_collected[0]
+best_eval_trees_collected = snakemake.input.best_eval_trees_collected[0]
+rfDistances_best_eval_trees = snakemake.input.rfDistances_best_eval_trees[0]
 
 num_runs = len(best_tree_file_paths)
 
@@ -29,11 +36,14 @@ run_python_objects = []
 for i in range(num_runs):
     run_python_objects.append(
         create_Run(
+            raxml_command=snakemake.config["parameters"]["raxml-ng"]["command"],
             parameter_file_path=params_file_paths[i],
             best_raxml_tree_file_path=best_tree_file_paths[i],
+            best_raxml_eval_tree_file_path=best_eval_tree_raxml_file_paths[i],
             all_raxml_trees_file_path=all_trees_raxml_file_paths[i],
             raxml_treesearch_log_file_path=raxml_treesearch_log_file_paths[i],
             raxml_eval_log_file_path=raxml_eval_log_file_paths[i],
+            all_raxml_eval_trees_file_path=raxml_eval_trees_file_paths[i],
             all_iqtree_trees_file_path=iqtree_trees_file_paths[i],
             iqtree_results_file_path=iqtree_results_file_paths[i],
             iqtree_test_log_file_path=iqtree_test_log_file_paths[i],
@@ -63,6 +73,9 @@ for run in run_python_objects:
         tree_values = {}
         tree_values["run"] = run.db_run_object
         tree_values["raxml_tree"] = run.get_raxml_tree_for_tree_index(i)
+        tree_values[
+            "raxml_treesearch_elapsed_time"
+        ] = run.get_raxml_treesearch_elapsed_time_for_tree_index(i)
         tree_values["iqtree_tree"] = run.get_iqtree_tree_for_tree_index(i)
         tree_values["raxml_llh"] = run.get_raxml_llh_for_tree_index(i)
         tree_values["iqtree_llh"] = run.get_iqtree_llh_for_tree_index(i)
@@ -128,12 +141,31 @@ for run in run_python_objects:
             insert_into_rfdistance.append(rf_dist_values)
 
         with db.db.atomic():
-            db.RFDistance.insert_many(insert_into_rfdistance).execute()
+            db.RFDistanceTree.insert_many(insert_into_rfdistance).execute()
+
+    # create EvalTrees
+    for t in range(run.get_num_of_eval_trees()):
+        is_best = run.eval_tree_for_index_is_best(t)
+        eval_tree = db.EvalTree.create(
+            startTree=run.db_best_tree,
+            eval_blmin=run.get_raxml_eval_blmin_for_tree_index(t),
+            eval_blmax=run.get_raxml_eval_blmax_for_tree_index(t),
+            raxml_tree=run.get_raxml_eval_tree_for_tree_index(t),
+            raxml_llh=run.get_raxml_eval_llh_for_tree_index(t),
+            is_best=is_best,
+            raxml_treesearch_elapsed_time=run.get_raxml_treesearch_elapsed_time_for_eval_tree_index(
+                t
+            ),
+        )
+        if is_best:
+            run.db_best_eval_tree = eval_tree
 
 experiment = create_Experiment(
     runs=run_python_objects,
     best_trees_path=best_trees_collected,
+    best_eval_trees_path=best_eval_trees_collected,
     rfdist_best_trees_path=rfDistances_best_trees,
+    rfdist_best_eval_trees_path=rfDistances_best_eval_trees,
 )
 
 # create rfdistance db objects for best trees
@@ -154,4 +186,25 @@ for i in range(len(run_python_objects)):
         insert_into_rfdistance.append(rf_dist_values)
 
 with db.db.atomic():
-    db.RFDistance.insert_many(insert_into_rfdistance).execute()
+    db.RFDistanceTree.insert_many(insert_into_rfdistance).execute()
+
+# create rfdistance db objects for best eval trees
+insert_into_rfdistance = []
+for i in range(len(run_python_objects)):
+    tree1 = run_python_objects[i].db_best_eval_tree
+    for j in range(i + 1, len(run_python_objects)):
+        rf_dist_values = {}
+        rf_dist_values["tree1"] = tree1
+        rf_dist_values["tree2"] = run_python_objects[j].db_best_eval_tree
+        rf_dist_values[
+            "plain_rf_distance"
+        ] = experiment.get_plain_rfdistance_for_eval_trees((i, j))
+        rf_dist_values[
+            "normalized_rf_distance"
+        ] = experiment.get_normalized_rfdistance_for_eval_trees((i, j))
+
+        insert_into_rfdistance.append(rf_dist_values)
+
+print("foo", insert_into_rfdistance)
+with db.db.atomic():
+    db.RFDistanceEvalTree.insert_many(insert_into_rfdistance).execute()
