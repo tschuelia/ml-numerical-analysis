@@ -312,47 +312,35 @@ def create_Run(
     raxml_rfdistance_logfile_path: FilePath,
 ) -> Run:
 
+    # fmt: off
     return Run(
-        num_raxml_pars_trees=get_parameter_value(parameter_file_path, "num_pars_trees"),
-        num_raxml_rand_trees=get_parameter_value(parameter_file_path, "num_rand_trees"),
-        blmin=get_parameter_value(parameter_file_path, "blmin"),
-        blmax=get_parameter_value(parameter_file_path, "blmax"),
-        raxml_best_llh=get_best_raxml_llh(raxml_treesearch_log_file_path),
-        iqtree_best_llh=get_best_iqtree_llh(iqtree_test_log_file_path),
-        raxml_best_eval_llh=get_best_raxml_llh(raxml_eval_log_file_path),
-        raxml_best_tree=read_raxml_best_tree(best_raxml_tree_file_path),
-        raxml_best_eval_tree=read_raxml_best_tree(best_raxml_eval_tree_file_path),
-        raxml_seeds=get_all_raxml_seeds(raxml_treesearch_log_file_path),
-        raxml_all_trees=read_raxml_all_trees(all_raxml_trees_file_path),
-        raxml_llhs_all_trees=read_raxml_llhs_all_trees(raxml_treesearch_log_file_path),
-        raxml_treesearch_elapsed_time=get_raxml_treesearch_elapsed_time_entire_run(
-            raxml_treesearch_log_file_path
-        ),
-        raxml_treesearch_elapsed_time_per_tree=get_raxml_treesearch_elapsed_time(
-            raxml_treesearch_log_file_path
-        ),
-        raxml_all_eval_trees=read_raxml_all_trees(all_raxml_eval_trees_file_path),
-        raxml_llhs_all_eval_trees=read_raxml_llhs_all_trees(raxml_eval_log_file_path),
-        raxml_eval_blmins=get_raxml_run_param_values_from_file(
-            raxml_eval_log_file_path, raxml_command, "blmin"
-        ),
-        raxml_eval_blmaxs=get_raxml_run_param_values_from_file(
-            raxml_eval_log_file_path, raxml_command, "blmax"
-        ),
-        raxml_treesearch_elapsed_time_per_eval_tree=get_raxml_treesearch_elapsed_time(
-            raxml_eval_log_file_path
-        ),
-        iqtree_all_trees=read_iqtree_all_trees(all_iqtree_trees_file_path),
-        iqtree_results=read_iqtree_results(iqtree_results_file_path),
-        average_absolute_rf_distance=get_raxml_abs_rf_distance(
-            raxml_rfdistance_logfile_path
-        ),
-        average_relative_rf_distance=get_raxml_rel_rf_distance(
-            raxml_rfdistance_logfile_path
-        ),
-        num_unique_topos=get_raxml_num_unique_topos(raxml_rfdistance_logfile_path),
-        rfdist_all_trees=read_rfdistances_all_trees(rfdistances_file_path),
+        num_raxml_pars_trees    = get_parameter_value(parameter_file_path, "num_pars_trees"),
+        num_raxml_rand_trees    = get_parameter_value(parameter_file_path, "num_rand_trees"),
+        blmin                   = get_parameter_value(parameter_file_path, "blmin"),
+        blmax                   = get_parameter_value(parameter_file_path, "blmax"),
+        raxml_best_llh          = get_best_raxml_llh(raxml_treesearch_log_file_path),
+        iqtree_best_llh         = get_best_iqtree_llh(iqtree_test_log_file_path),
+        raxml_best_eval_llh     = get_best_raxml_llh(raxml_eval_log_file_path),
+        raxml_best_tree         = read_raxml_best_tree(best_raxml_tree_file_path),
+        raxml_best_eval_tree    = read_raxml_best_tree(best_raxml_eval_tree_file_path),
+        raxml_seeds             = get_all_raxml_seeds(raxml_treesearch_log_file_path),
+        raxml_all_trees         = read_raxml_all_trees(all_raxml_trees_file_path),
+        raxml_llhs_all_trees    = read_raxml_llhs_all_trees(raxml_treesearch_log_file_path),
+        raxml_treesearch_elapsed_time   = get_raxml_treesearch_elapsed_time_entire_run(raxml_treesearch_log_file_path),
+        raxml_treesearch_elapsed_time_per_tree = get_raxml_treesearch_elapsed_time(raxml_treesearch_log_file_path),
+        raxml_all_eval_trees        = read_raxml_all_trees(all_raxml_eval_trees_file_path),
+        raxml_llhs_all_eval_trees   = read_raxml_llhs_all_trees(raxml_eval_log_file_path),
+        raxml_eval_blmins           = get_raxml_run_param_values_from_file(raxml_eval_log_file_path, raxml_command, "blmin"),
+        raxml_eval_blmaxs           = get_raxml_run_param_values_from_file(raxml_eval_log_file_path, raxml_command, "blmax"),
+        raxml_treesearch_elapsed_time_per_eval_tree = get_raxml_treesearch_elapsed_time(raxml_eval_log_file_path),
+        iqtree_all_trees            = read_iqtree_all_trees(all_iqtree_trees_file_path),
+        iqtree_results              = read_iqtree_results(iqtree_results_file_path),
+        average_absolute_rf_distance = get_raxml_abs_rf_distance(raxml_rfdistance_logfile_path),
+        average_relative_rf_distance = get_raxml_rel_rf_distance(raxml_rfdistance_logfile_path),
+        num_unique_topos            = get_raxml_num_unique_topos(raxml_rfdistance_logfile_path),
+        rfdist_all_trees            = read_rfdistances_all_trees(rfdistances_file_path),
     )
+    # fmt: on
 
 
 def create_Experiment(
