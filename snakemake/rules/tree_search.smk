@@ -70,9 +70,59 @@ rule collect_all_logs:
 
 rule save_best_tree_to_file:
     input:
-        all_trees = rules.collect_all_trees.output.all_trees,
-        all_logs = rules.collect_all_logs.output.all_logs,
+        trees = rules.collect_all_trees.output.all_trees,
+        logs = rules.collect_all_logs.output.all_logs,
     output:
-        best_tree_of_run = f"{full_file_path_raxml}.bestTreeOfRun"
+        best_tree = f"{full_file_path_raxml}.bestTreeOfRun"
     script:
-        "scripts/save_best_tree_of_run.py"
+        "scripts/save_best_tree.py"
+
+rule re_eval_best_tree:
+    input:
+        msa                 = config["data"]["input"],
+        best_tree_of_run    = f"{full_file_path_raxml}.bestTreeOfRun"
+    output:
+        f"{full_file_path_raxml_eval}.raxml.log"
+        f"{full_file_path_raxml_eval}.raxml.bestTree"
+    params:
+        model           = config["parameters"]["model"]["raxml-ng"],
+        threads         = config["parameters"]["raxml-ng"]["threads"],
+        prefix          = full_file_path_raxml_eval,
+    log:
+        f"{full_file_path_raxml_eval}.raxml.eval.log"
+    shell:
+        "{raxml_command} "
+        "--eval "
+        "--tree {input.best_tree_of_run} "
+        "--msa {input.msa} "
+        "--model {params.model} "
+        "--prefix {params.prefix} "
+        "--blmin {wildcards.blmin} "
+        "--blmax {wildcards.blmax} "
+        "--threads {params.threads} "
+        "> {log} "
+
+rule collect_all_eval_trees:
+    input:
+        eval_trees = expand(f"{full_file_path_raxml_eval}.raxml.bestTree", blmin_eval=blmin_opts, blmax_eval=blmax_opts, allow_missing=True)
+    output:
+        all_eval_trees = f"{full_file_path_raxml}.allEvalTreesCollected"
+    shell:
+        "cat {input.eval_trees} > {output.all_eval_trees}"
+
+rule collect_all_eval_logs:
+    input:
+        eval_logs = expand(f"{full_file_path_raxml_eval}.raxml.eval.log", blmin_eval=blmin_opts, blmax_eval=blmax_opts, allow_missing=True)
+    output:
+        all_eval_logs = f"{full_file_path_raxml}.allEvalLogs"
+    shell:
+        "cat {input.eval_logs} > {output.all_eval_logs}"
+
+rule save_best_eval_tree_to_file:
+    input:
+        trees = rules.collect_all_eval_trees.output.all_eval_trees,
+        logs = rules.collect_all_eval_logs.output.all_eval_logs,
+    output:
+        best_tree = f"{full_file_path_raxml}.bestEvalTreeOfRun"
+    script:
+        "scripts/save_best_tree.py"

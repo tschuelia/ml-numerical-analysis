@@ -25,6 +25,7 @@ class Run:
         blmax: float,
         raxml_best_llh: float,
         iqtree_best_llh: float,
+        raxml_best_eval_llh: float,
         raxml_best_tree: Newick,
         raxml_seeds: TreeIndexed[int],
         raxml_all_trees: TreeIndexed[Newick],
@@ -43,6 +44,7 @@ class Run:
         self.blmax = blmax
         self.raxml_best_llh = raxml_best_llh
         self.iqtree_best_llh = iqtree_best_llh
+        self.raxml_best_eval_llh = raxml_best_eval_llh
         self.raxml_best_tree = raxml_best_tree
         self.raxml_seeds = raxml_seeds
         self.raxml_all_trees = raxml_all_trees
@@ -72,6 +74,9 @@ class Run:
 
     def get_best_iqtree_llh(self) -> float:
         return self.iqtree_best_llh
+
+    def get_best_raxml_eval_llh(self) -> float:
+        return self.raxml_best_eval_llh
 
     def get_average_absolute_rf_distance(self) -> float:
         return self.average_absolute_rf_distance
@@ -229,6 +234,7 @@ def create_Run(
     best_raxml_tree_file_path: FilePath,
     all_raxml_trees_file_path: FilePath,
     raxml_treesearch_log_file_path: FilePath,
+    raxml_eval_log_file_path: FilePath,
     all_iqtree_trees_file_path: FilePath,
     iqtree_results_file_path: FilePath,
     iqtree_test_log_file_path: FilePath,
@@ -243,6 +249,7 @@ def create_Run(
         blmax=get_parameter_value(parameter_file_path, "blmax"),
         raxml_best_llh=get_best_raxml_llh(raxml_treesearch_log_file_path),
         iqtree_best_llh=get_best_iqtree_llh(iqtree_test_log_file_path),
+        raxml_best_eval_llh=get_best_raxml_llh(raxml_eval_log_file_path),
         raxml_best_tree=read_raxml_best_tree(best_raxml_tree_file_path),
         raxml_seeds=get_all_raxml_seeds(raxml_treesearch_log_file_path),
         raxml_all_trees=read_raxml_all_trees(all_raxml_trees_file_path),

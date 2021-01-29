@@ -13,6 +13,7 @@ all_trees_raxml_file_paths = snakemake.input.all_trees_raxml
 iqtree_results_file_paths = snakemake.input.iqtree_results
 iqtree_trees_file_paths = snakemake.input.iqtree_trees
 raxml_treesearch_log_file_paths = snakemake.input.raxml_treesearch_log
+raxml_eval_log_file_paths = snakemake.input.raxml_eval_log
 iqtree_test_log_file_paths = snakemake.input.iqtree_test_log
 rfDistances_log_file_path = snakemake.input.rfDistances_log
 rfDistance_path = snakemake.input.rfDistances
@@ -32,6 +33,7 @@ for i in range(num_runs):
             best_raxml_tree_file_path=best_tree_file_paths[i],
             all_raxml_trees_file_path=all_trees_raxml_file_paths[i],
             raxml_treesearch_log_file_path=raxml_treesearch_log_file_paths[i],
+            raxml_eval_log_file_path=raxml_eval_log_file_paths[i],
             all_iqtree_trees_file_path=iqtree_trees_file_paths[i],
             iqtree_results_file_path=iqtree_results_file_paths[i],
             iqtree_test_log_file_path=iqtree_test_log_file_paths[i],
@@ -51,6 +53,7 @@ for run in run_python_objects:
         num_unique_topos=run.get_num_unique_topos(),
         raxml_best_llh=run.get_best_raxml_llh(),
         iqtree_best_llh=run.get_best_iqtree_llh(),
+        raxml_best_eval_llh=run.get_best_raxml_eval_llh(),
         raxml_treesearch_elapsed_time=run.get_raxml_treesearch_elapsed_time(),
     )
 

@@ -13,6 +13,7 @@ class Run(P.Model):
     num_unique_topos = P.IntegerField()
     raxml_best_llh = P.FloatField()
     iqtree_best_llh = P.FloatField()
+    raxml_best_eval_llh = P.FloatField()
     raxml_treesearch_elapsed_time = P.FloatField()
 
     class Meta:
