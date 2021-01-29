@@ -82,7 +82,7 @@ rule re_eval_best_tree:
         msa                 = config["data"]["input"],
         best_tree_of_run    = f"{full_file_path_raxml}.bestTreeOfRun"
     output:
-        f"{full_file_path_raxml_eval}.raxml.log"
+        f"{full_file_path_raxml_eval}.raxml.log",
         f"{full_file_path_raxml_eval}.raxml.bestTree"
     params:
         model           = config["parameters"]["model"]["raxml-ng"],

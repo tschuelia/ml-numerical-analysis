@@ -63,6 +63,7 @@ rule all:
 
         # re-evaluated best tree according to all params
         expand(f"{full_file_path_raxml_eval}.raxml.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
+        expand(f"{full_file_path_raxml_eval}.raxml.eval.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
         expand(f"{full_file_path_raxml_eval}.raxml.bestTree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
         
         expand(f"{full_file_path_raxml}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
