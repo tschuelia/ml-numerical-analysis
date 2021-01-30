@@ -205,6 +205,5 @@ for i in range(len(run_python_objects)):
 
         insert_into_rfdistance.append(rf_dist_values)
 
-print("foo", insert_into_rfdistance)
 with db.db.atomic():
     db.RFDistanceEvalTree.insert_many(insert_into_rfdistance).execute()
