@@ -50,34 +50,36 @@ rule raxml_rand_tree:
         "--tree rand{{1}} "
         "> {log} "
 
-rule collect_all_trees:
+rule collect_all_raxml_trees:
     input:
         pars_trees = expand(f"{full_file_path_raxml_pars}.raxml.bestTree", seed=pars_seeds, allow_missing=True),
         rand_trees = expand(f"{full_file_path_raxml_rand}.raxml.bestTree", seed=rand_seeds, allow_missing=True),
     output:
-        all_trees = f"{full_file_path_raxml}.allTreesCollected"
+        all_raxml_trees = f"{full_file_path_raxml}.allTreesCollected"
     shell:
-        "cat {input.pars_trees} {input.rand_trees} > {output.all_trees}"
+        "cat {input.pars_trees} {input.rand_trees} > {output.all_raxml_trees}"
 
-rule collect_all_logs:
+rule collect_all_raxml_logs:
     input:
         pars_trees_logs = expand(f"{full_file_path_raxml_pars}.raxml.treesearch.log", seed=pars_seeds, allow_missing=True),
         rand_trees_logs = expand(f"{full_file_path_raxml_rand}.raxml.treesearch.log", seed=rand_seeds, allow_missing=True),
     output:
-        all_logs = f"{full_file_path_raxml}.allTreesearchLogs"
+        all_raxml_logs = f"{full_file_path_raxml}.allTreesearchLogs"
     shell:
-        "cat {input.pars_trees_logs} {input.rand_trees_logs} > {output.all_logs}"
+        "cat {input.pars_trees_logs} {input.rand_trees_logs} > {output.all_raxml_logs}"
 
-rule save_best_tree_to_file:
+rule save_best_raxml_tree_to_file:
     input:
-        trees = rules.collect_all_trees.output.all_trees,
-        logs = rules.collect_all_logs.output.all_logs,
+        trees = rules.collect_all_raxml_trees.output.all_raxml_trees,
+        logs = rules.collect_all_raxml_logs.output.all_raxml_logs,
     output:
         best_tree = f"{full_file_path_raxml}.bestTreeOfRun"
+    params:
+        program = "raxml"
     script:
         "scripts/save_best_tree.py"
 
-rule re_eval_best_tree:
+rule re_eval_best_raxml_tree:
     input:
         msa                 = config["data"]["input"],
         best_tree_of_run    = f"{full_file_path_raxml}.bestTreeOfRun"
@@ -102,7 +104,7 @@ rule re_eval_best_tree:
         "--threads {params.threads} "
         "> {log} "
 
-rule collect_all_eval_trees:
+rule collect_all_raxml_eval_trees:
     input:
         eval_trees = expand(f"{full_file_path_raxml_eval}.raxml.bestTree", blmin_eval=blmin_opts, blmax_eval=blmax_opts, allow_missing=True)
     output:
@@ -110,7 +112,7 @@ rule collect_all_eval_trees:
     shell:
         "cat {input.eval_trees} > {output.all_eval_trees}"
 
-rule collect_all_eval_logs:
+rule collect_all_raxml_eval_logs:
     input:
         eval_logs = expand(f"{full_file_path_raxml_eval}.raxml.eval.log", blmin_eval=blmin_opts, blmax_eval=blmax_opts, allow_missing=True)
     output:
@@ -118,11 +120,13 @@ rule collect_all_eval_logs:
     shell:
         "cat {input.eval_logs} > {output.all_eval_logs}"
 
-rule save_best_eval_tree_to_file:
+rule save_best_raxml_eval_tree_to_file:
     input:
-        trees = rules.collect_all_eval_trees.output.all_eval_trees,
-        logs = rules.collect_all_eval_logs.output.all_eval_logs,
+        trees = rules.collect_all_raxml_eval_trees.output.all_eval_trees,
+        logs = rules.collect_all_raxml_eval_logs.output.all_eval_logs,
     output:
         best_tree = f"{full_file_path_raxml}.bestEvalTreeOfRun"
+    params:
+        program = "raxml"
     script:
         "scripts/save_best_tree.py"

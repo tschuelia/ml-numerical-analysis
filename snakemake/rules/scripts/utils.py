@@ -92,9 +92,14 @@ def get_best_raxml_llh(raxml_file: FilePath) -> float:
     return max(all_llhs)
 
 
-def get_best_iqtree_llh(iqtree_file: FilePath) -> float:
+def get_all_iqtree_llhs(iqtree_file: FilePath) -> TreeIndexed[float]:
     STR = "BEST SCORE FOUND :"
-    return _get_single_value_from_file(iqtree_file, STR)
+    return _get_multiple_values_from_file(iqtree_file, STR)
+
+
+def get_best_iqtree_llh(iqtree_file: FilePath) -> float:
+    all_llhs = get_all_iqtree_llhs(iqtree_file)
+    return max(all_llhs)
 
 
 def get_raxml_abs_rf_distance(log_file: FilePath) -> float:
