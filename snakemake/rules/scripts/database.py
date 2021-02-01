@@ -9,34 +9,46 @@ class BaseModel(P.Model):
 
 
 class Run(BaseModel):
-    num_raxml_pars_trees = P.IntegerField()
-    num_raxml_rand_trees = P.IntegerField()
     blmin = P.FloatField()
     blmax = P.FloatField()
-    average_absolute_rf_distance = P.FloatField()
-    average_relative_rf_distance = P.FloatField()
-    num_unique_topos = P.IntegerField()
-    raxml_best_llh = P.FloatField()
-    iqtree_best_llh = P.FloatField()
-    raxml_best_eval_llh = P.FloatField()
-    raxml_treesearch_elapsed_time = P.FloatField()
+
+
+class BaseProgram(BaseModel):
+    run = P.ForeignKeyField(Run)
+    num_pars_trees = P.IntegerField()
+    num_rand_trees = P.IntegerField()
+    best_treesearch_llh = P.FloatField()
+    best_evaluation_llh = P.FloatField()
+    treesearch_total_time = P.FloatField()
+
+
+class Raxmlng(BaseProgram):
+    avg_abs_rfdist_treesearch = P.FloatField()
+    avg_rel_rfdist_treesearch = P.FloatField()
+    num_unique_topos_treesearch = P.IntegerField()
+
+
+class Iqtree(BaseProgram):
+    pass
 
 
 class BaseTree(BaseModel):
-    raxml_tree = P.CharField()
-    raxml_llh = P.FloatField()
+    llh = P.FloatField()
+    compute_time = P.FloatField()
+    newick_tree = P.CharField()
     is_best = P.BooleanField()
-    raxml_treesearch_elapsed_time = P.FloatField()
 
 
-class Tree(BaseTree):
-    run = P.ForeignKeyField(Run)
-    raxml_seed = P.IntegerField()
-    iqtree_tree = P.CharField()
+class TreesearchTree(BaseTree):
+    program = P.ForeignKeyField(BaseProgram)
+    seed = P.FloatField()
+
+
+class RaxmlTreesearchTree(TreesearchTree):
     iqtree_llh = P.FloatField()
 
     # the following are the results of the iqtree run
-    # achieved by comparing with best raxml tree
+    # achieved by comparing with best raxml treesearch tree
     deltaL = (
         P.FloatField()
     )  # llh difference to max llh in the set according to iqtree run
@@ -68,22 +80,34 @@ class Tree(BaseTree):
     pAU_significant = P.BooleanField(null=True)
 
 
+class IqtreeTreesearchTree(TreesearchTree):
+    pass
+
+
 class EvalTree(BaseTree):
-    startTree = P.ForeignKeyField(Tree)
+    start_tree = P.ForeignKeyField(TreesearchTree)
     eval_blmin = P.FloatField()
     eval_blmax = P.FloatField()
 
 
+class RaxmlEvalTree(EvalTree):
+    pass
+
+
+class IqtreeEvalTree(EvalTree):
+    pass
+
+
 class BaseRFDistance(BaseModel):
-    plain_rf_distance = P.FloatField()
-    normalized_rf_distance = P.FloatField()
+    plain_rfdist = P.FloatField()
+    normalized_rfdist = P.FloatField()
 
 
-class RFDistanceTree(BaseRFDistance):
-    tree1 = P.ForeignKeyField(Tree)
-    tree2 = P.ForeignKeyField(Tree)
+class RFDistTreesearchTree(BaseRFDistance):
+    tree1 = P.ForeignKeyField(TreesearchTree)
+    tree2 = P.ForeignKeyField(TreesearchTree)
 
 
-class RFDistanceEvalTree(BaseRFDistance):
+class RFDistEvalTree(BaseRFDistance):
     tree1 = P.ForeignKeyField(EvalTree)
     tree2 = P.ForeignKeyField(EvalTree)

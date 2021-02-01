@@ -149,3 +149,10 @@ def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
         line_regex, raw_line
     ).groups()
     return int(tree_idx1), int(tree_idx2), float(plain_dist), float(normalized_dist)
+
+
+def read_file_contents(file_path: FilePath) -> List[str]:
+    with open(file_path) as f:
+        content = f.readlines()
+
+    return [l.strip() for l in content]
