@@ -51,7 +51,7 @@ for run in run_python_objects:
 #################################
 # create Raxmlng related
 #################################
-
+counter = 0
 for run in run_python_objects:
     # fmt:off
     raxmlng = create_raxml(
@@ -92,7 +92,9 @@ for run in run_python_objects:
             "compute_time"
         ] = raxmlng.get_treesearch_compute_time_for_tree_index(tree_idx)
         tree_values["newick_tree"] = raxmlng.get_newick_tree_for_tree_index(tree_idx)
-        tree_values["is_best"] = raxmlng.tree_for_index_is_best(tree_idx)
+
+        is_best = raxmlng.tree_for_index_is_best(tree_idx)
+        tree_values["is_best"] = is_best
 
         tree_values["program"] = run.db_raxml_object
         tree_values["seed"] = raxmlng.get_treesearch_seed_for_tree_index(tree_idx)
@@ -134,6 +136,9 @@ for run in run_python_objects:
         raxml_treesearch_tree = db.RaxmlTreesearchTree.create(**tree_values)
         raxml_treesearch_tree_db_objects.append(raxml_treesearch_tree)
 
+        if is_best:
+            raxmlng.db_best_treesearch_tree_object = raxml_treesearch_tree
+
         # RFDistTreesearchTree
         # we need to create rfdistance object for each pairs of trees
         # at this point we can reference all trees from 0 to i
@@ -155,3 +160,24 @@ for run in run_python_objects:
 
         with db.db.atomic():
             db.RFDistTreesearchTree.insert_many(insert_into_rfdistance).execute()
+
+    # RaxmlEvalTree for best RaxmlTreesearchTree (raxmlng.db_best_treesearch_tree_object)
+    for eval_tree_idx in range(raxmlng.get_num_of_eval_trees()):
+        eval_tree_values = {}
+        eval_tree_values["start_tree"] = raxmlng.db_best_treesearch_tree_object
+        eval_tree_values["llh"] = raxmlng.get_eval_llh_for_tree_index(eval_tree_idx)
+        eval_tree_values["newick_tree"] = raxmlng.get_newick_eval_tree_for_tree_index(
+            eval_tree_idx
+        )
+        eval_tree_values["compute_time"] = raxmlng.get_eval_compute_time_for_tree_index(
+            eval_tree_idx
+        )
+        eval_tree_values["is_best"] = raxmlng.eval_tree_for_index_is_best(eval_tree_idx)
+        eval_tree_values["eval_blmin"] = raxmlng.get_eval_blmin_for_tree_index(
+            eval_tree_idx
+        )
+        eval_tree_values["eval_blmax"] = raxmlng.get_eval_blmax_for_tree_index(
+            eval_tree_idx
+        )
+
+        raxml_eval_tree = db.RaxmlEvalTree.create(**eval_tree_values)

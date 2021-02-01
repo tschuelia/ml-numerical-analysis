@@ -91,6 +91,28 @@ class Raxml:
         _, norm_rfdist = self.all_treesearch_tree_rfdists[tree_indices]
         return norm_rfdist
 
+    def get_num_of_eval_trees(self) -> int:
+        return len(self.eval_trees)
+
+    def get_eval_llh_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_llhs[i]
+
+    def get_eval_compute_time_for_tree_index(self, i: TreeIndex) -> float:
+        return -1
+        # return self.eval_compute_times[i]
+
+    def get_newick_eval_tree_for_tree_index(self, i: TreeIndex) -> Newick:
+        return self.eval_trees[i]
+
+    def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
+        return self.get_newick_eval_tree_for_tree_index(i) == self.best_eval_tree_newick
+
+    def get_eval_blmin_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_blmins[i]
+
+    def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_blmaxs[i]
+
 
 def read_rfdistances_all_trees(
     rfdistances_file_path: FilePath,
