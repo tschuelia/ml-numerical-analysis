@@ -15,14 +15,18 @@ rule save_results_to_database:
 
         raxml_iqtree_statstest_results = expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        iqtree_treesearch_log = expand(f"{full_file_path_iqtree}.allTreesearchLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_treesearch_log       = expand(f"{full_file_path_iqtree}.allTreesearchLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         iqtree_best_treesearch_tree = expand(f"{full_file_path_iqtree}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        iqtree_treesearch_trees = expand(f"{full_file_path_iqtree}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_treesearch_trees     = expand(f"{full_file_path_iqtree}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        iqtree_eval_log = expand(f"{full_file_path_iqtree}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        iqtree_best_eval_tree = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        iqtree_eval_trees = expand(f"{full_file_path_iqtree}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_eval_log         = expand(f"{full_file_path_iqtree}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_best_eval_tree   = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_eval_trees       = expand(f"{full_file_path_iqtree}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
+        raxml_all_best_treesearch_trees     = expand(f"{outdir}/bestTreesCollected", outdir=outdir),
+        rfDist_raxml_best_treesearch_trees  = expand(f"{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
+        raxml_all_best_eval_trees           = expand(f"{outdir}/bestEvalTreesCollected", outdir=outdir),
+        rfDist_raxml_best_eval_trees        = expand(f"{outdir}/bestEvalTrees.raxml.rfDistances", outdir=outdir),
 
     output:
         database = f"{outdir}/results.sqlite3", 
@@ -31,16 +35,3 @@ rule save_results_to_database:
     script:
         "scripts/save_results_to_database.py"
 
-
-"""
-        
-        
-        iqtree_results          = expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        iqtree_trees            = expand(f"{full_file_path_iqtree}.trees", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-        
-
-        rfDistances_best_trees  = expand(f"{outdir}/bestTrees.raxml.rfDistances", outdir=outdir),
-        best_trees_collected    = expand(f"{outdir}/bestTreesCollected", outdir=outdir),
-        best_eval_trees_collected = expand(f"{outdir}/bestEvalTreesCollected", outdir=outdir),
-        rfDistances_best_eval_trees = expand(f"{outdir}/bestEvalTrees.raxml.rfDistances", outdir=outdir),
-"""

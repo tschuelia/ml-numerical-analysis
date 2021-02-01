@@ -17,6 +17,7 @@ from utils import (
     get_raxml_treesearch_elapsed_time,
     get_raxml_treesearch_elapsed_time_entire_run,
     read_file_contents,
+    read_rfdistances,
 )
 
 
@@ -98,6 +99,7 @@ class Raxml:
         return self.eval_llhs[i]
 
     def get_eval_compute_time_for_tree_index(self, i: TreeIndex) -> float:
+        # TODO: implement
         return -1
         # return self.eval_compute_times[i]
 
@@ -112,21 +114,6 @@ class Raxml:
 
     def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmaxs[i]
-
-
-def read_rfdistances_all_trees(
-    rfdistances_file_path: FilePath,
-) -> TreeTreeIndexed:
-    with open(rfdistances_file_path) as f:
-        rfdistances = f.readlines()
-
-    res = {}
-
-    for line in rfdistances:
-        idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
-        res[(idx1, idx2)] = res[(idx2, idx1)] = (plain, norm)
-
-    return res
 
 
 # fmt: off
@@ -172,6 +159,6 @@ def create_raxml(
         eval_compute_times = [-1],
 
         # RFDistTreesearchTree stuff
-        all_treesearch_tree_rfdists = read_rfdistances_all_trees(rfdistances_file_path),
+        all_treesearch_tree_rfdists = read_rfdistances(rfdistances_file_path),
     )
 # fmt: on

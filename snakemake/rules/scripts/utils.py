@@ -156,3 +156,18 @@ def read_file_contents(file_path: FilePath) -> List[str]:
         content = f.readlines()
 
     return [l.strip() for l in content]
+
+
+def read_rfdistances(
+    rfdistances_file_path: FilePath,
+) -> TreeTreeIndexed:
+    with open(rfdistances_file_path) as f:
+        rfdistances = f.readlines()
+
+    res = {}
+
+    for line in rfdistances:
+        idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
+        res[(idx1, idx2)] = res[(idx2, idx1)] = (plain, norm)
+
+    return res
