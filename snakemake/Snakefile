@@ -33,14 +33,24 @@ full_file_path_raxml_rand   = full_dir_raxml_rand + file_name_rand
 full_dir_raxml_eval         = full_dir_raxml + "eval/"
 full_file_path_raxml_eval   = full_dir_raxml_eval + file_name_eval
 
-full_dir_iqtree         = full_dir + "iqtree/"
-full_file_path_iqtree   = full_dir_iqtree + file_name
+full_dir_iqtree             = full_dir + "iqtree/"
+full_file_path_iqtree       = full_dir_iqtree + file_name
+
+full_dir_iqtree_pars        = full_dir_iqtree + "parsimonyTrees/"
+full_file_path_iqtree_pars  = full_dir_iqtree_pars + file_name_pars
+
+full_dir_iqtree_eval        = full_dir_iqtree + "eval/"
+full_file_path_iqtree_eval  = full_dir_iqtree_eval + file_name_eval
 
 
 rule all:
     input:
         # parameter settings for each run
         expand(f"{full_dir}parameters.json", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        #################################
+        # Raxml-ng treesearch 
+        #################################
 
         # tree of each iteration, its model and its log file
         expand(f"{full_file_path_raxml_pars}.raxml.bestTree", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
@@ -61,6 +71,10 @@ rule all:
         # best tree per run
         expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
+        #################################
+        # Raxml-ng evaluation 
+        #################################
+
         # re-evaluated best tree according to all params
         expand(f"{full_file_path_raxml_eval}.raxml.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
         expand(f"{full_file_path_raxml_eval}.raxml.eval.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
@@ -71,8 +85,37 @@ rule all:
 
         expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
+        #################################
+        # Iqtree treesearch
+        #################################
+        expand(f"{full_file_path_iqtree_pars}.treefile", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
-        # pairwise rf distances for all infered trees for one combination of parameters
+        # all infered trees for one combination of parameters collected in a single file
+        expand(f"{full_file_path_iqtree}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # all logs for one run
+        expand(f"{full_file_path_iqtree}.allTreesearchLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        # best tree per run
+        expand(f"{full_file_path_iqtree}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        #################################
+        # Iqtree evaluation 
+        #################################
+        # re-evaluated best tree according to all params
+        expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
+        expand(f"{full_file_path_iqtree_eval}.treefile", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
+        
+        expand(f"{full_file_path_iqtree}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_iqtree}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+
+        #################################
+        # raxml RF Distances 
+        #################################
+        # pairwise rf distances for all infered raxml trees for one combination of parameters
         expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         expand(f"{full_file_path_raxml}.raxml.rfDistances.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
@@ -109,7 +152,8 @@ rule save_parameter_settings_in_file:
             json.dump(data, f)
 
 
-include: "rules/tree_search.smk"
+include: "rules/raxml_tree_search.smk"
+include: "rules/iqtree_tree_search.smk"
 include: "rules/iqtree_tests.smk"
 include: "rules/rf_distances.smk"
 include: "rules/save_results_to_database.smk"

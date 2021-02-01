@@ -94,8 +94,8 @@ for run in run_python_objects:
 
     # RaxmlTreesearchTree
     raxml_treesearch_tree_db_objects = []
-
-    for tree_idx in range(raxmlng.get_num_of_tres()):
+    raxmlng.db_best_treesearch_tree_object = None
+    for tree_idx in range(raxmlng.get_num_of_trees()):
         tree_values = {}
         tree_values["llh"] = raxmlng.get_treesearch_llh_for_tree_index(tree_idx)
         tree_values[
@@ -103,7 +103,10 @@ for run in run_python_objects:
         ] = raxmlng.get_treesearch_compute_time_for_tree_index(tree_idx)
         tree_values["newick_tree"] = raxmlng.get_newick_tree_for_tree_index(tree_idx)
 
-        is_best = raxmlng.tree_for_index_is_best(tree_idx)
+        is_best = (
+            raxmlng.tree_for_index_is_best(tree_idx)
+            and not raxmlng.db_best_treesearch_tree_object
+        )
         tree_values["is_best"] = is_best
 
         tree_values["program"] = run.db_raxml_object
@@ -211,3 +214,49 @@ for run in run_python_objects:
         best_evaluation_llh=iqtree.best_evaluation_llh,
         treesearch_total_time=iqtree.treesearch_total_time,
     )
+
+    # IqtreeTreesearchTree
+    iqtree.db_best_treesearch_tree_object = None
+    for tree_idx in range(iqtree.get_num_of_trees()):
+        tree_values = {}
+        tree_values["llh"] = iqtree.get_treesearch_llh_for_tree_index(tree_idx)
+        tree_values["compute_time"] = iqtree.get_treesearch_compute_time_for_tree_index(
+            tree_idx
+        )
+        tree_values["newick_tree"] = iqtree.get_newick_tree_for_tree_index(tree_idx)
+
+        is_best = (
+            iqtree.tree_for_index_is_best(tree_idx)
+            and not iqtree.db_best_treesearch_tree_object
+        )
+        tree_values["is_best"] = is_best
+
+        tree_values["program"] = run.db_iqtree_object
+        tree_values["seed"] = iqtree.get_treesearch_seed_for_tree_index(tree_idx)
+
+        iqtree_treesearch_tree = db.IqtreeTreesearchTree.create(**tree_values)
+
+        if is_best:
+            iqtree.db_best_treesearch_tree_object = iqtree_treesearch_tree
+
+    for eval_tree_idx in range(iqtree.get_num_of_eval_trees()):
+        eval_tree_values = {}
+        eval_tree_values["start_tree"] = iqtree.db_best_treesearch_tree_object
+        eval_tree_values["llh"] = iqtree.get_eval_llh_for_tree_index(eval_tree_idx)
+        eval_tree_values["newick_tree"] = iqtree.get_newick_eval_tree_for_tree_index(
+            eval_tree_idx
+        )
+
+        eval_tree_values["compute_time"] = iqtree.get_eval_compute_time_for_tree_index(
+            eval_tree_idx
+        )
+
+        eval_tree_values["is_best"] = iqtree.eval_tree_for_index_is_best(eval_tree_idx)
+        eval_tree_values["eval_blmin"] = iqtree.get_eval_blmin_for_tree_index(
+            eval_tree_idx
+        )
+        eval_tree_values["eval_blmax"] = iqtree.get_eval_blmax_for_tree_index(
+            eval_tree_idx
+        )
+
+        iqtree_eval_tree = db.IqtreeEvalTree.create(**eval_tree_values)

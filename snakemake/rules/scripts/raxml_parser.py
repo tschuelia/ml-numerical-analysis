@@ -51,23 +51,23 @@ class Raxml:
     # RFDistTreesearchTree stuff
     all_treesearch_tree_rfdists: TreeTreeIndexed
 
-    def get_num_of_tres(self) -> int:
+    def get_num_of_trees(self) -> int:
         return self.num_pars_trees + self.num_rand_trees
 
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_newick_tree_for_tree_index(i) == self.best_tree_newick
-
-    def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
-        return self.treeseach_seeds[i]
-
-    def get_newick_tree_for_tree_index(self, i: TreeIndex) -> Newick:
-        return self.treesearch_trees[i]
 
     def get_treesearch_llh_for_tree_index(self, i: TreeIndex) -> float:
         return self.treesearch_llhs[i]
 
     def get_treesearch_compute_time_for_tree_index(self, i: TreeIndex) -> float:
         return self.treesearch_compute_times[i]
+
+    def get_newick_tree_for_tree_index(self, i: TreeIndex) -> Newick:
+        return self.treesearch_trees[i]
+
+    def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
+        return self.treeseach_seeds[i]
 
     def get_iqtree_llh_for_tree_index(self, i: TreeIndex) -> float:
         results_for_tree_index = self.iqtree_statstests_results[i]

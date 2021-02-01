@@ -32,6 +32,52 @@ class Iqtree:
     eval_llhs: TreeIndexed[float]
     eval_compute_times: TreeIndexed[float]
 
+    def get_num_of_trees(self) -> int:
+        return self.num_pars_trees + self.num_rand_trees
+
+    def tree_for_index_is_best(self, i: TreeIndex) -> bool:
+        return self.get_newick_tree_for_tree_index(i) == self.best_tree_newick
+
+    def get_treesearch_llh_for_tree_index(self, i: TreeIndex) -> float:
+        return self.treesearch_llhs[i]
+
+    def get_treesearch_compute_time_for_tree_index(self, i: TreeIndex) -> float:
+        # TODO   implement
+        return -1
+
+    def get_newick_tree_for_tree_index(self, i: TreeIndex) -> Newick:
+        return self.treesearch_trees[i]
+
+    def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
+        # TODO: implement
+        return -1
+
+    def get_num_of_eval_trees(self) -> int:
+        return len(self.eval_trees)
+
+    def get_eval_llh_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_llhs[i]
+
+    def get_newick_eval_tree_for_tree_index(self, i: TreeIndex) -> Newick:
+        return self.eval_trees[i]
+
+    def get_eval_compute_time_for_tree_index(self, i: TreeIndex) -> float:
+        # TODO: implement
+        return -1
+
+    def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
+        return self.get_newick_eval_tree_for_tree_index(i) == self.best_eval_tree_newick
+
+    def get_eval_blmin_for_tree_index(self, i: TreeIndex) -> float:
+        # TODO: implement
+        return -1
+        # return self.eval_blmins[i]
+
+    def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
+        # TODO: implement
+        return -1
+        # return self.eval_blmaxs[i]
+
 
 def create_iqtree(
     parameter_file_path: FilePath,
