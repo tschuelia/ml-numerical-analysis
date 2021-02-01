@@ -51,7 +51,6 @@ for run in run_python_objects:
 #################################
 # create Raxmlng related
 #################################
-# Raxmlng Program
 
 for run in run_python_objects:
     # fmt:off
@@ -70,6 +69,7 @@ for run in run_python_objects:
     )
     # fmt: on
 
+    # Raxmlng Program
     run.db_raxml_object = db.Raxmlng.create(
         run=run.db_run_object,
         num_pars_trees=raxmlng.num_pars_trees,
@@ -81,3 +81,77 @@ for run in run_python_objects:
         avg_rel_rfdist_treesearch=raxmlng.avg_rel_rfdist_treesearch,
         num_unique_topos_treesearch=raxmlng.num_unique_topos_treesearch,
     )
+
+    # RaxmlTreesearchTree
+    raxml_treesearch_tree_db_objects = []
+
+    for tree_idx in range(raxmlng.get_num_of_tres()):
+        tree_values = {}
+        tree_values["llh"] = raxmlng.get_treesearch_llh_for_tree_index(tree_idx)
+        tree_values[
+            "compute_time"
+        ] = raxmlng.get_treesearch_compute_time_for_tree_index(tree_idx)
+        tree_values["newick_tree"] = raxmlng.get_newick_tree_for_tree_index(tree_idx)
+        tree_values["is_best"] = raxmlng.tree_for_index_is_best(tree_idx)
+
+        tree_values["program"] = run.db_raxml_object
+        tree_values["seed"] = raxmlng.get_treesearch_seed_for_tree_index(tree_idx)
+
+        tree_values["iqtree_llh"] = raxmlng.get_iqtree_llh_for_tree_index(tree_idx)
+
+        tree_values["deltaL"] = raxmlng.get_iqtree_deltaL_for_tree_index(tree_idx)
+
+        tests = raxmlng.get_iqtree_test_results_for_tree_index(tree_idx)
+
+        if "bp-RELL" in tests:
+            tree_values["bpRell"] = tests["bp-RELL"]["score"]
+            tree_values["bpRell_significant"] = tests["bp-RELL"]["significant"]
+
+        if "p-KH" in tests:
+            tree_values["pKH"] = tests["p-KH"]["score"]
+            tree_values["pKH_significant"] = tests["p-KH"]["significant"]
+
+        if "p-SH" in tests:
+            tree_values["pSH"] = tests["p-SH"]["score"]
+            tree_values["pSH_significant"] = tests["p-SH"]["significant"]
+
+        if "p-WKH" in tests:
+            tree_values["pWKH"] = tests["p-WKH"]["score"]
+            tree_values["pWKH_significant"] = tests["p-WKH"]["significant"]
+
+        if "p-WSH" in tests:
+            tree_values["pWSH"] = tests["p-WSH"]["score"]
+            tree_values["pWSH_significant"] = tests["p-WSH"]["significant"]
+
+        if "c-ELW" in tests:
+            tree_values["cELW"] = tests["c-ELW"]["score"]
+            tree_values["cELW_significant"] = tests["c-ELW"]["significant"]
+
+        if "p-AU" in tests:
+            tree_values["pAU"] = tests["p-AU"]["score"]
+            tree_values["pAU_significant"] = tests["p-AU"]["significant"]
+
+        raxml_treesearch_tree = db.RaxmlTreesearchTree.create(**tree_values)
+        raxml_treesearch_tree_db_objects.append(raxml_treesearch_tree)
+
+        # RFDistTreesearchTree
+        # we need to create rfdistance object for each pairs of trees
+        # at this point we can reference all trees from 0 to i
+        # => we can create rfdistances for tree i with respect to all trees < i
+        insert_into_rfdistance = []
+
+        for tree_idx2 in range(tree_idx):
+            rfdist_values = {}
+            rfdist_values["tree1"] = raxml_treesearch_tree_db_objects[tree_idx2]
+            rfdist_values["tree2"] = raxml_treesearch_tree_db_objects[tree_idx]
+            rfdist_values["plain_rfdist"] = raxmlng.get_plain_rfdist_for_trees(
+                (tree_idx2, tree_idx)
+            )
+            rfdist_values[
+                "normalized_rfdist"
+            ] = raxmlng.get_normalized_rfdist_for_trees((tree_idx2, tree_idx))
+
+            insert_into_rfdistance.append(rfdist_values)
+
+        with db.db.atomic():
+            db.RFDistTreesearchTree.insert_many(insert_into_rfdistance).execute()

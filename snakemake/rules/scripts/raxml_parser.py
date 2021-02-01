@@ -1,6 +1,8 @@
 import dataclasses
 
 from custom_types import *
+from typing import Tuple
+
 from iqtree_statstest_parser import get_iqtree_results
 from utils import (
     get_all_raxml_llhs,
@@ -49,6 +51,9 @@ class Raxml:
     # RFDistTreesearchTree stuff
     all_treesearch_tree_rfdists: TreeTreeIndexed
 
+    def get_num_of_tres(self) -> int:
+        return self.num_pars_trees + self.num_rand_trees
+
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_newick_tree_for_tree_index(i) == self.best_tree_newick
 
@@ -75,6 +80,16 @@ class Raxml:
     def get_iqtree_test_results_for_tree_index(self, i: TreeIndex) -> Dict:
         results_for_tree_index = self.iqtree_statstests_results[i]
         return results_for_tree_index["tests"]
+
+    def get_plain_rfdist_for_trees(self, tree_indices: Tuple[TreeIndex, TreeIndex]):
+        plain_rfdist, _ = self.all_treesearch_tree_rfdists[tree_indices]
+        return plain_rfdist
+
+    def get_normalized_rfdist_for_trees(
+        self, tree_indices: Tuple[TreeIndex, TreeIndex]
+    ):
+        _, norm_rfdist = self.all_treesearch_tree_rfdists[tree_indices]
+        return norm_rfdist
 
 
 def read_rfdistances_all_trees(
