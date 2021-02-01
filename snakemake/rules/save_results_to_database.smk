@@ -14,7 +14,16 @@ rule save_results_to_database:
         raxml_treesearch_rfDist     = expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         raxml_iqtree_statstest_results = expand(f"{full_file_path_iqtree}.iqtree", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
-       
+
+        iqtree_treesearch_log = expand(f"{full_file_path_iqtree}.allTreesearchLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_best_treesearch_tree = expand(f"{full_file_path_iqtree}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_treesearch_trees = expand(f"{full_file_path_iqtree}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+        iqtree_eval_log = expand(f"{full_file_path_iqtree}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_best_eval_tree = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        iqtree_eval_trees = expand(f"{full_file_path_iqtree}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+
+
     output:
         database = f"{outdir}/results.sqlite3", 
     params:

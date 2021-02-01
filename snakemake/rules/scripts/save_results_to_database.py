@@ -1,6 +1,7 @@
 import database as db
 from experiment_parser import create_Run, create_Experiment
 from raxml_parser import create_raxml
+from iqtree_parser import create_iqtree
 
 # initialize empty database
 db.db.init(snakemake.output.database)
@@ -34,6 +35,15 @@ raxml_iqtree_statstest_results_file_paths = snakemake.input.raxml_iqtree_statste
 
 raxml_treesearch_rfDist_log_file_paths  = snakemake.input.raxml_treesearch_rfDist_log
 raxml_treesearch_rfDist_file_paths      = snakemake.input.raxml_treesearch_rfDist
+
+iqtree_treesearch_log_file_paths        = snakemake.input.iqtree_treesearch_log
+iqtree_best_treesearch_tree_file_paths  = snakemake.input.iqtree_best_treesearch_tree
+iqtree_treesearch_trees_file_paths      = snakemake.input.iqtree_treesearch_trees
+
+iqtree_eval_log_file_paths          = snakemake.input.iqtree_eval_log
+iqtree_best_eval_tree_file_paths    = snakemake.input.iqtree_best_eval_tree
+iqtree_eval_trees_file_paths        = snakemake.input.iqtree_eval_trees
+
 # fmt: on
 
 num_runs = len(params_file_paths)
@@ -181,3 +191,23 @@ for run in run_python_objects:
         )
 
         raxml_eval_tree = db.RaxmlEvalTree.create(**eval_tree_values)
+
+    # Iqtree Program
+    iqtree = create_iqtree(
+        parameter_file_path=params_file_paths[i],
+        treesearch_log_file_path=iqtree_treesearch_log_file_paths[i],
+        eval_log_file_path=iqtree_eval_log_file_paths[i],
+        best_tree_file_path=iqtree_best_treesearch_tree_file_paths[i],
+        all_treesearch_trees_file_path=iqtree_treesearch_trees_file_paths[i],
+        best_eval_tree_file_path=iqtree_best_eval_tree_file_paths[i],
+        all_eval_trees_file_path=iqtree_eval_trees_file_paths[i],
+    )
+
+    run.db_iqtree_object = db.Iqtree.create(
+        run=run.db_run_object,
+        num_pars_trees=iqtree.num_pars_trees,
+        num_rand_trees=iqtree.num_rand_trees,
+        best_treesearch_llh=iqtree.best_treesearch_llh,
+        best_evaluation_llh=iqtree.best_evaluation_llh,
+        treesearch_total_time=iqtree.treesearch_total_time,
+    )
