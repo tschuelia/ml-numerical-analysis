@@ -67,7 +67,7 @@ for run in run_python_objects:
 #################################
 # create Raxmlng related
 #################################
-for run in run_python_objects:
+for i, run in enumerate(run_python_objects):
     # fmt:off
     raxmlng = create_raxml(
         parameter_file_path             = params_file_paths[i],
@@ -181,13 +181,14 @@ for run in run_python_objects:
 
     # RaxmlEvalTree for best RaxmlTreesearchTree (raxmlng.db_best_treesearch_tree_object)
     for eval_tree_idx in range(raxmlng.get_num_of_eval_trees()):
+        is_best = raxmlng.eval_tree_for_index_is_best(eval_tree_idx)
         # fmt: off
         eval_tree_values = {}
         eval_tree_values["start_tree"]      = raxmlng.db_best_treesearch_tree_object
         eval_tree_values["llh"]             = raxmlng.get_eval_llh_for_tree_index(eval_tree_idx)
         eval_tree_values["newick_tree"]     = raxmlng.get_newick_eval_tree_for_tree_index(eval_tree_idx)
         eval_tree_values["compute_time"]    = raxmlng.get_eval_compute_time_for_tree_index( eval_tree_idx)
-        eval_tree_values["is_best"]         = raxmlng.eval_tree_for_index_is_best(eval_tree_idx)
+        eval_tree_values["is_best"]         = is_best
         eval_tree_values["eval_blmin"]      = raxmlng.get_eval_blmin_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_blmax"]      = raxmlng.get_eval_blmax_for_tree_index(eval_tree_idx)
         # fmt: on
@@ -200,10 +201,10 @@ for run in run_python_objects:
 # RFDistEvalTree
 # fmt: off
 experiment = create_Experiment(
-    raxml_best_trees_path               =raxml_all_best_treesearch_trees_file_paths,
-    raxml_best_eval_trees_path          =raxml_all_best_eval_trees_file_paths,
-    rfdist_raxml_best_trees_path        =rfDist_raxml_best_treesearch_trees_file_paths,
-    rfdist_raxml_best_eval_trees_path   =rfDist_raxml_best_eval_trees_file_paths,
+    raxml_best_trees_path               = raxml_all_best_treesearch_trees_file_paths,
+    raxml_best_eval_trees_path          = raxml_all_best_eval_trees_file_paths,
+    rfdist_raxml_best_trees_path        = rfDist_raxml_best_treesearch_trees_file_paths,
+    rfdist_raxml_best_eval_trees_path   = rfDist_raxml_best_eval_trees_file_paths,
 )
 # fmt: on
 
@@ -232,8 +233,8 @@ with db.db.atomic():
 #################################
 # create Iqtree related
 #################################
-for run in run_python_objects:
-
+for i, run in enumerate(run_python_objects):
+    print("hello ", iqtree_treesearch_log_file_paths[i])
     # Iqtree Program
     # fmt: off
     iqtree = create_iqtree(

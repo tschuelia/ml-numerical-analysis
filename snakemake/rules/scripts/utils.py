@@ -26,7 +26,7 @@ def get_raxml_run_param_value(line: str, param_identifier: str) -> float:
 
 def get_raxml_run_param_values_from_file(
     raxml_log: FilePath, raxml_command: str, param_identifier: str
-) -> float:
+) -> TreeIndexed[float]:
     with open(raxml_log) as f:
         lines = f.readlines()
 
@@ -35,6 +35,29 @@ def get_raxml_run_param_values_from_file(
     for l in lines:
         if l.startswith(raxml_command):
             values.append(get_raxml_run_param_value(l, param_identifier))
+
+    return values
+
+
+def get_iqtree_run_param_value(line: str, param_identifier: str) -> float:
+    iqtree_run_param_regex = regex.compile(
+        rf"/*-{param_identifier}\s+(\d+(?:\.\d+)?(?:[e][-+]?\d+)?)/*"
+    )
+    value = regex.search(iqtree_run_param_regex, line).groups()[0]
+    return float(value)
+
+
+def get_iqtree_run_param_values_from_file(
+    iqtree_log: FilePath, param_identifier: str
+) -> TreeIndexed[float]:
+    print("log file", iqtree_log)
+    content = read_file_contents(iqtree_log)
+
+    values = []
+
+    for line in content:
+        if line.startswith("Command:"):
+            values.append(get_iqtree_run_param_value(line, param_identifier))
 
     return values
 
@@ -117,9 +140,8 @@ def get_raxml_num_unique_topos(log_file: FilePath) -> int:
     return _get_single_value_from_file(log_file, STR)
 
 
-def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
-    with open(log_file) as f:
-        content = f.readlines()
+def get_raxml_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
+    content = read_file_contents(log_file)
 
     all_times = []
 
@@ -140,7 +162,32 @@ def get_raxml_treesearch_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
 
 
 def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
-    return sum(get_raxml_treesearch_elapsed_time(log_file))
+    return sum(get_raxml_elapsed_time(log_file))
+
+
+def get_iqtree_wallclock_time(log_file: FilePath) -> TreeIndexed[float]:
+    content = read_file_contents(log_file)
+
+    all_times = []
+
+    for line in content:
+        if not "Total wall-clock time used:" in line:
+            continue
+
+        # correct line looks like this: "Total wall-clock time used: 0.530 sec (0h:0m:0s)"
+        value = line.split(" ")[4]
+        all_times.append(float(value))
+
+    if not all_times:
+        raise ValueError(
+            f"The given input file {log_file} does not contain the wall clock time."
+        )
+
+    return all_times
+
+
+def get_iqtree_treesearch_wallclock_time_entire_run(log_file: FilePath) -> float:
+    return sum(get_iqtree_wallclock_time(log_file))
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:

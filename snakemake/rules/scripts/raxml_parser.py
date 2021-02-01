@@ -14,7 +14,7 @@ from utils import (
     get_raxml_num_unique_topos,
     get_raxml_rel_rf_distance,
     get_raxml_run_param_values_from_file,
-    get_raxml_treesearch_elapsed_time,
+    get_raxml_elapsed_time,
     get_raxml_treesearch_elapsed_time_entire_run,
     read_file_contents,
     read_rfdistances,
@@ -99,9 +99,7 @@ class Raxml:
         return self.eval_llhs[i]
 
     def get_eval_compute_time_for_tree_index(self, i: TreeIndex) -> float:
-        # TODO: implement
-        return -1
-        # return self.eval_compute_times[i]
+        return self.eval_compute_times[i]
 
     def get_newick_eval_tree_for_tree_index(self, i: TreeIndex) -> Newick:
         return self.eval_trees[i]
@@ -146,7 +144,7 @@ def create_raxml(
         treeseach_seeds             = get_all_raxml_seeds(treesearch_log_file_path),
         treesearch_trees            = read_file_contents(all_treesearch_trees_file_path),
         treesearch_llhs             = get_all_raxml_llhs(treesearch_log_file_path),
-        treesearch_compute_times    = get_raxml_treesearch_elapsed_time(treesearch_log_file_path),
+        treesearch_compute_times    = get_raxml_elapsed_time(treesearch_log_file_path),
         iqtree_statstests_results   = get_iqtree_results(iqtree_statstest_results_file_path),
 
         # RaxmlEvalTree stuff
@@ -155,8 +153,7 @@ def create_raxml(
         eval_blmaxs             = get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmax"),
         eval_trees              = read_file_contents(all_eval_trees_file_path),
         eval_llhs               = get_all_raxml_llhs(eval_log_file_path),
-        # TODO: eval compute times 
-        eval_compute_times = [-1],
+        eval_compute_times      = get_raxml_elapsed_time(eval_log_file_path),
 
         # RFDistTreesearchTree stuff
         all_treesearch_tree_rfdists = read_rfdistances(rfdistances_file_path),
