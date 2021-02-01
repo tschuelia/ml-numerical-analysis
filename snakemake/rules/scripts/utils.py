@@ -50,7 +50,6 @@ def get_iqtree_run_param_value(line: str, param_identifier: str) -> float:
 def get_iqtree_run_param_values_from_file(
     iqtree_log: FilePath, param_identifier: str
 ) -> TreeIndexed[float]:
-    print("log file", iqtree_log)
     content = read_file_contents(iqtree_log)
 
     values = []

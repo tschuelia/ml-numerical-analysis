@@ -234,7 +234,6 @@ with db.db.atomic():
 # create Iqtree related
 #################################
 for i, run in enumerate(run_python_objects):
-    print("hello ", iqtree_treesearch_log_file_paths[i])
     # Iqtree Program
     # fmt: off
     iqtree = create_iqtree(

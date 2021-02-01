@@ -101,8 +101,8 @@ def create_iqtree(
         
         # IqtreeEvalTree
         best_eval_tree_newick = read_file_contents(best_eval_tree_file_path)[0],
-        eval_blmins         = get_iqtree_run_param_values_from_file(treesearch_log_file_path, "blmin"),
-        eval_blmaxs         = get_iqtree_run_param_values_from_file(treesearch_log_file_path, "blmax"),
+        eval_blmins         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmin"),
+        eval_blmaxs         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmax"),
         eval_trees          = read_file_contents(all_eval_trees_file_path),
         eval_llhs           = get_all_iqtree_llhs(eval_log_file_path),
         eval_compute_times  = get_iqtree_wallclock_time(eval_log_file_path),
