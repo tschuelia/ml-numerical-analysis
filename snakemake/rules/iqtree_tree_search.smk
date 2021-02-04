@@ -2,19 +2,17 @@ rule iqtree_pars_tree:
     input:
         msa = config["data"]["input"],
     output:
-        treefile    = f"{full_file_path_iqtree_pars}.treefile",
-        iqtree_done = f"{full_file_path_iqtree_pars}.done",
-    
+        iqtree_done = touch(f"{full_file_path_iqtree_pars}.done"),
     params:
         model       = config["parameters"]["model"]["iqtree"],
         threads     = config["parameters"]["iqtree"]["threads"],
-        prefix      = full_file_path_iqtree_pars,
-        hidden_log  = f"{full_file_path_iqtree_pars}.iqtree.treesearch.hidden_log"
+        prefix_tmp  = full_file_path_iqtree_pars_tmp,
+        tmp_dir     = full_dir_iqtree_pars_tmp,
+        search_log  = f"{full_file_path_iqtree_pars_tmp}.iqtree.treesearch.log"
     log:
         f"{full_file_path_iqtree_pars}.snakelog"
     shell:
-        # prevent snakemake from rerunning finished iqtree runs
-        "set +e && grep -q 'BEST SCORE FOUND' {params.hidden_log} || "
+        "mkdir -p {params.tmp_dir}; "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -22,20 +20,21 @@ rule iqtree_pars_tree:
         "-blmin {wildcards.blmin} "
         "-blmax {wildcards.blmax} "
         "-seed {wildcards.seed} "
-        "-pre {params.prefix} "
+        "-pre {params.prefix_tmp} "
         "-nt {params.threads} "
-        ">> {params.hidden_log} "
-        "&& touch {params.prefix}.done"
+        ">> {params.search_log} "
 
 rule reveal_hidden_treesearch_log:
     input: 
-        rules.iqtree_pars_tree.iqtree_done # this is just a dummy and is unused
+        rules.iqtree_pars_tree.output.iqtree_done # this is just a dummy and is unused
     output:
-        iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log"
+        iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log",
+        treefile   = f"{full_file_path_iqtree_pars}.treefile"
     params:
-        hidden_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.hidden_log"
+        prefix_tmp = full_dir_iqtree_pars_tmp,
+        prefix = full_dir_iqtree_pars
     shell:
-        "cp {params.hidden_log} {output.iqtree_log}"
+        "cp {params.prefix_tmp}/* {params.prefix}"
 
 
 rule collect_all_iqtree_trees:
@@ -70,18 +69,17 @@ rule re_eval_best_iqtree_tree:
         msa                 = config["data"]["input"],
         best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun",
     output:
-        treefile    = f"{full_file_path_iqtree_eval}.treefile",
-        iqtree_done = f"{full_file_path_iqtree_eval}.done",
+        iqtree_done = touch(f"{full_file_path_iqtree_eval}.done"),
     params:
         model           = config["parameters"]["model"]["iqtree"],
         threads         = config["parameters"]["iqtree"]["threads"],
-        prefix          = full_file_path_iqtree_eval,
-        hidden_log      = f"{full_file_path_iqtree_eval}.iqtree.eval.hidden_log"
+        prefix_tmp      = full_file_path_iqtree_eval_tmp,
+        tmp_dir         = full_dir_iqtree_eval_tmp,
+        eval_log        = f"{full_file_path_iqtree_eval_tmp}.iqtree.eval.log"
     log:
         f"{full_file_path_iqtree_eval}.snakelog"
     shell:
-        # prevent snakemake from rerunning finished iqtree runs
-        "set +e && grep -q 'BEST SCORE FOUND' {params.hidden_log} || "
+        "mkdir -p {params.tmp_dir}; "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -90,18 +88,19 @@ rule re_eval_best_iqtree_tree:
         "-blmax {wildcards.blmax_eval} "
         "-pre {params.prefix} "
         "-nt {params.threads} "
-        ">> {params.hidden_log} "
-        "&& touch {params.prefix}.done"
+        ">> {params.eval_log} "
 
 rule reveal_hidden_eval_log:
     input: 
-        rules.re_eval_best_iqtree_tree.iqtree_done # this is just a dummy and is unused
+        rules.re_eval_best_iqtree_tree.output.iqtree_done # this is just a dummy and is unused
     output:
-        iqtree_log = f"{full_file_path_iqtree_eval}.iqtree.eval.log"
+        iqtree_log = f"{full_file_path_iqtree_eval}.iqtree.eval.log",
+        treefile   = f"{full_file_path_iqtree_eval}.treefile",
     params:
-        hidden_log = f"{full_file_path_iqtree_eval}.iqtree.eval.hidden_log"
+        prefix_tmp = full_dir_iqtree_eval_tmp,
+        prefix = full_dir_iqtree_eval
     shell:
-        "cp {params.hidden_log} {output.iqtree_log}"
+        "cp {params.prefix_tmp}/* {params.prefix}"
 
 rule collect_all_iqtree_eval_trees:
     input:

@@ -39,8 +39,15 @@ full_file_path_iqtree       = full_dir_iqtree + file_name
 full_dir_iqtree_pars        = full_dir_iqtree + "parsimonyTrees/"
 full_file_path_iqtree_pars  = full_dir_iqtree_pars + file_name_pars
 
+full_dir_iqtree_pars_tmp    = full_dir_iqtree + "parsimonyTrees/tmp/"
+full_file_path_iqtree_pars_tmp = full_dir_iqtree_pars_tmp + file_name_pars
+
 full_dir_iqtree_eval        = full_dir_iqtree + "eval/"
 full_file_path_iqtree_eval  = full_dir_iqtree_eval + file_name_eval
+
+full_dir_iqtree_eval_tmp    = full_dir_iqtree + "eval/tmp/"
+full_file_path_iqtree_eval_tmp = full_dir_iqtree_eval_tmp + file_name_eval
+
 
 
 rule all:
