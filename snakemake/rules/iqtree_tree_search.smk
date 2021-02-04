@@ -4,16 +4,17 @@ rule iqtree_pars_tree:
     output:
         treefile    = f"{full_file_path_iqtree_pars}.treefile",
         iqtree_done = f"{full_file_path_iqtree_pars}.done",
-        iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log"
+    
     params:
         model       = config["parameters"]["model"]["iqtree"],
         threads     = config["parameters"]["iqtree"]["threads"],
         prefix      = full_file_path_iqtree_pars,
+        hidden_log  = f"{full_file_path_iqtree_pars}.iqtree.treesearch.hidden_log"
     log:
         f"{full_file_path_iqtree_pars}.snakelog"
     shell:
         # prevent snakemake from rerunning finished iqtree runs
-        "grep -q 'BEST SCORE FOUND' {params.prefix}.iqtree.treesearch.log || "
+        "set +e && grep -q 'BEST SCORE FOUND' {params.hidden_log} || "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -23,8 +24,19 @@ rule iqtree_pars_tree:
         "-seed {wildcards.seed} "
         "-pre {params.prefix} "
         "-nt {params.threads} "
-        "> {output.iqtree_log} "
+        ">> {params.hidden_log} "
         "&& touch {params.prefix}.done"
+
+rule reveal_hidden_treesearch_log:
+    input: 
+        rules.iqtree_pars_tree.iqtree_done # this is just a dummy and is unused
+    output:
+        iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log"
+    params:
+        hidden_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.hidden_log"
+    shell:
+        "cp {params.hidden_log} {output.iqtree_log}"
+
 
 rule collect_all_iqtree_trees:
     input:
@@ -57,20 +69,19 @@ rule re_eval_best_iqtree_tree:
     input:
         msa                 = config["data"]["input"],
         best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun",
-    
     output:
         treefile    = f"{full_file_path_iqtree_eval}.treefile",
         iqtree_done = f"{full_file_path_iqtree_eval}.done",
-        eval_log    = f"{full_file_path_iqtree_eval}.iqtree.eval.log"
     params:
         model           = config["parameters"]["model"]["iqtree"],
         threads         = config["parameters"]["iqtree"]["threads"],
         prefix          = full_file_path_iqtree_eval,
+        hidden_log      = f"{full_file_path_iqtree_eval}.iqtree.eval.hidden_log"
     log:
         f"{full_file_path_iqtree_eval}.snakelog"
     shell:
         # prevent snakemake from rerunning finished iqtree runs
-        "grep -q 'BEST SCORE FOUND' {params.prefix}.iqtree.eval.log || "
+        "set +e && grep -q 'BEST SCORE FOUND' {params.hidden_log} || "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -79,8 +90,18 @@ rule re_eval_best_iqtree_tree:
         "-blmax {wildcards.blmax_eval} "
         "-pre {params.prefix} "
         "-nt {params.threads} "
-        "> {output.eval_log} "
+        ">> {params.hidden_log} "
         "&& touch {params.prefix}.done"
+
+rule reveal_hidden_eval_log:
+    input: 
+        rules.re_eval_best_iqtree_tree.iqtree_done # this is just a dummy and is unused
+    output:
+        iqtree_log = f"{full_file_path_iqtree_eval}.iqtree.eval.log"
+    params:
+        hidden_log = f"{full_file_path_iqtree_eval}.iqtree.eval.hidden_log"
+    shell:
+        "cp {params.hidden_log} {output.iqtree_log}"
 
 rule collect_all_iqtree_eval_trees:
     input:
