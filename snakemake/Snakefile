@@ -89,6 +89,7 @@ rule all:
         # Iqtree treesearch
         #################################
         expand(f"{full_file_path_iqtree_pars}.treefile", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
+        expand(f"{full_file_path_iqtree_pars}.done", seed=pars_seeds, blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
 
         # all infered trees for one combination of parameters collected in a single file
         expand(f"{full_file_path_iqtree}.allTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
@@ -105,6 +106,7 @@ rule all:
         # re-evaluated best tree according to all params
         expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
         expand(f"{full_file_path_iqtree_eval}.treefile", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
+        expand(f"{full_file_path_iqtree_eval}.done", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir, blmin_eval=blmin_opts, blmax_eval=blmax_opts),
         
         expand(f"{full_file_path_iqtree}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),
         expand(f"{full_file_path_iqtree}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, outdir=outdir),

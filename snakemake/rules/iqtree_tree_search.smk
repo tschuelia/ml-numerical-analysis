@@ -2,7 +2,8 @@ rule iqtree_pars_tree:
     input:
         msa = config["data"]["input"],
     output:
-        treefile    = f"{full_file_path_iqtree_pars}.treefile"
+        treefile    = f"{full_file_path_iqtree_pars}.treefile",
+        iqtree_done = f"{full_file_path_iqtree_pars}.done"
     params:
         model       = config["parameters"]["model"]["iqtree"],
         threads     = config["parameters"]["iqtree"]["threads"],
@@ -21,6 +22,7 @@ rule iqtree_pars_tree:
         "-pre {params.prefix} "
         "-nt {params.threads} "
         "> {log} "
+        "&& touch {params.prefix}.done"
 
 rule collect_all_iqtree_trees:
     input:
@@ -54,7 +56,8 @@ rule re_eval_best_iqtree_tree:
         msa                 = config["data"]["input"],
         best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun"
     output:
-        treefile    = f"{full_file_path_iqtree_eval}.treefile"
+        treefile    = f"{full_file_path_iqtree_eval}.treefile",
+        iqtree_done = f"{full_file_path_iqtree_eval}.done"
     params:
         model           = config["parameters"]["model"]["iqtree"],
         threads         = config["parameters"]["iqtree"]["threads"],
@@ -71,6 +74,7 @@ rule re_eval_best_iqtree_tree:
         "-pre {params.prefix} "
         "-nt {params.threads} "
         "> {log} "
+        "&& touch {params.prefix}.done"
 
 rule collect_all_iqtree_eval_trees:
     input:
