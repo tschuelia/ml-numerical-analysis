@@ -4,6 +4,7 @@ rule raxml_pars_tree:
     output:
         raxml_best_tree       = f"{full_file_path_raxml_pars}.raxml.bestTree",
         raxml_best_model      = f"{full_file_path_raxml_pars}.raxml.bestModel",
+        raxml_log             = f"{full_file_path_raxml_pars}.raxml.treesearch.log",
     params:
         # general params
         model           = config["parameters"]["model"]["raxml-ng"],
@@ -11,7 +12,7 @@ rule raxml_pars_tree:
         threads         = config["parameters"]["raxml-ng"]["threads"],
         prefix          = full_file_path_raxml_pars,
     log:
-        raxml_treesearch_log    = f"{full_file_path_raxml_pars}.raxml.treesearch.log",
+        f"{full_file_path_raxml_pars}.snakelog",
     shell:
         "{raxml_command} " 
         "--msa {input.msa} "
@@ -22,7 +23,7 @@ rule raxml_pars_tree:
         "--threads {params.threads} "
         "--seed {wildcards.seed} "
         "--tree pars{{1}} "
-        "> {log} "
+        "> {output.raxml_log} "
     
 rule raxml_rand_tree:
     input:
@@ -30,6 +31,7 @@ rule raxml_rand_tree:
     output:
         raxml_best_tree       = f"{full_file_path_raxml_rand}.raxml.bestTree",
         raxml_best_model      = f"{full_file_path_raxml_rand}.raxml.bestModel",
+        raxml_log             = f"{full_file_path_raxml_rand}.raxml.treesearch.log",
     params:
         # general params
         model           = config["parameters"]["model"]["raxml-ng"],
@@ -37,7 +39,7 @@ rule raxml_rand_tree:
         threads         = config["parameters"]["raxml-ng"]["threads"],
         prefix          = full_file_path_raxml_rand,
     log:
-        raxml_treesearch_log    = f"{full_file_path_raxml_rand}.raxml.treesearch.log",
+        f"{full_file_path_raxml_rand}.snakelog",
     shell:
         "{raxml_command} " 
         "--msa {input.msa} "
@@ -48,7 +50,7 @@ rule raxml_rand_tree:
         "--threads {params.threads} "
         "--seed {wildcards.seed} "
         "--tree rand{{1}} "
-        "> {log} "
+        "> {output.raxml_log} "
 
 rule collect_all_raxml_trees:
     input:
@@ -82,16 +84,17 @@ rule save_best_raxml_tree_to_file:
 rule re_eval_best_raxml_tree:
     input:
         msa                 = config["data"]["input"],
-        best_tree_of_run    = f"{full_file_path_raxml}.bestTreeOfRun"
+        best_tree_of_run    = f"{full_file_path_raxml}.bestTreeOfRun",
     output:
         f"{full_file_path_raxml_eval}.raxml.log",
-        f"{full_file_path_raxml_eval}.raxml.bestTree"
+        f"{full_file_path_raxml_eval}.raxml.bestTree",
+        eval_log = f"{full_file_path_raxml_eval}.raxml.eval.log",
     params:
         model           = config["parameters"]["model"]["raxml-ng"],
         threads         = config["parameters"]["raxml-ng"]["threads"],
         prefix          = full_file_path_raxml_eval,
     log:
-        f"{full_file_path_raxml_eval}.raxml.eval.log"
+        f"{full_file_path_raxml_eval}.snakelog"
     shell:
         "{raxml_command} "
         "--eval "
@@ -102,7 +105,7 @@ rule re_eval_best_raxml_tree:
         "--blmin {wildcards.blmin_eval} "
         "--blmax {wildcards.blmax_eval} "
         "--threads {params.threads} "
-        "> {log} "
+        "> {output.eval_log} "
 
 rule collect_all_raxml_eval_trees:
     input:

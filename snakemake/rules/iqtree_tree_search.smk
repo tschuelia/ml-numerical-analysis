@@ -3,15 +3,17 @@ rule iqtree_pars_tree:
         msa = config["data"]["input"],
     output:
         treefile    = f"{full_file_path_iqtree_pars}.treefile",
-        iqtree_done = f"{full_file_path_iqtree_pars}.done"
+        iqtree_done = f"{full_file_path_iqtree_pars}.done",
+        iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log"
     params:
         model       = config["parameters"]["model"]["iqtree"],
         threads     = config["parameters"]["iqtree"]["threads"],
         prefix      = full_file_path_iqtree_pars,
     log:
-        f"{full_file_path_iqtree_pars}.iqtree.treesearch.log"
-
+        f"{full_file_path_iqtree_pars}.snakelog"
     shell:
+        # prevent snakemake from rerunning finished iqtree runs
+        "grep -q 'BEST SCORE FOUND' {params.prefix}.iqtree.treesearch.log || "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -21,7 +23,7 @@ rule iqtree_pars_tree:
         "-seed {wildcards.seed} "
         "-pre {params.prefix} "
         "-nt {params.threads} "
-        "> {log} "
+        "> {output.iqtree_log} "
         "&& touch {params.prefix}.done"
 
 rule collect_all_iqtree_trees:
@@ -54,17 +56,21 @@ rule save_best_iqtree_tree_to_file:
 rule re_eval_best_iqtree_tree:
     input:
         msa                 = config["data"]["input"],
-        best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun"
+        best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun",
+    
     output:
         treefile    = f"{full_file_path_iqtree_eval}.treefile",
-        iqtree_done = f"{full_file_path_iqtree_eval}.done"
+        iqtree_done = f"{full_file_path_iqtree_eval}.done",
+        eval_log    = f"{full_file_path_iqtree_eval}.iqtree.eval.log"
     params:
         model           = config["parameters"]["model"]["iqtree"],
         threads         = config["parameters"]["iqtree"]["threads"],
         prefix          = full_file_path_iqtree_eval,
     log:
-        f"{full_file_path_iqtree_eval}.iqtree.eval.log"
+        f"{full_file_path_iqtree_eval}.snakelog"
     shell:
+        # prevent snakemake from rerunning finished iqtree runs
+        "grep -q 'BEST SCORE FOUND' {params.prefix}.iqtree.eval.log || "
         "{iqtree_command} "
         "-m {params.model} "
         "-s {input.msa} "
@@ -73,7 +79,7 @@ rule re_eval_best_iqtree_tree:
         "-blmax {wildcards.blmax_eval} "
         "-pre {params.prefix} "
         "-nt {params.threads} "
-        "> {log} "
+        "> {output.eval_log} "
         "&& touch {params.prefix}.done"
 
 rule collect_all_iqtree_eval_trees:
