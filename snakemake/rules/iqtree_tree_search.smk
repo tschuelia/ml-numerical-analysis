@@ -24,7 +24,7 @@ rule iqtree_pars_tree:
         "-nt {params.threads} "
         ">> {params.search_log} "
 
-rule reveal_hidden_treesearch_log:
+rule reveal_hidden_treesearch_files:
     input: 
         rules.iqtree_pars_tree.output.iqtree_done # this is just a dummy and is unused
     output:
@@ -90,7 +90,7 @@ rule re_eval_best_iqtree_tree:
         "-nt {params.threads} "
         ">> {params.eval_log} "
 
-rule reveal_hidden_eval_log:
+rule reveal_hidden_eval_files:
     input: 
         rules.re_eval_best_iqtree_tree.output.iqtree_done # this is just a dummy and is unused
     output:

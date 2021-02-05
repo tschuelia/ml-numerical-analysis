@@ -1,7 +1,7 @@
 import json
 import regex
 from typing import Tuple
-from custom_types import *
+from .custom_types import *
 
 
 def get_parameter_value(filename: FilePath, param_identifier: str) -> float:

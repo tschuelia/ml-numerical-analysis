@@ -1,14 +1,24 @@
 data:
-  input: "/Users/julia/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy"
-  outdir: "data/354/results"
-  #outdir: "data/354_cascade/results"
-  #input: data/ng-tutorial/prim.phy
-  #outdir: data/ng-tutorial/results
+  #input: data/cluster_results/cascade/covid_data/fmsan/data/covid_edited.fasta
+  #outdir: data/cluster_results/cascade/covid_data/fmsan/results_4Feb21
+  #input: /Users/julia/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy
+  #outdir: data/cluster_results/ml/354/results
+  input: ../data/ng-tutorial/prim.phy
+  outdir: ../data/ng-tutorial/results/
+  #input: data/covid_data/fmsan/data/covid_edited.fasta
+  #outdir: data/covid_data/fmsan/results
+
+ROOT: "/Users/julia/Desktop/Masterarbeit/snakemake/"
 
 parameters:
   # general parameter settings
-  blmin: [1e-2, 1e-4, 1e-6, 1e-8, 1e-10]
+  num_pars_trees: 4
+  num_rand_trees: 0
+  blmin: [1e-7, 1e-8, 1e-9, 1e-10]
   blmax: [100]
+  lh_eps: [0.01]
+  raxml_param_epsilon: [0.001]
+  branch_length_smoothing: [32]
 
   # if you change the model: make sure to change both raxml and iqtree to the respective model
   model:
@@ -22,8 +32,5 @@ parameters:
 
   # raxml-ng specific settings
   raxml-ng:
-    command: raxml-ng
+    command: /Users/julia/Desktop/Masterarbeit/snakemake/software/param-raxml-ng/bin/raxml-ng
     threads: 2
-    seed: 2
-    num_pars_trees: 10
-    num_rand_trees: 10
