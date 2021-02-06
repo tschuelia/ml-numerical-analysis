@@ -3,8 +3,8 @@ data:
   #outdir: data/cluster_results/cascade/covid_data/fmsan/results_4Feb21
   #input: /Users/julia/Desktop/Masterarbeit/test-Datasets/DNA-Data/354/354.phy
   #outdir: data/cluster_results/ml/354/results
-  input: ../data/ng-tutorial/prim.phy
-  outdir: ../data/ng-tutorial/results/
+  input: data/ng-tutorial/prim.phy
+  outdir: data/ng-tutorial/results/
   #input: data/covid_data/fmsan/data/covid_edited.fasta
   #outdir: data/covid_data/fmsan/results
 

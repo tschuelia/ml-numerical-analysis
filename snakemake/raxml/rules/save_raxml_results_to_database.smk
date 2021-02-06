@@ -1,4 +1,4 @@
-rule save_results_to_database:
+rule save_raxml_results_to_database:
     input:
         params_file      = expand(f"{full_dir_raxml}parameters.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
         ##### treesearch

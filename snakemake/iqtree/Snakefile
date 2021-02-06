@@ -33,11 +33,11 @@ full_file_path_iqtree_eval  = full_dir_iqtree_eval + file_name_iqtree_eval
 full_dir_iqtree_eval_tmp        = full_dir_iqtree_eval + "tmp/"
 full_file_path_iqtree_eval_tmp  = full_dir_iqtree_eval_tmp + file_name_iqtree_eval
 
-rule all:
+rule iqtree_database:
     input:
         database = f"{base_dir}iqtree_results.sqlite3"
 
-rule save_parameter_settings_in_file:
+rule save_iqtree_settings_in_file:
     output:
         params = f"{full_dir_iqtree}parameters.json"
     params:
@@ -56,4 +56,4 @@ include: "rules/iqtree_treesearch.smk"
 include: "rules/iqtree_collect_data.smk"
 include: "rules/iqtree_best_tree.smk"
 include: "rules/iqtree_evaluation.smk"
-include: "rules/save_iqtree_results_database.smk"
+include: "rules/save_iqtree_results_to_database.smk"

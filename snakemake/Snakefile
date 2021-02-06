@@ -4,24 +4,10 @@ configfile: "config.yaml"
 base_dir = config["data"]["outdir"]
 
 
-subworkflow raxml:
-    workdir:
-        "./raxml"
-    snakefile:
-        "./raxml/Snakefile"
-    configfile:
-        "config.yaml"
-    
-subworkflow iqtree:
-    workdir:
-        "./iqtree"
-    snakefile:
-        "./iqtree/Snakefile"
-    configfile:
-        "config.yaml"
-
 rule all:
     input:
-        raxml(f"{base_dir}raxml_results.sqlite3"),
-        iqtree(f"{base_dir}iqtree_results.sqlite3"),
+        f"{base_dir}raxml_results.sqlite3",
+        f"{base_dir}iqtree_results.sqlite3",
 
+include: "iqtree/Snakefile"
+include: "raxml/Snakefile"

@@ -1,4 +1,4 @@
-rule save_results_to_database:
+rule save_iqtree_results_to_database:
     input: 
         params_file  = expand(f"{full_dir_iqtree}parameters.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts),
 

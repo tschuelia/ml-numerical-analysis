@@ -34,12 +34,12 @@ file_name_raxml_eval        = base_name_raxml_eval + "S_" + base_name_raxml
 full_dir_raxml_eval         = full_dir_raxml + "e/"
 full_file_path_raxml_eval   = full_dir_raxml_eval + file_name_raxml_eval
 
-rule all:
+rule raxml_database:
     input:
         database = f"{base_dir}raxml_results.sqlite3", 
         
 
-rule save_parameter_settings_in_file:
+rule save_raxml_settings_in_file:
     output:
         params = f"{full_dir_raxml}parameters.json"
     params:
