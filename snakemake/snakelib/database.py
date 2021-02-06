@@ -8,7 +8,7 @@ class BaseProgram(P.Model):
     # parameter values
     blmin = P.FloatField()
     blmax = P.FloatField()
-    #lh_eps = P.FloatField()
+    lh_eps = P.FloatField()
 
     num_pars_trees = P.IntegerField()
     num_rand_trees = P.IntegerField()
@@ -18,6 +18,8 @@ class BaseProgram(P.Model):
 
 
 class Raxmlng(BaseProgram):
+    raxml_param_epsilon = P.FloatField()
+    branch_length_smoothing = P.IntegerField()
     avg_abs_rfdist_treesearch = P.FloatField()
     avg_rel_rfdist_treesearch = P.FloatField()
     num_unique_topos_treesearch = P.IntegerField()

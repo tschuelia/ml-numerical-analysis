@@ -24,6 +24,10 @@ class Raxml:
     # Raxmlng stuff
     blmin: float
     blmax: float
+    lh_eps: float
+    raxml_param_epsilon: float
+    branch_length_smoothing: int
+    
     num_pars_trees: int
     num_rand_trees: int
     best_treesearch_llh: float
@@ -132,6 +136,10 @@ def create_raxml(
         # Raxmlng stuff
         blmin                       = get_parameter_value(parameter_file_path, "blmin"),
         blmax                       = get_parameter_value(parameter_file_path, "blmax"),
+        lh_eps                      = get_parameter_value(parameter_file_path, "lh_eps"),
+        raxml_param_epsilon         = get_parameter_value(parameter_file_path, "raxml_param_epsilon"),
+        branch_length_smoothing     = get_parameter_value(parameter_file_path, "raxml_brlen_smoothings"),
+
         num_pars_trees              = get_parameter_value(parameter_file_path, "num_pars_trees"),
         num_rand_trees              = get_parameter_value(parameter_file_path, "num_rand_trees"),
         best_treesearch_llh         = get_best_raxml_llh(treesearch_log_file_path),

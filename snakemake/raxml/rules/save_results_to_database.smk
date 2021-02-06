@@ -29,5 +29,7 @@ rule save_results_to_database:
         rfDist_best_eval_trees        = f"{base_dir_raxml}bestEvalTrees.raxml.rfDistances",
     output:
         database = f"{base_dir}raxml_results.sqlite3", 
+    params:
+        raxml_command = config["parameters"]["raxml-ng"]["command"],
     script:
-        "scripts/save_results_to_database.py"
+        "scripts/save_raxml_results_to_database.py"

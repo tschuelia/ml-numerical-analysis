@@ -66,18 +66,23 @@ for i in range(num_runs):
     # fmt: on
     raxml_objects.append(raxml)
 
+    # fmt:off
     raxml_db = db.Raxmlng.create(
-        blmin=raxml.blmin,
-        blmax=raxml.blmax,
-        num_pars_trees=raxml.num_pars_trees,
-        num_rand_trees=raxml.num_rand_trees,
-        best_treesearch_llh=raxml.best_treesearch_llh,
-        best_evaluation_llh=raxml.best_evaluation_llh,
-        treesearch_total_time=raxml.treesearch_total_time,
-        avg_abs_rfdist_treesearch=raxml.avg_abs_rfdist_treesearch,
-        avg_rel_rfdist_treesearch=raxml.avg_rel_rfdist_treesearch,
-        num_unique_topos_treesearch=raxml.num_unique_topos_treesearch,
+        blmin   = raxml.blmin,
+        blmax   = raxml.blmax,
+        lh_eps  = raxml.lh_eps,
+        raxml_param_epsilon     = raxml.raxml_param_epsilon,
+        branch_length_smoothing = raxml.branch_length_smoothing,
+        num_pars_trees          = raxml.num_pars_trees,
+        num_rand_trees          = raxml.num_rand_trees,
+        best_treesearch_llh     = raxml.best_treesearch_llh,
+        best_evaluation_llh     = raxml.best_evaluation_llh,
+        treesearch_total_time   = raxml.treesearch_total_time,
+        avg_abs_rfdist_treesearch   = raxml.avg_abs_rfdist_treesearch,
+        avg_rel_rfdist_treesearch   = raxml.avg_rel_rfdist_treesearch,
+        num_unique_topos_treesearch = raxml.num_unique_topos_treesearch,
     )
+    # fmt: on
 
     raxml_db_objects.append(raxml_db)
 
