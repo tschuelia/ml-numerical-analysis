@@ -8,7 +8,7 @@ class BaseProgram(P.Model):
     # parameter values
     blmin = P.FloatField()
     blmax = P.FloatField()
-    lh_eps = P.FloatField()
+    #lh_eps = P.FloatField()
 
     num_pars_trees = P.IntegerField()
     num_rand_trees = P.IntegerField()

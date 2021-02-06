@@ -1,22 +1,20 @@
 import dataclasses
 
-from custom_types import *
-from typing import Tuple
+from snakelib.custom_types import *
+from snakelib.utils import get_parameter_value, read_file_contents
 
 # from iqtree_statstest_parser import get_iqtree_results
-from utils import (
+from raxml_utils import (
     get_all_raxml_llhs,
     get_all_raxml_seeds,
     get_best_raxml_llh,
     get_cleaned_rf_dist,
-    get_parameter_value,
     get_raxml_abs_rf_distance,
     get_raxml_num_unique_topos,
     get_raxml_rel_rf_distance,
     get_raxml_run_param_values_from_file,
     get_raxml_elapsed_time,
     get_raxml_treesearch_elapsed_time_entire_run,
-    read_file_contents,
     read_rfdistances,
 )
 
@@ -24,6 +22,8 @@ from utils import (
 @dataclasses.dataclass
 class Raxml:
     # Raxmlng stuff
+    blmin: float
+    blmax: float
     num_pars_trees: int
     num_rand_trees: int
     best_treesearch_llh: float
@@ -130,6 +130,8 @@ def create_raxml(
 ):  
     return Raxml(
         # Raxmlng stuff
+        blmin                       = get_parameter_value(parameter_file_path, "blmin"),
+        blmax                       = get_parameter_value(parameter_file_path, "blmax"),
         num_pars_trees              = get_parameter_value(parameter_file_path, "num_pars_trees"),
         num_rand_trees              = get_parameter_value(parameter_file_path, "num_rand_trees"),
         best_treesearch_llh         = get_best_raxml_llh(treesearch_log_file_path),
@@ -157,5 +159,57 @@ def create_raxml(
 
         # RFDistTreesearchTree stuff
         all_treesearch_tree_rfdists = read_rfdistances(rfdistances_file_path),
+    )
+# fmt: on
+
+
+@dataclasses.dataclass
+class Experiment:
+    # fmt: on
+    raxml_best_trees            : RunIndexed[Newick]
+    raxml_best_eval_trees       : RunIndexed[Newick]
+    rfdist_raxml_best_trees     : RunRunIndexed
+    rfdist_raxml_best_eval_trees: RunRunIndexed
+    # fmt: off
+
+
+    def get_plain_rfdist_for_raxml_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        rf_dist_plain, _ = self.rfdist_raxml_best_trees[run_indices]
+        return rf_dist_plain
+
+    def get_normalized_rfdist_for_raxml_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        _, rf_dist_norm = self.rfdist_raxml_best_trees[run_indices]
+        return rf_dist_norm
+
+    def get_plain_rfdist_for_raxml_eval_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        rf_dist_plain, _ = self.rfdist_raxml_best_eval_trees[run_indices]
+        return rf_dist_plain
+
+    def get_normalized_rfdist_for_raxml_eval_trees(
+        self, run_indices: Tuple[RunIndex, RunIndex]
+    ) -> float:
+        _, rf_dist_norm = self.rfdist_raxml_best_eval_trees[run_indices]
+        return rf_dist_norm
+
+
+
+# fmt: off
+def create_Experiment(
+    raxml_best_trees_path       : FilePath,
+    raxml_best_eval_trees_path  : FilePath,
+    rfdist_raxml_best_trees_path      : FilePath,
+    rfdist_raxml_best_eval_trees_path : FilePath,
+):
+    return Experiment(
+        raxml_best_trees              = read_file_contents(raxml_best_trees_path),
+        raxml_best_eval_trees         = read_file_contents(raxml_best_eval_trees_path),
+        rfdist_raxml_best_trees       = read_rfdistances(rfdist_raxml_best_trees_path),
+        rfdist_raxml_best_eval_trees  = read_rfdistances(rfdist_raxml_best_eval_trees_path),
     )
 # fmt: on
