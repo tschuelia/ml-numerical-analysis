@@ -29,7 +29,8 @@ class Raxmlng(BaseProgram):
 
 
 class Iqtree(BaseProgram):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
 class BaseTree(P.Model):
@@ -84,22 +85,28 @@ class RaxmlTreesearchTree(TreesearchTree):
 
 
 class IqtreeTreesearchTree(TreesearchTree):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
 class EvalTree(BaseTree):
     start_tree = P.ForeignKeyField(TreesearchTree)
     eval_blmin = P.FloatField()
     eval_blmax = P.FloatField()
+    eval_lh_eps = P.FloatField()
 
 
 class RaxmlEvalTree(EvalTree):
+    eval_raxml_param_epsilon = P.FloatField()
+    eval_raxml_brlen_smoothings = P.IntegerField()
+
     class Meta:
         database = raxml_db
 
 
 class IqtreeEvalTree(EvalTree):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
 class BaseRFDistance(P.Model):

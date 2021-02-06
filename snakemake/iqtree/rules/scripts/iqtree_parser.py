@@ -1,11 +1,11 @@
 import dataclasses
 
-from custom_types import *
-from utils import (
+from snakelib.custom_types import *
+from snakelib.utils import get_parameter_value, read_file_contents
+
+from iqtree_utils import (
     get_all_iqtree_llhs,
-    get_parameter_value,
     get_best_iqtree_llh,
-    read_file_contents,
     get_iqtree_treesearch_wallclock_time_entire_run,
     get_iqtree_wallclock_time,
     get_iqtree_run_param_values_from_file,
@@ -14,8 +14,12 @@ from utils import (
 
 @dataclasses.dataclass
 class Iqtree:
+    blmin: float
+    blmax: float
+    lh_eps: float
+
     num_pars_trees: int
-    num_rand_trees: int
+    # num_rand_trees: int
     best_treesearch_llh: float
     best_evaluation_llh: float
     treesearch_total_time: float
@@ -31,12 +35,14 @@ class Iqtree:
     best_eval_tree_newick: Newick
     eval_blmins: TreeIndexed[float]
     eval_blmaxs: TreeIndexed[float]
+    eval_lh_eps: TreeIndexed[float]
+
     eval_trees: TreeIndexed[float]
     eval_llhs: TreeIndexed[float]
     eval_compute_times: TreeIndexed[float]
 
     def get_num_of_trees(self) -> int:
-        return self.num_pars_trees + self.num_rand_trees
+        return self.num_pars_trees  # + self.num_rand_trees
 
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_newick_tree_for_tree_index(i) == self.best_tree_newick
@@ -74,6 +80,9 @@ class Iqtree:
     def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmaxs[i]
 
+    def get_eval_lh_eps_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_lh_eps[i]
+
 
 def create_iqtree(
     parameter_file_path: FilePath,
@@ -86,8 +95,12 @@ def create_iqtree(
 ):
     # fmt: off
     return Iqtree(
+        blmin                   = get_parameter_value(parameter_file_path, "blmin"),
+        blmax                   = get_parameter_value(parameter_file_path, "blmax"),
+        lh_eps                  = get_parameter_value(parameter_file_path, "lh_eps"),
+
         num_pars_trees          = get_parameter_value(parameter_file_path, "num_pars_trees"),
-        num_rand_trees          = get_parameter_value(parameter_file_path, "num_rand_trees"),
+        #num_rand_trees          = get_parameter_value(parameter_file_path, "num_rand_trees"),
         best_treesearch_llh     = get_best_iqtree_llh(treesearch_log_file_path),
         best_evaluation_llh     = get_best_iqtree_llh(eval_log_file_path),
         treesearch_total_time   = get_iqtree_treesearch_wallclock_time_entire_run(treesearch_log_file_path),
@@ -103,6 +116,7 @@ def create_iqtree(
         best_eval_tree_newick = read_file_contents(best_eval_tree_file_path)[0],
         eval_blmins         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmin"),
         eval_blmaxs         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmax"),
+        eval_lh_eps         = get_iqtree_run_param_values_from_file(eval_log_file_path, "me"),
         eval_trees          = read_file_contents(all_eval_trees_file_path),
         eval_llhs           = get_all_iqtree_llhs(eval_log_file_path),
         eval_compute_times  = get_iqtree_wallclock_time(eval_log_file_path),

@@ -11,9 +11,17 @@ subworkflow raxml:
         "./raxml/Snakefile"
     configfile:
         "config.yaml"
+    
+subworkflow iqtree:
+    workdir:
+        "./iqtree"
+    snakefile:
+        "./iqtree/Snakefile"
+    configfile:
+        "config.yaml"
 
 rule all:
     input:
-        # parameter settings for each run
         raxml(f"{base_dir}raxml_results.sqlite3"),
+        iqtree(f"{base_dir}iqtree_results.sqlite3"),
 

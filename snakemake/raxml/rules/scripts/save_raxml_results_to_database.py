@@ -46,7 +46,6 @@ rfDist_best_eval_trees_file_paths         = snakemake.input.rfDist_best_eval_tre
 
 num_runs = len(params_file_paths)
 raxml_objects = []
-raxml_db_objects = []
 
 for i in range(num_runs):
     # fmt:off
@@ -83,8 +82,6 @@ for i in range(num_runs):
         num_unique_topos_treesearch = raxml.num_unique_topos_treesearch,
     )
     # fmt: on
-
-    raxml_db_objects.append(raxml_db)
 
     # RaxmlTreesearchTree
     raxml_treesearch_tree_db_objects = []

@@ -49,6 +49,10 @@ class Raxml:
     best_eval_tree_newick: Newick
     eval_blmins: TreeIndexed[float]
     eval_blmaxs: TreeIndexed[float]
+    eval_lh_eps: TreeIndexed[float]
+    eval_raxml_param_epsilons: TreeIndexed[float]
+    eval_raxml_brlen_smoothings: TreeIndexed[int]
+
     eval_trees: TreeIndexed[Newick]
     eval_llhs: TreeIndexed[float]
     eval_compute_times: TreeIndexed[float]
@@ -116,6 +120,15 @@ class Raxml:
 
     def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmaxs[i]
+    
+    def get_eval_lh_eps_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_lh_eps[i]
+    
+    def get_eval_raxml_param_epsilon_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_raxml_param_epsilons[i]
+    
+    def get_eval_raxml_brlen_smoothings_for_tree_index(self, i: TreeIndex) -> int:
+        return self.eval_raxml_brlen_smoothings[i]
 
 
 # fmt: off
@@ -161,6 +174,10 @@ def create_raxml(
         best_eval_tree_newick   = read_file_contents(best_eval_tree_file_path)[0],
         eval_blmins             = get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmin"),
         eval_blmaxs             = get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmax"),
+        eval_lh_eps             = get_raxml_run_param_values_from_file(eval_log_file_path, command, "lh-epsilon"),
+        eval_raxml_param_epsilons   = get_raxml_run_param_values_from_file(eval_log_file_path, command, "param-eps"),
+        eval_raxml_brlen_smoothings = get_raxml_run_param_values_from_file(eval_log_file_path, command, "brlen-smoothings"),
+
         eval_trees              = read_file_contents(all_eval_trees_file_path),
         eval_llhs               = get_all_raxml_llhs(eval_log_file_path),
         eval_compute_times      = get_raxml_elapsed_time(eval_log_file_path),
@@ -169,7 +186,6 @@ def create_raxml(
         all_treesearch_tree_rfdists = read_rfdistances(rfdistances_file_path),
     )
 # fmt: on
-
 
 @dataclasses.dataclass
 class Experiment:
