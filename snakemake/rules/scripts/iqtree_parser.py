@@ -6,8 +6,8 @@ from utils import (
     get_parameter_value,
     get_best_iqtree_llh,
     read_file_contents,
-    get_iqtree_treesearch_wallclock_time_entire_run,
-    get_iqtree_wallclock_time,
+    get_iqtree_treesearch_cpu_time_entire_run,
+    get_iqtree_cpu_time,
     get_iqtree_run_param_values_from_file,
 )
 
@@ -90,14 +90,14 @@ def create_iqtree(
         num_rand_trees          = get_parameter_value(parameter_file_path, "num_rand_trees"),
         best_treesearch_llh     = get_best_iqtree_llh(treesearch_log_file_path),
         best_evaluation_llh     = get_best_iqtree_llh(eval_log_file_path),
-        treesearch_total_time   = get_iqtree_treesearch_wallclock_time_entire_run(treesearch_log_file_path),
+        treesearch_total_time   = get_iqtree_treesearch_cpu_time_entire_run(treesearch_log_file_path),
         
         # IqtreeTreesearchTree stuff
         best_tree_newick    = read_file_contents(best_tree_file_path)[0],
         treesearch_seeds    = get_iqtree_run_param_values_from_file(treesearch_log_file_path, "seed"),
         treesearch_trees    = read_file_contents(all_treesearch_trees_file_path),
         treesearch_llhs     = get_all_iqtree_llhs(treesearch_log_file_path),
-        treesearch_compute_times = get_iqtree_wallclock_time(treesearch_log_file_path),
+        treesearch_compute_times = get_iqtree_cpu_time(treesearch_log_file_path),
         
         # IqtreeEvalTree
         best_eval_tree_newick = read_file_contents(best_eval_tree_file_path)[0],
@@ -105,6 +105,6 @@ def create_iqtree(
         eval_blmaxs         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmax"),
         eval_trees          = read_file_contents(all_eval_trees_file_path),
         eval_llhs           = get_all_iqtree_llhs(eval_log_file_path),
-        eval_compute_times  = get_iqtree_wallclock_time(eval_log_file_path),
+        eval_compute_times  = get_iqtree_cpu_time(eval_log_file_path),
     )
     # fmt: on

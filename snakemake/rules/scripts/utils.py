@@ -147,10 +147,19 @@ def get_raxml_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
     for line in content:
         if not "Elapsed time:" in line:
             continue
+        # two cases now:
+        # either the run was cancelled an rescheduled
+        if "restarts" in line:
+            # line looks like this: "Elapsed time: 5562.869 seconds (this run) / 91413.668 seconds (total with restarts)"
+            _, right = line.split("/")
+            value = right.split(" ")[1]
+            all_times.append(float(value))
 
-        # correct line looks like this: "Elapsed time: 1976.056 seconds"
-        value = line.split(" ")[2]
-        all_times.append(float(value))
+        # ...or the run ran in one sitting...
+        else:
+            # line looks like this: "Elapsed time: 63514.086 seconds"
+            value = line.split(" ")[2]
+            all_times.append(float(value))
 
     if not all_times:
         raise ValueError(
@@ -164,29 +173,29 @@ def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
     return sum(get_raxml_elapsed_time(log_file))
 
 
-def get_iqtree_wallclock_time(log_file: FilePath) -> TreeIndexed[float]:
+def get_iqtree_cpu_time(log_file: FilePath) -> TreeIndexed[float]:
     content = read_file_contents(log_file)
 
     all_times = []
 
     for line in content:
-        if not "Total wall-clock time used:" in line:
+        if not "Total CPU time used:" in line:
             continue
 
-        # correct line looks like this: "Total wall-clock time used: 0.530 sec (0h:0m:0s)"
+        # correct line looks like this: "Total CPU time used: 0.530 sec (0h:0m:0s)"
         value = line.split(" ")[4]
         all_times.append(float(value))
 
     if not all_times:
         raise ValueError(
-            f"The given input file {log_file} does not contain the wall clock time."
+            f"The given input file {log_file} does not contain the CPU time."
         )
 
     return all_times
 
 
-def get_iqtree_treesearch_wallclock_time_entire_run(log_file: FilePath) -> float:
-    return sum(get_iqtree_wallclock_time(log_file))
+def get_iqtree_treesearch_cpu_time_entire_run(log_file: FilePath) -> float:
+    return sum(get_iqtree_cpu_time(log_file))
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
