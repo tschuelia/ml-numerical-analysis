@@ -1,20 +1,15 @@
 import peewee as P
 
-db = P.SqliteDatabase(None)
+raxml_db = P.SqliteDatabase(None)
+iqtree_db = P.SqliteDatabase(None)
 
 
-class BaseModel(P.Model):
-    class Meta:
-        database = db
-
-
-class Run(BaseModel):
+class BaseProgram(P.Model):
+    # parameter values
     blmin = P.FloatField()
     blmax = P.FloatField()
+    lh_eps = P.FloatField()
 
-
-class BaseProgram(BaseModel):
-    run = P.ForeignKeyField(Run)
     num_pars_trees = P.IntegerField()
     num_rand_trees = P.IntegerField()
     best_treesearch_llh = P.FloatField()
@@ -23,16 +18,22 @@ class BaseProgram(BaseModel):
 
 
 class Raxmlng(BaseProgram):
+    raxml_param_epsilon = P.FloatField()
+    branch_length_smoothing = P.IntegerField()
     avg_abs_rfdist_treesearch = P.FloatField()
     avg_rel_rfdist_treesearch = P.FloatField()
     num_unique_topos_treesearch = P.IntegerField()
 
+    class Meta:
+        database = raxml_db
+
 
 class Iqtree(BaseProgram):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
-class BaseTree(BaseModel):
+class BaseTree(P.Model):
     llh = P.FloatField()
     compute_time = P.FloatField()
     newick_tree = P.CharField()
@@ -45,12 +46,12 @@ class TreesearchTree(BaseTree):
 
 
 class RaxmlTreesearchTree(TreesearchTree):
-    iqtree_llh = P.FloatField()
+    iqtree_llh = P.FloatField(null=True)
 
     # the following are the results of the iqtree run
     # achieved by comparing with best raxml treesearch tree
-    deltaL = (
-        P.FloatField()
+    deltaL = P.FloatField(
+        null=True
     )  # llh difference to max llh in the set according to iqtree run
 
     bpRell = P.FloatField(null=True)  # bootstrap proportion using RELL method.
@@ -79,26 +80,36 @@ class RaxmlTreesearchTree(TreesearchTree):
     pAU = P.FloatField(null=True)
     pAU_significant = P.BooleanField(null=True)
 
+    class Meta:
+        database = raxml_db
+
 
 class IqtreeTreesearchTree(TreesearchTree):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
 class EvalTree(BaseTree):
     start_tree = P.ForeignKeyField(TreesearchTree)
     eval_blmin = P.FloatField()
     eval_blmax = P.FloatField()
+    eval_lh_eps = P.FloatField()
 
 
 class RaxmlEvalTree(EvalTree):
-    pass
+    eval_raxml_param_epsilon = P.FloatField()
+    eval_raxml_brlen_smoothings = P.IntegerField()
+
+    class Meta:
+        database = raxml_db
 
 
 class IqtreeEvalTree(EvalTree):
-    pass
+    class Meta:
+        database = iqtree_db
 
 
-class BaseRFDistance(BaseModel):
+class BaseRFDistance(P.Model):
     plain_rfdist = P.FloatField()
     normalized_rfdist = P.FloatField()
 
@@ -107,7 +118,13 @@ class RFDistTreesearchTree(BaseRFDistance):
     tree1 = P.ForeignKeyField(TreesearchTree)
     tree2 = P.ForeignKeyField(TreesearchTree)
 
+    class Meta:
+        database = raxml_db
+
 
 class RFDistEvalTree(BaseRFDistance):
     tree1 = P.ForeignKeyField(EvalTree)
     tree2 = P.ForeignKeyField(EvalTree)
+
+    class Meta:
+        database = raxml_db
