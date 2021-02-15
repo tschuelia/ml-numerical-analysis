@@ -54,11 +54,11 @@ def get_iqtree_cpu_time(log_file: FilePath) -> TreeIndexed[float]:
 
     if not all_times:
         raise ValueError(
-            f"The given input file {log_file} does not contain the wall clock time."
+            f"The given input file {log_file} does not contain the cpu time."
         )
 
     return all_times
 
 
 def get_iqtree_treesearch_cpu_time_entire_run(log_file: FilePath) -> float:
-    return sum(get_iqtree_wallclock_time(log_file))
+    return sum(get_iqtree_cpu_time(log_file))
