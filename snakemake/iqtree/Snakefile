@@ -25,7 +25,7 @@ full_dir_iqtree_pars_tmp        = full_dir_iqtree_pars + "tmp/"
 full_file_path_iqtree_pars_tmp  = full_dir_iqtree_pars_tmp + file_name_iqtree_pars
 
 base_name_iqtree_eval = "E_bi{blmin_eval}_ba{blmax_eval}_le{lh_eps_eval}"
-file_name_iqtree_eval = base_name_iqtree_eval + "S_" + base_name_iqtree
+file_name_iqtree_eval = base_name_iqtree_eval + "_S_" + base_name_iqtree
 
 full_dir_iqtree_eval        = full_dir_iqtree + "e/"
 full_file_path_iqtree_eval  = full_dir_iqtree_eval + file_name_iqtree_eval

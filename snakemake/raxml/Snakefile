@@ -30,7 +30,7 @@ full_dir_raxml_rand         = full_dir_raxml + "rT/"
 full_file_path_raxml_rand   = full_dir_raxml_rand + file_name_raxml_rand
 
 base_name_raxml_eval        = "E_bi{blmin_eval}_ba{blmax_eval}_le{lh_eps_eval}_re{raxml_param_epsilon_eval}_bls{raxml_brlen_smoothings_eval}"
-file_name_raxml_eval        = base_name_raxml_eval + "S_" + base_name_raxml
+file_name_raxml_eval        = base_name_raxml_eval + "_S_" + base_name_raxml
 full_dir_raxml_eval         = full_dir_raxml + "e/"
 full_file_path_raxml_eval   = full_dir_raxml_eval + file_name_raxml_eval
 
