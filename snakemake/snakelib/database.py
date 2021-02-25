@@ -2,18 +2,19 @@ import peewee as P
 
 raxml_db = P.SqliteDatabase(None)
 iqtree_db = P.SqliteDatabase(None)
+fasttree_db = P.SqliteDatabase(None)
 
 
 class BaseProgram(P.Model):
     # parameter values
-    blmin = P.FloatField()
-    blmax = P.FloatField()
-    lh_eps = P.FloatField()
+    blmin = P.FloatField(null=True)
+    blmax = P.FloatField(null=True)
+    lh_eps = P.FloatField(null=True)
 
     num_pars_trees = P.IntegerField()
     num_rand_trees = P.IntegerField()
     best_treesearch_llh = P.FloatField()
-    best_evaluation_llh = P.FloatField()
+    best_evaluation_llh = P.FloatField(null=True)
     treesearch_total_time = P.FloatField()
 
 
@@ -32,6 +33,9 @@ class Iqtree(BaseProgram):
     class Meta:
         database = iqtree_db
 
+class Fasttree(BaseProgram):
+    class Meta:
+        database = fasttree_db
 
 class BaseTree(P.Model):
     llh = P.FloatField()
@@ -88,6 +92,9 @@ class IqtreeTreesearchTree(TreesearchTree):
     class Meta:
         database = iqtree_db
 
+class FasttreeTreesearchTree(TreesearchTree):
+    class Meta:
+        database = fasttree_db
 
 class EvalTree(BaseTree):
     start_tree = P.ForeignKeyField(TreesearchTree)

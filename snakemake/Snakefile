@@ -8,6 +8,8 @@ rule all:
     input:
         f"{base_dir}raxml_results.sqlite3",
         f"{base_dir}iqtree_results.sqlite3",
+        f"{base_dir}fasttree_results.sqlite3",
 
 include: "iqtree/Snakefile"
 include: "raxml/Snakefile"
+include: "fasttree/Snakefile"

@@ -1,0 +1,46 @@
+fasttree_command = config["parameters"]["fasttree"]["command"]
+
+blmin_opts      = config["parameters"]["blmin"]
+
+num_trees  = config["parameters"]["num_pars_trees"]
+seeds      = list(range(num_trees))
+
+base_dir            = config["data"]["outdir"]
+base_dir_fasttree     = base_dir + "fasttree/"
+base_name_fasttree    = "bi{blmin}"
+full_dir_fasttree     = base_dir_fasttree + base_name_fasttree + "/"
+
+base_name_tree  = "tree_s{seed}_"
+
+full_file_path_fasttree = full_dir_fasttree + base_name_fasttree
+
+file_name_fasttree_tree = base_name_tree + base_name_fasttree
+
+full_dir_fasttree_tree        = full_dir_fasttree + "T/"
+full_file_path_fasttree_tree  = full_dir_fasttree_tree + file_name_fasttree_tree
+
+full_dir_fasttree_tree_tmp        = full_dir_fasttree_tree + "tmp/"
+full_file_path_fasttree_tree_tmp  = full_dir_fasttree_tree_tmp + file_name_fasttree_tree
+
+
+rule fasttree_database:
+    input:
+        database = f"{base_dir}fasttree_results.sqlite3"
+
+rule save_fasttree_settings_in_file:
+    output:
+        params = f"{full_dir_fasttree}parameters.json"
+    params:
+        num_pars_trees  = config["parameters"]["num_pars_trees"],
+    run:
+        import json
+        data = {}
+        data["blmin"] = wildcards.blmin
+        data["num_trees"] = params.num_pars_trees
+        with open(output.params, 'w') as f:
+            json.dump(data, f)
+
+include: "rules/fasttree_treesearch.smk"
+include: "rules/fasttree_collect_data.smk"
+include: "rules/fasttree_best_tree.smk"
+include: "rules/save_fasttree_results_to_database.smk"
