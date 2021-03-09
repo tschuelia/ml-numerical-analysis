@@ -13,7 +13,7 @@ rule save_raxml_results_to_database:
        
         ##### evaluation
         _               = expand(f"{full_file_path_raxml_eval}.raxml.eval.log", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, 
-                                                              blmin_eval=blmin_opts, blmax_eval=blmax_opts, lh_eps_eval=lh_eps_opts, raxml_param_epsilon_eval=raxml_param_epsilon_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_opts),
+                                                              blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, raxml_param_epsilon_eval=raxml_param_epsilon_eval_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_eval_opts),
         eval_trees      = expand(f"{full_file_path_raxml}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
         eval_log        = expand(f"{full_file_path_raxml}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
         best_eval_tree  = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),

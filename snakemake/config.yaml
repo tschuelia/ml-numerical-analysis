@@ -18,6 +18,13 @@ parameters:
   raxml_param_epsilon: [0.001]
   branch_length_smoothing: [32]
 
+  eval:
+    blmin: [1e-10]
+    blmax: [100]
+    lh_eps: [0.001]
+    raxml_param_epsilon: [0.001]
+    branch_length_smoothing: [64]
+
   # if you change the model: make sure to change both raxml and iqtree to the respective model
   model:
     raxml-ng: GTR+G
@@ -31,8 +38,8 @@ parameters:
 
   # raxml-ng specific settings
   raxml-ng:
-    command: /Users/julia/Desktop/Masterarbeit/snakemake/software/param-raxml-ng/bin/raxml-ng
+    command: /Users/julia/Desktop/Masterarbeit/Masterthesis/snakemake/software/param-raxml-ng/bin/raxml-ng
     threads: 2
 
   fasttree:
-    command: ../software/fasttree/ParamFastTree
+    command: ./software/fasttree/ParamFastTree

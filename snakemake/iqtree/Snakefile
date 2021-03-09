@@ -4,6 +4,10 @@ blmin_opts      = config["parameters"]["blmin"]
 blmax_opts      = config["parameters"]["blmax"]
 lh_eps_opts     = config["parameters"]["lh_eps"]
 
+blmin_eval_opts = config["parameters"]["eval"]["blmin"]
+blmax_eval_opts = config["parameters"]["eval"]["blmax"]
+lh_eps_eval_opts = config["parameters"]["eval"]["lh_eps"]
+
 num_pars_trees  = config["parameters"]["num_pars_trees"]
 pars_seeds      = list(range(num_pars_trees))
 

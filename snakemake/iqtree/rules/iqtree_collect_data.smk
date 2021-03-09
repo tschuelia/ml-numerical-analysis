@@ -17,7 +17,7 @@ rule collect_all_iqtree_logs:
 
 rule collect_all_iqtree_eval_trees:
     input:
-        eval_trees = expand(f"{full_file_path_iqtree_eval}.treefile", blmin_eval=blmin_opts, blmax_eval=blmax_opts, lh_eps_eval=lh_eps_opts, allow_missing=True)
+        eval_trees = expand(f"{full_file_path_iqtree_eval}.treefile", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, allow_missing=True)
     output:
         all_eval_trees = f"{full_file_path_iqtree}.allEvalTreesCollected"
     shell:
@@ -25,7 +25,7 @@ rule collect_all_iqtree_eval_trees:
 
 rule collect_all_iqtree_eval_logs:
     input:
-        eval_logs = expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin_eval=blmin_opts, blmax_eval=blmax_opts, lh_eps_eval=lh_eps_opts, allow_missing=True)
+        eval_logs = expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, allow_missing=True)
     output:
         all_eval_logs = f"{full_file_path_iqtree}.allEvalLogs"
     shell:

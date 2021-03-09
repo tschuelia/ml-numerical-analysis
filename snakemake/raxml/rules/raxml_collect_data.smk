@@ -19,7 +19,7 @@ rule collect_all_raxml_logs:
 rule collect_all_raxml_eval_trees:
     input:
         eval_trees = expand(f"{full_file_path_raxml_eval}.raxml.bestTree", 
-                                blmin_eval=blmin_opts, blmax_eval=blmax_opts, lh_eps_eval=lh_eps_opts, raxml_param_epsilon_eval=raxml_param_epsilon_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_opts,
+                                blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, raxml_param_epsilon_eval=raxml_param_epsilon_eval_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_eval_opts,
                                 allow_missing=True)
     output:
         all_eval_trees  = f"{full_file_path_raxml}.allEvalTreesCollected"
@@ -29,7 +29,7 @@ rule collect_all_raxml_eval_trees:
 rule collect_all_raxml_eval_logs:
     input:
         eval_logs = expand(f"{full_file_path_raxml_eval}.raxml.eval.log", 
-                                blmin_eval=blmin_opts, blmax_eval=blmax_opts, lh_eps_eval=lh_eps_opts, raxml_param_epsilon_eval=raxml_param_epsilon_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_opts,
+                                blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, raxml_param_epsilon_eval=raxml_param_epsilon_eval_opts, raxml_brlen_smoothings_eval=raxml_brlen_smoothings_eval_opts,
                                 allow_missing=True)
     output:
         all_eval_logs = f"{full_file_path_raxml}.allEvalLogs"
