@@ -6,7 +6,7 @@ from snakelib.utils import (
 from snakelib.custom_types import *
 
 def get_llh_from_line(line: str) -> float:
-    line_re = r"\s*Optimize all lengths:\s*LogLk\s*=\s*([-+]?\d+(?:\.\d+)?(?:[e][-+]?\d+)?).*"
+    line_re = r"\s*Gamma\s*.*LogLk\s*=\s*([-+]?\d+(?:\.\d+)?(?:[e][-+]?\d+)?).*"
     line_regex = regex.compile(line_re)
     m = regex.match(line_regex, line)
 
@@ -20,7 +20,7 @@ def get_all_fasttree_llhs(fasttree_file: FilePath) -> TreeIndexed[float]:
     content = read_file_contents(fasttree_file)
     llhs = []
     for line in content:
-        if not line.startswith("Optimize all lengths"):
+        if not line.startswith("Gamma"):
             continue
         llhs.append(get_llh_from_line(line))
     return llhs
@@ -59,7 +59,7 @@ def get_fasttree_run_param_values_from_file(fasttree_log: FilePath, param_identi
     content = read_file_contents(fasttree_log)
     values = []
     for line in content:
-        if not param_identifier in line:
+        if not line.startswith(param_identifier):
             continue
         _, value = line.split(":")
         value = value.strip()
