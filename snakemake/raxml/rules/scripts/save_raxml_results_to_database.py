@@ -100,6 +100,9 @@ for i in range(num_runs):
             and not raxml.db_best_treesearch_tree_object
         )
         tree_values["is_best"] = is_best
+        tree_values["number_of_taxa"] = raxml.get_number_of_taxa_for_tree_index(tree_idx)
+        tree_values["total_branch_length"] = raxml.get_total_branch_length_for_tree_index(tree_idx)
+        tree_values["average_branch_length"] = raxml.get_average_branch_length_for_tree_index(tree_idx)
 
         tree_values["program"] = raxml_db
         tree_values["seed"] = raxml.get_treesearch_seed_for_tree_index(tree_idx)
@@ -140,8 +143,11 @@ for i in range(num_runs):
         eval_tree_values["start_tree"]      = raxml.db_best_treesearch_tree_object
         eval_tree_values["llh"]             = raxml.get_eval_llh_for_tree_index(eval_tree_idx)
         eval_tree_values["newick_tree"]     = raxml.get_newick_eval_tree_for_tree_index(eval_tree_idx)
-        eval_tree_values["compute_time"]    = raxml.get_eval_compute_time_for_tree_index( eval_tree_idx)
+        eval_tree_values["compute_time"]    = raxml.get_eval_compute_time_for_tree_index(eval_tree_idx)
         eval_tree_values["is_best"]         = is_best
+        eval_tree_values["number_of_taxa"]          = raxml.get_number_of_taxa_for_eval_tree_index(eval_tree_idx)
+        eval_tree_values["total_branch_length"]     = raxml.get_total_branch_length_for_eval_tree_index(eval_tree_idx)
+        eval_tree_values["average_branch_length"]   = raxml.get_average_branch_length_for_eval_tree_index(eval_tree_idx)
         eval_tree_values["eval_blmin"]      = raxml.get_eval_blmin_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_blmax"]      = raxml.get_eval_blmax_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_lh_eps"]      = raxml.get_eval_lh_eps_for_tree_index(eval_tree_idx)

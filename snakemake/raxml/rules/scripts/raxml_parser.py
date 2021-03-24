@@ -1,7 +1,13 @@
 import dataclasses
 
 from snakelib.custom_types import *
-from snakelib.utils import get_parameter_value, read_file_contents
+from snakelib.utils import (
+    get_parameter_value,
+    read_file_contents,
+    get_number_of_taxa_for_tree,
+    get_total_branch_length_for_tree,
+    get_average_branch_length_for_tree
+)
 
 # from iqtree_statstest_parser import get_iqtree_results
 from raxml_utils import (
@@ -27,7 +33,7 @@ class Raxml:
     lh_eps: float
     raxml_param_epsilon: float
     branch_length_smoothing: int
-    
+
     num_pars_trees: int
     num_rand_trees: int
     best_treesearch_llh: float
@@ -78,6 +84,18 @@ class Raxml:
     def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
         return self.treeseach_seeds[i]
 
+    def get_number_of_taxa_for_tree_index(self, i: TreeIndex) -> int:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_number_of_taxa_for_tree(newick_str)
+
+    def get_total_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_total_branch_length_for_tree(newick_str)
+
+    def get_average_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_average_branch_length_for_tree(newick_str)
+
     """ def get_iqtree_llh_for_tree_index(self, i: TreeIndex) -> float:
         results_for_tree_index = self.iqtree_statstests_results[i]
         return results_for_tree_index["logL"]
@@ -115,18 +133,30 @@ class Raxml:
     def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_newick_eval_tree_for_tree_index(i) == self.best_eval_tree_newick
 
+    def get_number_of_taxa_for_eval_tree_index(self, i: TreeIndex) -> int:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_number_of_taxa_for_tree(newick_str)
+
+    def get_total_branch_length_for_eval_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_total_branch_length_for_tree(newick_str)
+
+    def get_average_branch_length_for_eval_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_average_branch_length_for_tree(newick_str)
+
     def get_eval_blmin_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmins[i]
 
     def get_eval_blmax_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmaxs[i]
-    
+
     def get_eval_lh_eps_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_lh_eps[i]
-    
+
     def get_eval_raxml_param_epsilon_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_raxml_param_epsilons[i]
-    
+
     def get_eval_raxml_brlen_smoothings_for_tree_index(self, i: TreeIndex) -> int:
         return self.eval_raxml_brlen_smoothings[i]
 
@@ -144,7 +174,7 @@ def create_raxml(
     command                     : str,
     all_eval_trees_file_path    : FilePath,
     rfdistances_file_path       : FilePath,
-):  
+):
     return Raxml(
         # Raxmlng stuff
         blmin                       = get_parameter_value(parameter_file_path, "blmin"),

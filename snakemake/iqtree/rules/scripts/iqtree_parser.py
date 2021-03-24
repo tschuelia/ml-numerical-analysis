@@ -1,12 +1,17 @@
 import dataclasses
 
 from snakelib.custom_types import *
-from snakelib.utils import get_parameter_value, read_file_contents
+from snakelib.utils import (
+    get_parameter_value,
+    read_file_contents,
+    get_number_of_taxa_for_tree,
+    get_total_branch_length_for_tree,
+    get_average_branch_length_for_tree
+)
 
 from iqtree_utils import (
     get_all_iqtree_llhs,
     get_best_iqtree_llh,
-    read_file_contents,
     get_iqtree_treesearch_cpu_time_entire_run,
     get_iqtree_cpu_time,
     get_iqtree_run_param_values_from_file,
@@ -60,6 +65,18 @@ class Iqtree:
     def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
         return self.treesearch_seeds[i]
 
+    def get_number_of_taxa_for_tree_index(self, i: TreeIndex) -> int:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_number_of_taxa_for_tree(newick_str)
+
+    def get_total_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_total_branch_length_for_tree(newick_str)
+
+    def get_average_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_average_branch_length_for_tree(newick_str)
+
     def get_num_of_eval_trees(self) -> int:
         return len(self.eval_trees)
 
@@ -74,6 +91,18 @@ class Iqtree:
 
     def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
         return self.get_newick_eval_tree_for_tree_index(i) == self.best_eval_tree_newick
+
+    def get_number_of_taxa_for_eval_tree_index(self, i: TreeIndex) -> int:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_number_of_taxa_for_tree(newick_str)
+
+    def get_total_branch_length_for_eval_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_total_branch_length_for_tree(newick_str)
+
+    def get_average_branch_length_for_eval_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_eval_tree_for_tree_index(i)
+        return get_average_branch_length_for_tree(newick_str)
 
     def get_eval_blmin_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_blmins[i]

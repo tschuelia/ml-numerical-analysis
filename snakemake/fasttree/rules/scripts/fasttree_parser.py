@@ -1,7 +1,13 @@
 import dataclasses
 
 from snakelib.custom_types import *
-from snakelib.utils import get_parameter_value, read_file_contents
+from snakelib.utils import (
+    get_parameter_value,
+    read_file_contents,
+    get_number_of_taxa_for_tree,
+    get_total_branch_length_for_tree,
+    get_average_branch_length_for_tree
+)
 
 from fasttree_utils import (
     get_all_fasttree_llhs,
@@ -44,6 +50,18 @@ class Fasttree:
 
     def get_treesearch_seed_for_tree_index(self, i: TreeIndex) -> int:
         return self.treesearch_seeds[i]
+
+    def get_number_of_taxa_for_tree_index(self, i: TreeIndex) -> int:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_number_of_taxa_for_tree(newick_str)
+
+    def get_total_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_total_branch_length_for_tree(newick_str)
+
+    def get_average_branch_length_for_tree_index(self, i: TreeIndex) -> float:
+        newick_str = self.get_newick_tree_for_tree_index(i)
+        return get_average_branch_length_for_tree(newick_str)
 
 
 def create_fasttree(

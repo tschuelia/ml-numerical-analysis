@@ -62,6 +62,10 @@ for i in range(num_runs):
 
         tree_values["program"]  = fasttree_db
         tree_values["seed"]     = fasttree.get_treesearch_seed_for_tree_index(tree_idx)
+        tree_values["number_of_taxa"]       = fasttree.get_number_of_taxa_for_tree_index(tree_idx)
+        tree_values["total_branch_length"]  = fasttree.get_total_branch_length_for_tree_index(tree_idx)
+        tree_values["average_branch_length"] = fasttree.get_average_branch_length_for_tree_index(tree_idx)
+
         # fmt: on
 
         fasttree_treesearch_tree = db.FasttreeTreesearchTree.create(**tree_values)

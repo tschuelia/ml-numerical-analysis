@@ -42,6 +42,9 @@ class BaseTree(P.Model):
     compute_time = P.FloatField()
     newick_tree = P.CharField()
     is_best = P.BooleanField()
+    number_of_taxa = P.IntegerField(null=True)
+    total_branch_length = P.FloatField(null=True)
+    average_branch_length = P.FloatField(null=True)
 
 
 class TreesearchTree(BaseTree):

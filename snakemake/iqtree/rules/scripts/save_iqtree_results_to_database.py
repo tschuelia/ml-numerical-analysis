@@ -70,6 +70,9 @@ for i in range(num_runs):
             and not iqtree.db_best_treesearch_tree_object
         )
         tree_values["is_best"]  = is_best
+        tree_values["number_of_taxa"]       = iqtree.get_number_of_taxa_for_tree_index(tree_idx)
+        tree_values["total_branch_length"]  = iqtree.get_total_branch_length_for_tree_index(tree_idx)
+        tree_values["average_branch_length"] = iqtree.get_average_branch_length_for_tree_index(tree_idx)
 
         tree_values["program"]  = iqtree_db
         tree_values["seed"]     = iqtree.get_treesearch_seed_for_tree_index(tree_idx)
@@ -91,6 +94,11 @@ for i in range(num_runs):
         eval_tree_values["compute_time"] = iqtree.get_eval_compute_time_for_tree_index(eval_tree_idx)
 
         eval_tree_values["is_best"]     = iqtree.eval_tree_for_index_is_best(eval_tree_idx)
+
+        eval_tree_values["number_of_taxa"]          = iqtree.get_number_of_taxa_for_eval_tree_index(eval_tree_idx)
+        eval_tree_values["total_branch_length"]     = iqtree.get_total_branch_length_for_eval_tree_index(eval_tree_idx)
+        eval_tree_values["average_branch_length"]   = iqtree.get_average_branch_length_for_eval_tree_index(eval_tree_idx)
+
         eval_tree_values["eval_blmin"]  = iqtree.get_eval_blmin_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_blmax"]  = iqtree.get_eval_blmax_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_lh_eps"] = iqtree.get_eval_lh_eps_for_tree_index(eval_tree_idx)

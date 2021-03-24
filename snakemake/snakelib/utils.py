@@ -1,6 +1,5 @@
 import json
-import regex
-from typing import Tuple
+from Bio import Phylo
 from .custom_types import *
 
 
@@ -59,3 +58,23 @@ def read_file_contents(file_path: FilePath) -> List[str]:
         content = f.readlines()
 
     return [l.strip() for l in content]
+
+def get_tree_object(newick_str: Newick) -> Phylo.Newick.Tree:
+    trees = list(Phylo.NewickIO.Parser.from_string(newick_str).parse())
+    return trees[0]
+
+
+def get_number_of_taxa_for_tree(newick_str: Newick) -> int:
+    tree = get_tree_object(newick_str)
+    return tree.count_terminals()
+
+
+def get_total_branch_length_for_tree(newick_str: Newick) -> float:
+    tree = get_tree_object(newick_str)
+    return tree.total_branch_length()
+
+
+def get_average_branch_length_for_tree(newick_str: Newick) -> float:
+    total_brlen = get_total_branch_length_for_tree(newick_str)
+    num_taxa = get_number_of_taxa_for_tree(newick_str)
+    return total_brlen / num_taxa
