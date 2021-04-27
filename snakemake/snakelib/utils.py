@@ -1,5 +1,6 @@
 import json
 from Bio import Phylo
+import numpy as np
 from .custom_types import *
 
 
@@ -78,3 +79,23 @@ def get_average_branch_length_for_tree(newick_str: Newick) -> float:
     total_brlen = get_total_branch_length_for_tree(newick_str)
     num_taxa = get_number_of_taxa_for_tree(newick_str)
     return total_brlen / num_taxa
+
+
+def get_all_branch_lengths_for_tree(newick_str: Newick) -> List[float]:
+    tree = get_tree_object(newick_str)
+    return [node.branch_length for node in tree.find_clades(branch_length=True)]
+
+
+def get_min_branch_length_for_tree(newick_str: Newick) -> float:
+    all_brlens = get_all_branch_lengths_for_tree(newick_str)
+    return min(all_brlens)
+
+
+def get_max_branch_length_for_tree(newick_str: Newick) -> float:
+    all_brlens = get_all_branch_lengths_for_tree(newick_str)
+    return max(all_brlens)
+
+
+def get_std_branch_lenghts_for_tree(newick_str: Newick) -> float:
+    all_brlens = get_all_branch_lengths_for_tree(newick_str)
+    return np.std(all_brlens)

@@ -1,4 +1,4 @@
-from custom_types import *
+from snakelib.custom_types import *
 from typing import Dict, List, Tuple
 
 import regex

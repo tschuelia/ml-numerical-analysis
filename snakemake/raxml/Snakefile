@@ -1,4 +1,5 @@
 raxml_command   = config["parameters"]["raxml-ng"]["command"]
+iqtree_command   = config["parameters"]["iqtree"]["command"]
 
 blmin_opts      = config["parameters"]["blmin"]
 blmax_opts      = config["parameters"]["blmax"]
@@ -71,4 +72,5 @@ include: "rules/raxml_collect_data.smk"
 include: "rules/raxml_best_tree.smk"
 include: "rules/raxml_evaluation.smk"
 include: "rules/raxml_rfdistance.smk"
+include: "rules/raxml_iqtree_statstests.smk"
 include: "rules/save_raxml_results_to_database.smk"

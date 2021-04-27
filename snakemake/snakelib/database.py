@@ -53,40 +53,6 @@ class TreesearchTree(BaseTree):
 
 
 class RaxmlTreesearchTree(TreesearchTree):
-    iqtree_llh = P.FloatField(null=True)
-
-    # the following are the results of the iqtree run
-    # achieved by comparing with best raxml treesearch tree
-    deltaL = P.FloatField(
-        null=True
-    )  # llh difference to max llh in the set according to iqtree run
-
-    bpRell = P.FloatField(null=True)  # bootstrap proportion using RELL method.
-    # True denotes the 95% confidence sets.
-    # False denotes significant exclusion.
-    bpRell_significant = P.BooleanField(null=True)
-
-    # p-value of one sided Kishino-Hasegawa test (1989).
-    pKH = P.FloatField(null=True)
-    pKH_significant = P.BooleanField(null=True)
-
-    # p-value of Shimodaira-Hasegawa test (2000).
-    pSH = P.FloatField(null=True)
-    pSH_significant = P.BooleanField(null=True)
-
-    pWKH = P.FloatField(null=True)  # p-value of weighted KH test.
-    pWKH_significant = P.BooleanField(null=True)
-
-    pWSH = P.FloatField(null=True)  # p-value of weighted SH test.
-    pWSH_significant = P.BooleanField(null=True)
-
-    cELW = P.FloatField(null=True)  # Expected Likelihood Weight
-    cELW_significant = P.BooleanField(null=True)
-
-    # p-value of approximately unbiased (AU) test.
-    pAU = P.FloatField(null=True)
-    pAU_significant = P.BooleanField(null=True)
-
     class Meta:
         database = raxml_db
 
@@ -138,3 +104,55 @@ class RFDistEvalTree(BaseRFDistance):
 
     class Meta:
         database = raxml_db
+
+class BaseTreeStatsTest(P.Model):
+    # all tests are performed respective this tree
+    reference_tree_id = P.IntegerField()
+    # tree results
+    tree_id = P.IntegerField()
+    iqtree_llh = P.FloatField(null=True)
+    deltaL = P.FloatField(
+        null=True
+    )  # llh difference to max llh in the set according to iqtree run
+
+    bpRell = P.FloatField(null=True)  # bootstrap proportion using RELL method.
+    # True denotes the 95% confidence sets.
+    # False denotes significant exclusion.
+    bpRell_significant = P.BooleanField(null=True)
+
+    # p-value of one sided Kishino-Hasegawa test (1989).
+    pKH = P.FloatField(null=True)
+    pKH_significant = P.BooleanField(null=True)
+
+    # p-value of Shimodaira-Hasegawa test (2000).
+    pSH = P.FloatField(null=True)
+    pSH_significant = P.BooleanField(null=True)
+
+    pWKH = P.FloatField(null=True)  # p-value of weighted KH test.
+    pWKH_significant = P.BooleanField(null=True)
+
+    pWSH = P.FloatField(null=True)  # p-value of weighted SH test.
+    pWSH_significant = P.BooleanField(null=True)
+
+    cELW = P.FloatField(null=True)  # Expected Likelihood Weight
+    cELW_significant = P.BooleanField(null=True)
+
+    # p-value of approximately unbiased (AU) test.
+    pAU = P.FloatField(null=True)
+    pAU_significant = P.BooleanField(null=True)
+
+
+class RaxmlEvalTreeStatsTest(BaseTreeStatsTest):
+
+    class Meta:
+        database = raxml_db
+
+
+class IqtreeEvalTreeStatsTest(BaseTreeStatsTest):
+    class Meta:
+        database = iqtree_db
+
+
+class FasttreeEvalTreeStatsTest(BaseTreeStatsTest):
+    class Meta:
+        database = fasttree_db
