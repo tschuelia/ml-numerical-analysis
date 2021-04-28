@@ -1,19 +1,21 @@
 import sys
-
 sys.path.append(snakemake.scriptdir + "/../../..")
 
-from iqtree_utils import get_all_iqtree_llhs
+from iqtree_utils import get_all_iqtree_llhs, get_iqtree_cpu_time
+from snakelib.save_trees import save_best_tree_and_log
 
 tree_file = snakemake.input.trees
 logs_file = snakemake.input.logs
-output_file = snakemake.output.best_tree
-
-with open(tree_file) as f:
-    all_trees = f.readlines()
+tree_output_file = snakemake.output.best_tree
+log_output_file = snakemake.output.best_log
 
 all_llhs = get_all_iqtree_llhs(logs_file)
+all_runtimes = get_iqtree_cpu_time(logs_file)
 
-idx_best = all_llhs.index(max(all_llhs))
-
-with open(output_file, "w") as f:
-    f.write(all_trees[idx_best])
+save_best_tree_and_log(
+    tree_file=tree_file,
+    all_llhs=all_llhs,
+    all_runtimes=all_runtimes,
+    out_tree=tree_output_file,
+    out_log=log_output_file
+)
