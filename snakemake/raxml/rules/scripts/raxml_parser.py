@@ -9,13 +9,12 @@ from snakelib.utils import (
     get_average_branch_length_for_tree
 )
 
-from iqtree_statstest_parser import get_iqtree_results
+from snakelib.iqtree_statstest_parser import get_iqtree_results
 
 from raxml_utils import (
     get_all_raxml_llhs,
     get_all_raxml_seeds,
     get_best_raxml_llh,
-    get_cleaned_rf_dist,
     get_raxml_abs_rf_distance,
     get_raxml_num_unique_topos,
     get_raxml_rel_rf_distance,
@@ -208,15 +207,15 @@ def create_raxml(
 
 @dataclasses.dataclass
 class Experiment:
-    # fmt: on
-    raxml_best_trees: RunIndexed[Newick]
-    raxml_best_eval_trees: RunIndexed[Newick]
-    rfdist_raxml_best_trees: RunRunIndexed
-    rfdist_raxml_best_eval_trees: RunRunIndexed
-    best_overall_eval_tree: Newick
-    iqtree_statstests_results: TreeIndexed[IqTreeMetrics]
+    # fmt: ff
+    raxml_best_trees        : RunIndexed[Newick]
+    raxml_best_eval_trees   : RunIndexed[Newick]
+    rfdist_raxml_best_trees : RunRunIndexed
+    rfdist_raxml_best_eval_trees    : RunRunIndexed
+    best_overall_eval_tree          : Newick
+    iqtree_statstests_results       : TreeIndexed[IqTreeMetrics]
 
-    # fmt: off
+    # fmt: on
 
     def get_plain_rfdist_for_raxml_trees(
             self, run_indices: Tuple[RunIndex, RunIndex]

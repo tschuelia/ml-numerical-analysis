@@ -9,6 +9,8 @@ from snakelib.utils import (
     get_average_branch_length_for_tree
 )
 
+from snakelib.iqtree_statstest_parser import get_iqtree_results
+
 from fasttree_utils import (
     get_all_fasttree_llhs,
     get_best_fasttree_llh,
@@ -88,3 +90,45 @@ def create_fasttree(
 
     )
     # fmt: on
+
+@dataclasses.dataclass
+class Experiment:
+    # fmt: off
+    best_trees                  : RunIndexed[Newick]
+    best_overall_eval_tree      : Newick
+    iqtree_statstests_results   : TreeIndexed[IqTreeMetrics]
+    # fmt: on
+
+    def _get_idx_for_newick(self, newick_str: Newick) -> int:
+        return self.best_trees.index(newick_str)
+
+    def eval_tree_is_overall_best(self, newick_str: Newick) -> bool:
+        return newick_str == self.best_overall_eval_tree
+
+    def get_iqtree_llh_for_eval_tree(self, newick_str: Newick) -> float:
+        i = self._get_idx_for_newick(newick_str)
+        results_for_tree_index = self.iqtree_statstests_results[i]
+        return results_for_tree_index["logL"]
+
+    def get_iqtree_deltaL_for_eval_tree(self, newick_str: Newick) -> float:
+        i = self._get_idx_for_newick(newick_str)
+        results_for_tree_index = self.iqtree_statstests_results[i]
+        return results_for_tree_index["deltaL"]
+
+    def get_iqtree_test_results_for_eval_tree(self, newick_str: Newick) -> Dict:
+        i = self._get_idx_for_newick(newick_str)
+        results_for_tree_index = self.iqtree_statstests_results[i]
+        return results_for_tree_index["tests"]
+
+# fmt: off
+def create_Experiment(
+        best_trees_file_path                : FilePath,
+        best_overall_eval_tree_file_path    : FilePath,
+        iqtree_statstest_results_file_path  : FilePath,
+):
+    return Experiment(
+        best_trees=read_file_contents(best_trees_file_path),
+        best_overall_eval_tree=read_file_contents(best_overall_eval_tree_file_path)[0],
+        iqtree_statstests_results=get_iqtree_results(iqtree_statstest_results_file_path),
+    )
+# fmt: on

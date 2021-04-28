@@ -1,19 +1,19 @@
-rule iqtree_statstest_on_raxml_eval_trees:
+rule iqtree_statstest_on_fasttree_trees:
     input:
         msa         = config["data"]["input"],
-        all_trees   = rules.collect_best_eval_trees.output.best_trees_all_runs,
-        best_tree   = rules.collect_best_overall_eval_tree.output.best_overall_tree,
+        all_trees   = rules.collect_best_fasttree_trees.output.best_trees_all_runs,
+        best_tree   = rules.collect_best_overall_fasttree_tree.output.best_overall_tree,
 
     output:
-        summary     = f"{base_dir_raxml}significance.iqtree",
-        iqtree_log  = f"{base_dir_raxml}significance.iqtree.log",
+        summary     = f"{base_dir_fasttree}significance.iqtree",
+        iqtree_log  = f"{base_dir_fasttree}significance.iqtree.log",
 
     params:
         model           = config["parameters"]["model"]["iqtree"],
         threads         = config["parameters"]["iqtree"]["threads"],
-        prefix          = f"{base_dir_raxml}significance",
+        prefix          = f"{base_dir_fasttree}significance",
     log:
-        f"{base_dir_raxml}significance.iqtree.snakelog",
+        f"{base_dir_fasttree}significance.iqtree.snakelog",
     shell:
         "{iqtree_command} "
         "-s {input.msa} "

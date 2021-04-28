@@ -5,8 +5,6 @@ rule save_best_raxml_tree_to_file:
     output:
         best_tree = f"{full_file_path_raxml}.bestTreeOfRun",
         best_log = f"{full_file_path_raxml}.bestTreeOfRun.json",
-    #params:
-        #program = "raxml",
     script:
         "scripts/save_best_tree.py"
 
@@ -17,7 +15,5 @@ rule save_best_raxml_eval_tree_and_log_to_file:
     output:
         best_tree = f"{full_file_path_raxml}.bestEvalTreeOfRun",
         best_log = f"{full_file_path_raxml}.bestEvalTreeOfRun.json",
-    #params:
-        #program = "raxml"
     script:
         "scripts/save_best_tree.py"
