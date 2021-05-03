@@ -53,22 +53,26 @@ rule collect_best_trees:
     Rule to collect the best tree search tree for each parameter combination and write them all into a single file.
     """
     input:  
-        expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
+        trees = expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
     output:
         best_trees_all_runs = f"{base_dir_raxml}bestTreesCollected",
-    shell:
-        "cat {input} > {output} "
+    script:
+        "scripts/cat_trees.py"
+    # shell:
+    #     "cat {input} > {output} "
     
 rule collect_best_eval_trees:
     """
     Rule to collect the best eval tree for each parameter combination and write them all into a single file.
     """
     input:  
-        expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
+        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, raxml_param_epsilon=raxml_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts),
     output:
         best_trees_all_runs = f"{base_dir_raxml}bestEvalTreesCollected",
-    shell:
-        "cat {input} > {output} "
+    script:
+        "scripts/cat_trees.py"
+    # shell:
+    #     "cat {input} > {output} "
 
 rule collect_best_overall_eval_tree:
     """
