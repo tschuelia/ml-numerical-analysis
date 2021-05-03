@@ -51,8 +51,8 @@ rule collect_best_iqtree_eval_trees:
         expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts),
     output:
         best_trees_all_runs = f"{base_dir_iqtree}bestEvalTreesCollected",
-    shell:
-        "cat {input} > {output} "
+    script:
+        "scripts/cat_trees.py"
 
 rule collect_best_overall_iqtree_eval_tree:
     """

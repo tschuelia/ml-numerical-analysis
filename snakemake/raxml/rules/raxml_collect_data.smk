@@ -58,8 +58,7 @@ rule collect_best_trees:
         best_trees_all_runs = f"{base_dir_raxml}bestTreesCollected",
     script:
         "scripts/cat_trees.py"
-    # shell:
-    #     "cat {input} > {output} "
+
     
 rule collect_best_eval_trees:
     """
@@ -71,8 +70,7 @@ rule collect_best_eval_trees:
         best_trees_all_runs = f"{base_dir_raxml}bestEvalTreesCollected",
     script:
         "scripts/cat_trees.py"
-    # shell:
-    #     "cat {input} > {output} "
+
 
 rule collect_best_overall_eval_tree:
     """

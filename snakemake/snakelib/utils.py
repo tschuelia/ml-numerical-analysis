@@ -99,3 +99,15 @@ def get_max_branch_length_for_tree(newick_str: Newick) -> float:
 def get_std_branch_lenghts_for_tree(newick_str: Newick) -> float:
     all_brlens = get_all_branch_lengths_for_tree(newick_str)
     return np.std(all_brlens)
+
+
+def cat_input_to_output(input_files, output_file):
+    output = []
+
+    for tree_file in input_files:
+        with open(tree_file) as f:
+            content = f.readlines()[0]
+            output.append(content.strip())
+
+    with open(output_file, "w") as f:
+        f.write("\n".join(output))
