@@ -2,6 +2,8 @@ import sys
 
 sys.path.append(snakemake.scriptdir + "/../../..")
 
+from peewee import chunked
+
 from snakelib import database as db
 
 from iqtree_parser import create_iqtree, create_Experiment
@@ -171,4 +173,5 @@ for eval_tree in best_eval_tree_objects:
     insert_into_significance_table.append(statstest_values)
 
 with db.iqtree_db.atomic():
-    db.IqtreeEvalTreeStatsTest.insert_many(insert_into_significance_table).execute()
+    for batch in chunked(insert_into_significance_table, 100):
+        db.IqtreeEvalTreeStatsTest.insert_many(batch).execute()

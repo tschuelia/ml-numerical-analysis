@@ -2,6 +2,8 @@ import sys
 
 sys.path.append(snakemake.scriptdir + "/../../..")
 
+from peewee import chunked
+
 from snakelib import database as db
 
 from raxml_parser import create_raxml, create_Experiment
@@ -18,6 +20,7 @@ db.raxml_db.create_tables(
         db.RaxmlEvalTreeStatsTest,
     ]
 )
+
 
 # fmt: off
 params_file_paths = snakemake.input.params_file
@@ -133,7 +136,8 @@ for i in range(num_runs):
             insert_into_rfdistance.append(rfdist_values)
 
         with db.raxml_db.atomic():
-            db.RFDistTreesearchTree.insert_many(insert_into_rfdistance).execute()
+            for batch in chunked(insert_into_rfdistance, 100):
+                db.RFDistTreesearchTree.insert_many(batch).execute()
 
     # RaxmlEvalTree for best RaxmlTreesearchTree (raxml.db_best_treesearch_tree_object)
     for eval_tree_idx in range(raxml.get_num_of_eval_trees()):
@@ -191,7 +195,8 @@ for tree_idx1 in range(num_runs):
 
 
 with db.raxml_db.atomic():
-    db.RFDistEvalTree.insert_many(insert_into_rf_evaldist).execute()
+    for batch in chunked(insert_into_rf_evaldist, 100):
+        db.RFDistEvalTree.insert_many(batch).execute()
 
 # Iqtree significance tests
 best_overall_eval_tree = [tree for tree in best_eval_tree_objects if experiment.eval_tree_is_overall_best(tree.newick_tree)]
@@ -241,4 +246,5 @@ for eval_tree in best_eval_tree_objects:
     insert_into_significance_table.append(statstest_values)
 
 with db.raxml_db.atomic():
-    db.RaxmlEvalTreeStatsTest.insert_many(insert_into_significance_table).execute()
+    for batch in chunked(insert_into_significance_table, 100):
+        db.RaxmlEvalTreeStatsTest.insert_many(batch).execute()

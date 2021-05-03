@@ -2,6 +2,8 @@ import sys
 
 sys.path.append(snakemake.scriptdir + "/../../..")
 
+from peewee import chunked
+
 from snakelib import database as db
 
 from fasttree_parser import create_fasttree, create_Experiment
@@ -137,4 +139,5 @@ for tree in best_tree_objects:
     insert_into_significance_table.append(statstest_values)
 
 with db.fasttree_db.atomic():
-    db.FasttreeEvalTreeStatsTest.insert_many(insert_into_significance_table).execute()
+    for batch in chunked(insert_into_significance_table):
+        db.FasttreeEvalTreeStatsTest.insert_many(batch).execute()
