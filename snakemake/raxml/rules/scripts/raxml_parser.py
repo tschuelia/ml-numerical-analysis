@@ -31,7 +31,7 @@ class Raxml:
     blmin: float
     blmax: float
     lh_eps: float
-    raxml_param_epsilon: float
+    model_param_epsilon: float
     branch_length_smoothing: int
 
     num_pars_trees: int
@@ -55,7 +55,7 @@ class Raxml:
     eval_blmins: TreeIndexed[float]
     eval_blmaxs: TreeIndexed[float]
     eval_lh_eps: TreeIndexed[float]
-    eval_raxml_param_epsilons: TreeIndexed[float]
+    eval_model_param_epsilons: TreeIndexed[float]
     eval_raxml_brlen_smoothings: TreeIndexed[int]
 
     eval_trees: TreeIndexed[Newick]
@@ -141,8 +141,8 @@ class Raxml:
     def get_eval_lh_eps_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_lh_eps[i]
 
-    def get_eval_raxml_param_epsilon_for_tree_index(self, i: TreeIndex) -> float:
-        return self.eval_raxml_param_epsilons[i]
+    def get_eval_model_param_epsilon_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_model_param_epsilons[i]
 
     def get_eval_raxml_brlen_smoothings_for_tree_index(self, i: TreeIndex) -> int:
         return self.eval_raxml_brlen_smoothings[i]
@@ -166,7 +166,7 @@ def create_raxml(
         blmin=get_parameter_value(parameter_file_path, "blmin"),
         blmax=get_parameter_value(parameter_file_path, "blmax"),
         lh_eps=get_parameter_value(parameter_file_path, "lh_eps"),
-        raxml_param_epsilon=get_parameter_value(parameter_file_path, "raxml_param_epsilon"),
+        model_param_epsilon=get_parameter_value(parameter_file_path, "model_param_epsilon"),
         branch_length_smoothing=get_parameter_value(parameter_file_path, "raxml_brlen_smoothings"),
 
         num_pars_trees=get_parameter_value(parameter_file_path, "num_pars_trees"),
@@ -190,7 +190,7 @@ def create_raxml(
         eval_blmins=get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmin"),
         eval_blmaxs=get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmax"),
         eval_lh_eps=get_raxml_run_param_values_from_file(eval_log_file_path, command, "lh-epsilon"),
-        eval_raxml_param_epsilons=get_raxml_run_param_values_from_file(eval_log_file_path, command, "param-eps"),
+        eval_model_param_epsilons=get_raxml_run_param_values_from_file(eval_log_file_path, command, "param-eps"),
         eval_raxml_brlen_smoothings=get_raxml_run_param_values_from_file(eval_log_file_path, command,
                                                                          "brlen-smoothings"),
 

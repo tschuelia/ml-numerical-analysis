@@ -2,18 +2,18 @@ iqtree_command = config["parameters"]["iqtree"]["command"]
 
 blmin_opts      = config["parameters"]["blmin"]
 blmax_opts      = config["parameters"]["blmax"]
-lh_eps_opts     = config["parameters"]["lh_eps"]
+model_param_epsilon_opts     = config["parameters"]["model_param_epsilon"]
 
 blmin_eval_opts = config["parameters"]["eval"]["blmin"]
 blmax_eval_opts = config["parameters"]["eval"]["blmax"]
-lh_eps_eval_opts = config["parameters"]["eval"]["lh_eps"]
+model_param_epsilon_eval_opts = config["parameters"]["eval"]["model_param_epsilon"]
 
 num_pars_trees  = config["parameters"]["num_pars_trees"]
 pars_seeds      = list(range(num_pars_trees))
 
 base_dir            = config["data"]["outdir"]
 base_dir_iqtree     = base_dir + "iqtree/"
-base_name_iqtree    = "bi{blmin}_ba{blmax}_le{lh_eps}"
+base_name_iqtree    = "bi{blmin}_ba{blmax}_le{model_param_epsilon}"
 full_dir_iqtree     = base_dir_iqtree + base_name_iqtree + "/"
 
 base_name_pars  = "pars_s{seed}_"
@@ -28,7 +28,7 @@ full_file_path_iqtree_pars  = full_dir_iqtree_pars + file_name_iqtree_pars
 full_dir_iqtree_pars_tmp        = full_dir_iqtree_pars + "tmp/"
 full_file_path_iqtree_pars_tmp  = full_dir_iqtree_pars_tmp + file_name_iqtree_pars
 
-base_name_iqtree_eval = "E_bi{blmin_eval}_ba{blmax_eval}_le{lh_eps_eval}"
+base_name_iqtree_eval = "E_bi{blmin_eval}_ba{blmax_eval}_le{model_param_epsilon_eval}"
 file_name_iqtree_eval = base_name_iqtree_eval + "_S_" + base_name_iqtree
 
 full_dir_iqtree_eval        = full_dir_iqtree + "e/"
@@ -51,7 +51,7 @@ rule save_iqtree_settings_in_file:
         data = {}
         data["blmin"] = wildcards.blmin
         data["blmax"] = wildcards.blmax
-        data["lh_eps"] = wildcards.lh_eps
+        data["model_param_epsilon"] = wildcards.model_param_epsilon
         data["num_pars_trees"] = params.num_pars_trees
         with open(output.params, 'w') as f:
             json.dump(data, f)

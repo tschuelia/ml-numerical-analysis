@@ -20,7 +20,7 @@ rule re_eval_best_iqtree_tree:
         "-te {input.best_tree_of_run} "
         "-blmin {wildcards.blmin_eval} "
         "-blmax {wildcards.blmax_eval} "
-        "-me {wildcards.lh_eps_eval} "
+        "-me {wildcards.model_param_epsilon_eval} "
         "-pre {params.prefix_tmp} "
         "-nt {params.threads} "
         ">> {params.eval_log} "

@@ -21,7 +21,7 @@ rule raxml_pars_tree:
         "--blmin {wildcards.blmin} "
         "--blmax {wildcards.blmax} "
         "--lh-epsilon {wildcards.lh_eps} "
-        "--param-eps {wildcards.raxml_param_epsilon} "
+        "--param-eps {wildcards.model_param_epsilon} "
         "--brlen-smoothings {wildcards.raxml_brlen_smoothings} "
         "--threads {params.threads} "
         "--seed {wildcards.seed} "

@@ -139,5 +139,5 @@ for tree in best_tree_objects:
     insert_into_significance_table.append(statstest_values)
 
 with db.fasttree_db.atomic():
-    for batch in chunked(insert_into_significance_table):
+    for batch in chunked(insert_into_significance_table, 100):
         db.FasttreeEvalTreeStatsTest.insert_many(batch).execute()

@@ -22,7 +22,7 @@ rule re_eval_best_raxml_tree:
         "--blmin {wildcards.blmin_eval} "
         "--blmax {wildcards.blmax_eval} "
         "--lh-epsilon {wildcards.lh_eps_eval} "
-        "--param-eps {wildcards.raxml_param_epsilon_eval} "
+        "--param-eps {wildcards.model_param_epsilon_eval} "
         "--brlen-smoothings {wildcards.raxml_brlen_smoothings_eval} "
         "--threads {params.threads} "
         "> {output.eval_log} "

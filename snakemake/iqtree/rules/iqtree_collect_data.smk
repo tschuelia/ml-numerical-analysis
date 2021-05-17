@@ -26,7 +26,7 @@ rule collect_all_iqtree_eval_trees:
     Rule to collect all eval trees for one parameter combination in a single file.
     """
     input:
-        eval_trees = expand(f"{full_file_path_iqtree_eval}.treefile", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, allow_missing=True)
+        eval_trees = expand(f"{full_file_path_iqtree_eval}.treefile", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, model_param_epsilon_eval=model_param_epsilon_eval_opts, allow_missing=True)
     output:
         all_eval_trees = f"{full_file_path_iqtree}.allEvalTreesCollected"
     shell:
@@ -37,7 +37,7 @@ rule collect_all_iqtree_eval_logs:
     Rule to collect all eval logs for one parameter combination in a single file.
     """
     input:
-        eval_logs = expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, lh_eps_eval=lh_eps_eval_opts, allow_missing=True)
+        eval_logs = expand(f"{full_file_path_iqtree_eval}.iqtree.eval.log", blmin_eval=blmin_eval_opts, blmax_eval=blmax_eval_opts, model_param_epsilon_eval=model_param_epsilon_eval_opts, allow_missing=True)
     output:
         all_eval_logs = f"{full_file_path_iqtree}.allEvalLogs"
     shell:
@@ -48,7 +48,7 @@ rule collect_best_iqtree_eval_trees:
     Rule to collect the best eval tree for each parameter combination and write them all into a single file.
     """
     input:
-        expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts),
+        trees = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, model_param_epsilon=model_param_epsilon_opts),
     output:
         best_trees_all_runs = f"{base_dir_iqtree}bestEvalTreesCollected",
     script:
@@ -60,8 +60,8 @@ rule collect_best_overall_iqtree_eval_tree:
     The best eval tree is the one with the highest llh score with lowest runtime.
     """
     input:
-        trees = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts),
-        logs = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts),
+        trees = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, model_param_epsilon=model_param_epsilon_opts),
+        logs = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun.json", blmin=blmin_opts, blmax=blmax_opts, model_param_epsilon=model_param_epsilon_opts),
     output:
         best_overall_tree = f"{base_dir_iqtree}bestOverallEvalTree",
     script:
