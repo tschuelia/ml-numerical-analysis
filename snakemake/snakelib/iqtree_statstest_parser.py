@@ -144,9 +144,13 @@ def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
     """
     results = []
 
-    section = _get_relevant_section(iqtree_file)
-    entries = _get_cleaned_table_entries(section)
-    test_names = _get_names_of_performed_tests(section)
+    try:
+        section = _get_relevant_section(iqtree_file)
+        entries = _get_cleaned_table_entries(section)
+        test_names = _get_names_of_performed_tests(section)
+    except:
+        return [{}]
+
 
     for tree_id, llh, deltaL, test_results in entries:
         assert len(test_names) == len(test_results)

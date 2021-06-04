@@ -32,8 +32,8 @@ rule reveal_hidden_treesearch_files:
         iqtree_log = f"{full_file_path_iqtree_pars}.iqtree.treesearch.log",
         treefile   = f"{full_file_path_iqtree_pars}.treefile"
     params:
-        prefix_tmp = full_dir_iqtree_pars_tmp,
+        prefix_tmp = full_file_path_iqtree_pars_tmp, #full_dir_iqtree_pars_tmp,
         prefix = full_dir_iqtree_pars
     shell:
-        "cp {params.prefix_tmp}/* {params.prefix}"
+        "cp {params.prefix_tmp}* {params.prefix}"
 
