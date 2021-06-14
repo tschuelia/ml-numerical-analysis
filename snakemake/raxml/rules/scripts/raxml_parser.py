@@ -212,8 +212,8 @@ class Experiment:
     raxml_best_eval_trees   : RunIndexed[Newick]
     rfdist_raxml_best_trees : RunRunIndexed
     rfdist_raxml_best_eval_trees    : RunRunIndexed
-    best_overall_eval_tree          : Newick
-    iqtree_statstests_results       : TreeIndexed[IqTreeMetrics]
+    #best_overall_eval_tree          : Newick
+    #iqtree_statstests_results       : TreeIndexed[IqTreeMetrics]
 
     # fmt: on
 
@@ -244,23 +244,23 @@ class Experiment:
     def _get_idx_for_newick(self, newick_str: Newick) -> int:
         return self.raxml_best_eval_trees.index(newick_str)
 
-    def eval_tree_is_overall_best(self, newick_str: Newick) -> bool:
-        return newick_str == self.best_overall_eval_tree
-
-    def get_iqtree_llh_for_eval_tree(self, newick_str: Newick) -> float:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["logL"]
-
-    def get_iqtree_deltaL_for_eval_tree(self, newick_str: Newick) -> float:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["deltaL"]
-
-    def get_iqtree_test_results_for_eval_tree(self, newick_str: Newick) -> Dict:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["tests"]
+    # def eval_tree_is_overall_best(self, newick_str: Newick) -> bool:
+    #     return newick_str == self.best_overall_eval_tree
+    #
+    # def get_iqtree_llh_for_eval_tree(self, newick_str: Newick) -> float:
+    #     i = self._get_idx_for_newick(newick_str)
+    #     results_for_tree_index = self.iqtree_statstests_results[i]
+    #     return results_for_tree_index["logL"]
+    #
+    # def get_iqtree_deltaL_for_eval_tree(self, newick_str: Newick) -> float:
+    #     i = self._get_idx_for_newick(newick_str)
+    #     results_for_tree_index = self.iqtree_statstests_results[i]
+    #     return results_for_tree_index["deltaL"]
+    #
+    # def get_iqtree_test_results_for_eval_tree(self, newick_str: Newick) -> Dict:
+    #     i = self._get_idx_for_newick(newick_str)
+    #     results_for_tree_index = self.iqtree_statstests_results[i]
+    #     return results_for_tree_index["tests"]
 
 
 # fmt: off
@@ -269,8 +269,8 @@ def create_Experiment(
         raxml_best_eval_trees_path          : FilePath,
         rfdist_raxml_best_trees_path        : FilePath,
         rfdist_raxml_best_eval_trees_path   : FilePath,
-        best_overall_eval_tree_file_path    : FilePath,
-        iqtree_statstest_results_file_path  : FilePath,
+        #best_overall_eval_tree_file_path    : FilePath,
+        #iqtree_statstest_results_file_path  : FilePath,
 ):
     return Experiment(
         raxml_best_trees=read_file_contents(raxml_best_trees_path),
@@ -279,8 +279,8 @@ def create_Experiment(
         rfdist_raxml_best_eval_trees=read_rfdistances(rfdist_raxml_best_eval_trees_path),
 
         # Iqtree significance tests stuff
-        best_overall_eval_tree=read_file_contents(best_overall_eval_tree_file_path)[0],
-        iqtree_statstests_results=get_iqtree_results(iqtree_statstest_results_file_path),
+        #best_overall_eval_tree=read_file_contents(best_overall_eval_tree_file_path)[0],
+        #iqtree_statstests_results=get_iqtree_results(iqtree_statstest_results_file_path),
 
     )
 # fmt: on

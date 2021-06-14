@@ -29,8 +29,8 @@ rule save_raxml_results_to_database:
         rfDist_best_eval_trees        = f"{base_dir_raxml}bestEvalTrees.raxml.rfDistances",
 
         ##### iqtree significance tests
-        best_overall_eval_tree      = f"{base_dir_raxml}bestOverallEvalTree",
-        iqtree_significance_summary = f"{base_dir_raxml}significance.iqtree",
+        #best_overall_eval_tree      = f"{base_dir_raxml}bestOverallEvalTree",
+        #iqtree_significance_summary = f"{base_dir_raxml}significance.iqtree",
     output:
         database = f"{base_dir}raxml_results.sqlite3", 
     params:
