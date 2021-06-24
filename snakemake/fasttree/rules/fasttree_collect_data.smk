@@ -17,7 +17,7 @@ rule collect_all_fasttree_logs:
 
 rule collect_best_fasttree_trees:
     input:
-        trees = expand(f"{full_file_path_fasttree}.bestTreeOfRun", blmin=blmin_opts),
+        trees = expand(f"{full_file_path_fasttree}.bestTreeOfRun", blmin=blmin_opts, lh_eps=lh_eps_opts),
     output:
         best_trees_all_runs = f"{base_dir_fasttree}bestTreesCollected"
     shell:
@@ -25,8 +25,8 @@ rule collect_best_fasttree_trees:
 
 rule collect_best_overall_fasttree_tree:
     input:
-        trees = expand(f"{full_file_path_fasttree}.bestTreeOfRun", blmin=blmin_opts),
-        logs = expand(f"{full_file_path_fasttree}.bestTreeOfRun.json", blmin=blmin_opts),
+        trees = expand(f"{full_file_path_fasttree}.bestTreeOfRun", blmin=blmin_opts, lh_eps=lh_eps_opts),
+        logs = expand(f"{full_file_path_fasttree}.bestTreeOfRun.json", blmin=blmin_opts, lh_eps=lh_eps_opts),
     output:
         best_overall_tree = f"{base_dir_fasttree}bestOverallTree",
     script:

@@ -3,13 +3,14 @@ iqtree_command   = config["parameters"]["iqtree"]["command"]
 
 
 blmin_opts      = config["parameters"]["blmin"]
+lh_eps_opts     = config["parameters"]["lh_eps"]
 
 num_trees  = config["parameters"]["num_pars_trees"]
 seeds      = list(range(num_trees))
 
 base_dir            = config["data"]["outdir"]
 base_dir_fasttree     = base_dir + "fasttree/"
-base_name_fasttree    = "bi{blmin}"
+base_name_fasttree    = "bi{blmin}_le{lh_eps}"
 full_dir_fasttree     = base_dir_fasttree + base_name_fasttree + "/"
 
 base_name_tree  = "tree_s{seed}_"
@@ -38,6 +39,7 @@ rule save_fasttree_settings_in_file:
         import json
         data = {}
         data["blmin"] = wildcards.blmin
+        data["lh_eps"] = wildcards.lh_eps
         data["num_trees"] = params.num_pars_trees
         with open(output.params, 'w') as f:
             json.dump(data, f)

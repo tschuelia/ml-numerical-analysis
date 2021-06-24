@@ -18,6 +18,7 @@ rule fasttree_tree:
         "-nt "
         "-seed {wildcards.seed} "
         "-blmin {wildcards.blmin} "
+        "-lheps {wildcards.lh_eps} "
         "< {input.msa} "
         "> {params.prefix_tmp}.treefile "
         "2> {params.search_log} "

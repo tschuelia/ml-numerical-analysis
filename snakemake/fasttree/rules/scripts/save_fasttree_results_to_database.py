@@ -46,6 +46,7 @@ for i in range(num_runs):
 
     fasttree_db = db.Fasttree.create(
         blmin   = fasttree.blmin,
+        lh_eps  = fasttree.lh_eps,
         num_pars_trees          = fasttree.num_trees,
         num_rand_trees          = 0,
         best_treesearch_llh     = fasttree.best_treesearch_llh,

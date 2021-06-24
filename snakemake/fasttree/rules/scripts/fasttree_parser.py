@@ -23,6 +23,7 @@ from fasttree_utils import (
 @dataclasses.dataclass
 class Fasttree:
     blmin: float
+    lh_eps: float
 
     num_trees: int
     best_treesearch_llh: float
@@ -75,6 +76,7 @@ def create_fasttree(
     # fmt: off
     return Fasttree(
         blmin=get_parameter_value(parameter_file_path, "blmin"),
+        lh_eps=get_parameter_value(parameter_file_path, "lh_eps"),
 
         num_trees=get_parameter_value(parameter_file_path, "num_trees"),
 
