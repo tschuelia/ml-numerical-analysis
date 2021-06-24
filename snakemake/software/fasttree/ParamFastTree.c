@@ -1843,6 +1843,12 @@ int main(int argc, char **argv)
       MLMinBranchLength = blmin;
       fprintf(stderr, "blmin: %e\n", MLMinBranchLength);
     }
+    else if (strcmp(argv[iArg], "-lheps") == 0  && iArg < argc - 1) {
+      iArg++;
+      double lheps = atof(argv[iArg]);
+      treeLogLkDelta = lheps;
+      fprintf(stderr, "lheps: %e\n", treeLogLkDelta);
+    }
     else if (strcmp(argv[iArg], "-top") == 0)
     {
       if (tophitsMult < 0.01)
