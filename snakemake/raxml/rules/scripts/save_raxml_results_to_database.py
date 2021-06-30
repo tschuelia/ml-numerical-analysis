@@ -75,6 +75,9 @@ for i in range(num_runs):
         lh_eps  = raxml.lh_eps,
         raxml_param_epsilon     = raxml.model_param_epsilon,
         branch_length_smoothing = raxml.branch_length_smoothing,
+        spr_lh_epsilon          = raxml.spr_lh_epsilon,
+        bfgs_factor             = raxml.bfgs_factor,
+
         num_pars_trees          = raxml.num_pars_trees,
         num_rand_trees          = raxml.num_rand_trees,
         best_treesearch_llh     = raxml.best_treesearch_llh,
@@ -157,6 +160,8 @@ for i in range(num_runs):
         eval_tree_values["eval_lh_eps"]      = raxml.get_eval_lh_eps_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_raxml_param_epsilon"]      = raxml.get_eval_model_param_epsilon_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_raxml_brlen_smoothings"]      = raxml.get_eval_raxml_brlen_smoothings_for_tree_index(eval_tree_idx)
+        eval_tree_values["eval_spr_lh_epsilon"]      = raxml.get_eval_spr_lh_eps_for_tree_index(eval_tree_idx)
+        eval_tree_values["eval_bgfs_factor"] = raxml.get_eval_bfgs_factor_for_tree_index(eval_tree_idx)
         # fmt: on
         raxml_eval_tree = db.RaxmlEvalTree.create(**eval_tree_values)
 

@@ -21,6 +21,9 @@ class BaseProgram(P.Model):
 class Raxmlng(BaseProgram):
     raxml_param_epsilon = P.FloatField()
     branch_length_smoothing = P.IntegerField()
+    spr_lh_epsilon = P.FloatField()
+    bfgs_factor = P.FloatField()
+
     avg_abs_rfdist_treesearch = P.FloatField()
     avg_rel_rfdist_treesearch = P.FloatField()
     num_unique_topos_treesearch = P.IntegerField()
@@ -75,6 +78,8 @@ class EvalTree(BaseTree):
 class RaxmlEvalTree(EvalTree):
     eval_raxml_param_epsilon = P.FloatField()
     eval_raxml_brlen_smoothings = P.IntegerField()
+    eval_spr_lh_epsilon = P.FloatField()
+    eval_bgfs_factor = P.FloatField()
 
     class Meta:
         database = raxml_db

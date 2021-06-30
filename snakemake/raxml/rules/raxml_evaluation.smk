@@ -24,5 +24,7 @@ rule re_eval_best_raxml_tree:
         "--lh-epsilon {wildcards.lh_eps_eval} "
         "--param-eps {wildcards.model_param_epsilon_eval} "
         "--brlen-smoothings {wildcards.raxml_brlen_smoothings_eval} "
+        "--spr-lheps {wildcards.spr_lh_eps_eval} "
+        "--bfgs-factor {wildcards.bfgs_fac_eval} "
         "--threads {params.threads} "
         "> {output.eval_log} "

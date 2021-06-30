@@ -33,6 +33,8 @@ class Raxml:
     lh_eps: float
     model_param_epsilon: float
     branch_length_smoothing: int
+    spr_lh_epsilon: float
+    bfgs_factor: float
 
     num_pars_trees: int
     num_rand_trees: int
@@ -57,6 +59,8 @@ class Raxml:
     eval_lh_eps: TreeIndexed[float]
     eval_model_param_epsilons: TreeIndexed[float]
     eval_raxml_brlen_smoothings: TreeIndexed[int]
+    eval_spr_lh_eps: TreeIndexed[float]
+    eval_bfgs_factor: TreeIndexed[float]
 
     eval_trees: TreeIndexed[Newick]
     eval_llhs: TreeIndexed[float]
@@ -147,6 +151,12 @@ class Raxml:
     def get_eval_raxml_brlen_smoothings_for_tree_index(self, i: TreeIndex) -> int:
         return self.eval_raxml_brlen_smoothings[i]
 
+    def get_eval_spr_lh_eps_for_tree_index(self, i: TreeIndex) -> int:
+        return self.eval_spr_lh_eps[i]
+
+    def get_eval_bfgs_factor_for_tree_index(self, i: TreeIndex) -> int:
+        return self.eval_bfgs_factor[i]
+
 
 # fmt: off
 def create_raxml(
@@ -168,6 +178,8 @@ def create_raxml(
         lh_eps=get_parameter_value(parameter_file_path, "lh_eps"),
         model_param_epsilon=get_parameter_value(parameter_file_path, "model_param_epsilon"),
         branch_length_smoothing=get_parameter_value(parameter_file_path, "raxml_brlen_smoothings"),
+        spr_lh_epsilon=get_parameter_value(parameter_file_path, "spr_lh_epsilon"),
+        bfgs_factor=get_parameter_value(parameter_file_path, "bfgs_factor"),
 
         num_pars_trees=get_parameter_value(parameter_file_path, "num_pars_trees"),
         num_rand_trees=get_parameter_value(parameter_file_path, "num_rand_trees"),
@@ -191,8 +203,9 @@ def create_raxml(
         eval_blmaxs=get_raxml_run_param_values_from_file(eval_log_file_path, command, "blmax"),
         eval_lh_eps=get_raxml_run_param_values_from_file(eval_log_file_path, command, "lh-epsilon"),
         eval_model_param_epsilons=get_raxml_run_param_values_from_file(eval_log_file_path, command, "param-eps"),
-        eval_raxml_brlen_smoothings=get_raxml_run_param_values_from_file(eval_log_file_path, command,
-                                                                         "brlen-smoothings"),
+        eval_raxml_brlen_smoothings=get_raxml_run_param_values_from_file(eval_log_file_path, command, "brlen-smoothings"),
+        eval_spr_lh_eps=get_raxml_run_param_values_from_file(eval_log_file_path, command,"spr-lheps"),
+        eval_bfgs_factor=get_raxml_run_param_values_from_file(eval_log_file_path, command, "bfgs-factor"),
 
         eval_trees=read_file_contents(all_eval_trees_file_path),
         eval_llhs=get_all_raxml_llhs(eval_log_file_path),
