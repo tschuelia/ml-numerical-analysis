@@ -33,12 +33,15 @@ class Raxmlng(BaseProgram):
 
 
 class Iqtree(BaseProgram):
+    model_param_epsilon = P.FloatField()
     class Meta:
         database = iqtree_db
+
 
 class Fasttree(BaseProgram):
     class Meta:
         database = fasttree_db
+
 
 class BaseTree(P.Model):
     llh = P.FloatField()
@@ -64,9 +67,11 @@ class IqtreeTreesearchTree(TreesearchTree):
     class Meta:
         database = iqtree_db
 
+
 class FasttreeTreesearchTree(TreesearchTree):
     class Meta:
         database = fasttree_db
+
 
 class EvalTree(BaseTree):
     start_tree = P.ForeignKeyField(TreesearchTree)
@@ -86,6 +91,7 @@ class RaxmlEvalTree(EvalTree):
 
 
 class IqtreeEvalTree(EvalTree):
+    eval_model_param_epsilon = P.FloatField()
     class Meta:
         database = iqtree_db
 
@@ -109,6 +115,7 @@ class RFDistEvalTree(BaseRFDistance):
 
     class Meta:
         database = raxml_db
+
 
 class BaseTreeStatsTest(P.Model):
     # all tests are performed respective this tree

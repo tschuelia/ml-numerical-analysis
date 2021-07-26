@@ -54,7 +54,8 @@ for i in range(num_runs):
     iqtree_db = db.Iqtree.create(
         blmin   = iqtree.blmin,
         blmax   = iqtree.blmax,
-        lh_eps  = iqtree.model_param_epsilon,
+        lh_eps  = iqtree.lh_epsilon,
+        model_param_epsilon     = iqtree.model_param_epsilon,
         num_pars_trees          = iqtree.num_pars_trees,
         num_rand_trees          = 0, #iqtree.num_rand_trees,
         best_treesearch_llh     = iqtree.best_treesearch_llh,
@@ -110,7 +111,8 @@ for i in range(num_runs):
 
         eval_tree_values["eval_blmin"]  = iqtree.get_eval_blmin_for_tree_index(eval_tree_idx)
         eval_tree_values["eval_blmax"]  = iqtree.get_eval_blmax_for_tree_index(eval_tree_idx)
-        eval_tree_values["eval_lh_eps"] = iqtree.get_eval_model_param_epsilon_for_tree_index(eval_tree_idx)
+        eval_tree_values["eval_lh_eps"] = iqtree.get_eval_lh_epsilon_for_tree_index(eval_tree_idx)
+        eval_tree_values["eval_model_param_epsilon"] = iqtree.get_eval_model_param_epsilon_for_tree_index(eval_tree_idx)
         # fmt: on
         iqtree_eval_tree = db.IqtreeEvalTree.create(**eval_tree_values)
 

@@ -21,6 +21,7 @@ rule re_eval_best_iqtree_tree:
         "-blmin {wildcards.blmin_eval} "
         "-blmax {wildcards.blmax_eval} "
         "-me {wildcards.model_param_epsilon_eval} "
+        "-eps {wildcards.lh_eps_eval} "
         "-pre {params.prefix_tmp} "
         "-nt {params.threads} "
         ">> {params.eval_log} "

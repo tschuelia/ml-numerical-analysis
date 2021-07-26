@@ -25,6 +25,7 @@ class Iqtree:
     blmin: float
     blmax: float
     model_param_epsilon: float
+    lh_epsilon: float
 
     num_pars_trees: int
     # num_rand_trees: int
@@ -44,6 +45,7 @@ class Iqtree:
     eval_blmins: TreeIndexed[float]
     eval_blmaxs: TreeIndexed[float]
     eval_model_param_epsilon: TreeIndexed[float]
+    eval_lh_epsilon: TreeIndexed[float]
 
     eval_trees: TreeIndexed[float]
     eval_llhs: TreeIndexed[float]
@@ -115,6 +117,9 @@ class Iqtree:
     def get_eval_model_param_epsilon_for_tree_index(self, i: TreeIndex) -> float:
         return self.eval_model_param_epsilon[i]
 
+    def get_eval_lh_epsilon_for_tree_index(self, i: TreeIndex) -> float:
+        return self.eval_lh_epsilon[i]
+
 
 def create_iqtree(
     parameter_file_path: FilePath,
@@ -130,6 +135,7 @@ def create_iqtree(
         blmin                   = get_parameter_value(parameter_file_path, "blmin"),
         blmax                   = get_parameter_value(parameter_file_path, "blmax"),
         model_param_epsilon     = get_parameter_value(parameter_file_path, "model_param_epsilon"),
+        lh_epsilon              = get_parameter_value(parameter_file_path, "lh_eps"),
 
         num_pars_trees          = get_parameter_value(parameter_file_path, "num_pars_trees"),
         #num_rand_trees          = get_parameter_value(parameter_file_path, "num_rand_trees"),
@@ -149,6 +155,7 @@ def create_iqtree(
         eval_blmins         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmin"),
         eval_blmaxs         = get_iqtree_run_param_values_from_file(eval_log_file_path, "blmax"),
         eval_model_param_epsilon = get_iqtree_run_param_values_from_file(eval_log_file_path, "me"),
+        eval_lh_epsilon          =get_iqtree_run_param_values_from_file(eval_log_file_path, "eps"),
         eval_trees          = read_file_contents(all_eval_trees_file_path),
         eval_llhs           = get_all_iqtree_llhs(eval_log_file_path),
         eval_compute_times  = get_iqtree_cpu_time(eval_log_file_path),

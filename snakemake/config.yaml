@@ -1,10 +1,10 @@
 data:
-  #input: /home/schmidja/MasterThesis/test-Datasets/DNA-Data/1604/1604.phy
+  input: /home/schmidja/MasterThesis/test-Datasets/DNA-Data/1604/1604.phy
   #input: /Users/julia/Desktop/Masterarbeit/BioinfProtocols/dataset/027.phy
   #outdir: /Users/julia/Desktop/Masterarbeit/DatenCluster/cascade/027/results_17May21/
-  #outdir: /hits/basement/cme/schmidja/MasterThesis/data/1604/results_22Mar21/
-  input: data/ng-tutorial/prim.phy
-  outdir: data/ng-tutorial/results/
+  outdir: /hits/basement/cme/schmidja/MasterThesis/data/1604/results_22Mar21/
+  #input: data/ng-tutorial/prim.phy
+  #outdir: data/ng-tutorial/results/
 
 parameters:
   # general parameter settings
