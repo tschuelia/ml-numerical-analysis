@@ -57,7 +57,7 @@ for i in range(num_runs):
         lh_eps  = iqtree.lh_epsilon,
         model_param_epsilon     = iqtree.model_param_epsilon,
         num_pars_trees          = iqtree.num_pars_trees,
-        num_rand_trees          = 0, #iqtree.num_rand_trees,
+        num_rand_trees          = iqtree.num_rand_trees,
         best_treesearch_llh     = iqtree.best_treesearch_llh,
         best_evaluation_llh     = iqtree.best_evaluation_llh,
         treesearch_total_time   = iqtree.treesearch_total_time,
@@ -67,24 +67,24 @@ for i in range(num_runs):
     # IqtreeTreesearchTree
     iqtree.db_best_treesearch_tree_object = None
 
-    for tree_idx in range(iqtree.get_num_of_trees()):
+    for tree_idx in range(iqtree.get_number_of_trees()):
         tree_values = {}
         # fmt: off
-        tree_values["llh"]          = iqtree.get_treesearch_llh_for_tree_index(tree_idx)
-        tree_values["compute_time"] = iqtree.get_treesearch_compute_time_for_tree_index(tree_idx)
-        tree_values["newick_tree"]  = iqtree.get_newick_tree_for_tree_index(tree_idx)
+        tree_values["llh"]          = iqtree.treesearch_llhs[tree_idx]
+        tree_values["compute_time"] = iqtree.treesearch_compute_times[tree_idx]
+        tree_values["newick_tree"]  = iqtree.treesearch_trees[tree_idx].newick_str
 
         is_best = (
             iqtree.tree_for_index_is_best(tree_idx)
             and not iqtree.db_best_treesearch_tree_object
         )
         tree_values["is_best"]  = is_best
-        tree_values["number_of_taxa"]       = iqtree.get_number_of_taxa_for_tree_index(tree_idx)
-        tree_values["total_branch_length"]  = iqtree.get_total_branch_length_for_tree_index(tree_idx)
-        tree_values["average_branch_length"] = iqtree.get_average_branch_length_for_tree_index(tree_idx)
+        tree_values["number_of_taxa"]       = iqtree.treesearch_trees[tree_idx].number_of_taxa
+        tree_values["total_branch_length"]  = iqtree.treesearch_trees[tree_idx].total_branch_length
+        tree_values["average_branch_length"] = iqtree.treesearch_trees[tree_idx].average_branch_length
 
         tree_values["program"]  = iqtree_db
-        tree_values["seed"]     = iqtree.get_treesearch_seed_for_tree_index(tree_idx)
+        tree_values["seed"]     = iqtree.treeseach_seeds[tree_idx]
         # fmt: on
 
         iqtree_treesearch_tree = db.IqtreeTreesearchTree.create(**tree_values)
@@ -93,26 +93,22 @@ for i in range(num_runs):
             iqtree.db_best_treesearch_tree_object = iqtree_treesearch_tree
 
     # IqtreeEvalTree for best IqtreeTreesearchTree (iqtree.db_best_treesearch_tree_object)
-    for eval_tree_idx in range(iqtree.get_num_of_eval_trees()):
+    for eval_tree_idx in range(iqtree.get_number_of_eval_trees()):
         eval_tree_values = {}
         is_best = iqtree.eval_tree_for_index_is_best(eval_tree_idx)
         # fmt: off
-        eval_tree_values["start_tree"]  = iqtree.db_best_treesearch_tree_object
-        eval_tree_values["llh"]         = iqtree.get_eval_llh_for_tree_index(eval_tree_idx)
-        eval_tree_values["newick_tree"] = iqtree.get_newick_eval_tree_for_tree_index(eval_tree_idx)
-
-        eval_tree_values["compute_time"] = iqtree.get_eval_compute_time_for_tree_index(eval_tree_idx)
-
-        eval_tree_values["is_best"]     = is_best
-
-        eval_tree_values["number_of_taxa"]          = iqtree.get_number_of_taxa_for_eval_tree_index(eval_tree_idx)
-        eval_tree_values["total_branch_length"]     = iqtree.get_total_branch_length_for_eval_tree_index(eval_tree_idx)
-        eval_tree_values["average_branch_length"]   = iqtree.get_average_branch_length_for_eval_tree_index(eval_tree_idx)
-
-        eval_tree_values["eval_blmin"]  = iqtree.get_eval_blmin_for_tree_index(eval_tree_idx)
-        eval_tree_values["eval_blmax"]  = iqtree.get_eval_blmax_for_tree_index(eval_tree_idx)
-        eval_tree_values["eval_lh_eps"] = iqtree.get_eval_lh_epsilon_for_tree_index(eval_tree_idx)
-        eval_tree_values["eval_model_param_epsilon"] = iqtree.get_eval_model_param_epsilon_for_tree_index(eval_tree_idx)
+        eval_tree_values["start_tree"]                  = iqtree.db_best_treesearch_tree_object
+        eval_tree_values["llh"]                         = iqtree.eval_llhs[eval_tree_idx]
+        eval_tree_values["newick_tree"]                 = iqtree.eval_trees[eval_tree_idx].newick_str
+        eval_tree_values["compute_time"]                = iqtree.eval_compute_times[eval_tree_idx]
+        eval_tree_values["is_best"]                     = is_best
+        eval_tree_values["number_of_taxa"]              = iqtree.eval_trees[eval_tree_idx].number_of_taxa
+        eval_tree_values["total_branch_length"]         = iqtree.eval_trees[eval_tree_idx].total_branch_length
+        eval_tree_values["average_branch_length"]       = iqtree.eval_trees[eval_tree_idx].average_branch_length
+        eval_tree_values["eval_blmin"]                  = iqtree.eval_blmins[eval_tree_idx]
+        eval_tree_values["eval_blmax"]                  = iqtree.eval_blmaxs[eval_tree_idx]
+        eval_tree_values["eval_lh_eps"]                 = iqtree.eval_lh_epsilons[eval_tree_idx]
+        eval_tree_values["eval_model_param_epsilon"]    = iqtree.eval_model_param_epsilons[eval_tree_idx]
         # fmt: on
         iqtree_eval_tree = db.IqtreeEvalTree.create(**eval_tree_values)
 

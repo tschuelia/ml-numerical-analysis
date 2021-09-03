@@ -55,14 +55,14 @@ def create_raxml(
         treesearch_total_time   = get_raxml_treesearch_elapsed_time_entire_run(treesearch_log_file_path),
 
         # Tree search
-        best_tree_newick            = parse_newick_string(read_file_contents(best_tree_file_path)[0]),
+        best_treesearch_tree        = parse_newick_string(read_file_contents(best_tree_file_path)[0]),
         treeseach_seeds             = get_all_raxml_seeds(treesearch_log_file_path),
         treesearch_trees            = treesearch_trees,
         treesearch_llhs             = get_all_raxml_llhs(treesearch_log_file_path),
         treesearch_compute_times    = get_raxml_elapsed_time(treesearch_log_file_path),
 
         # Eval
-        best_eval_tree_newick       = parse_newick_string(read_file_contents(best_eval_tree_file_path)[0]),
+        best_eval_tree              = parse_newick_string(read_file_contents(best_eval_tree_file_path)[0]),
         eval_blmins                 = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmin"),
         eval_blmaxs                 = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmax"),
         eval_lh_epsilons            = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "lh-epsilon"),

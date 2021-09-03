@@ -24,14 +24,14 @@ class Program:
     treesearch_total_time: float
 
     # Tree search
-    best_tree_newick: NewickTree
+    best_treesearch_tree: NewickTree
     treeseach_seeds: TreeIndexed[int]
     treesearch_trees: TreeIndexed[NewickTree]
     treesearch_llhs: TreeIndexed[float]
     treesearch_compute_times: TreeIndexed[float]
 
     # Eval
-    best_eval_tree_newick: Optional[NewickTree]
+    best_eval_tree: Optional[NewickTree]
     eval_blmins: Optional[TreeIndexed[float]]
     eval_blmaxs: Optional[TreeIndexed[float]]
     eval_lh_epsilons: Optional[TreeIndexed[float]]
@@ -71,10 +71,10 @@ class Program:
         return num_pars + num_rand
 
     def tree_for_index_is_best(self, i: TreeIndex) -> bool:
-        return self.treesearch_trees[i].newick_str == self.best_tree_newick.newick_str
+        return self.treesearch_trees[i].newick_str == self.best_treesearch_tree.newick_str
 
     def get_number_of_eval_trees(self) -> int:
         return len(self.eval_trees)
 
     def eval_tree_for_index_is_best(self, i: TreeIndex) -> bool:
-        return self.eval_trees[i].newick_str == self.best_eval_tree_newick
+        return self.eval_trees[i].newick_str == self.best_eval_tree.newick_str
