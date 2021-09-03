@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from Bio import Phylo
 import numpy as np
@@ -23,7 +24,7 @@ def get_value_from_line(line: str, search_string: str) -> float:
         return float(value)
 
     raise ValueError(
-        f'The given line "{line}" does not contain the search string "{search_string}".'
+        f"The given line '{line}' does not contain the search string '{search_string}'."
     )
 
 
@@ -36,7 +37,7 @@ def get_single_value_from_file(input_file: FilePath, search_string: str) -> floa
             return get_value_from_line(l, search_string)
 
     raise ValueError(
-        f'The given input file {input_file} does not contain the search string "{search_string}".'
+        f"The given input file {input_file} does not contain the search string '{search_string}'."
     )
 
 
@@ -60,43 +61,77 @@ def read_file_contents(file_path: FilePath) -> List[str]:
 
     return [l.strip() for l in content]
 
-def get_tree_object(newick_str: Newick) -> Phylo.Newick.Tree:
-    trees = list(Phylo.NewickIO.Parser.from_string(newick_str).parse())
-    return trees[0]
 
 
-def get_number_of_taxa_for_tree(newick_str: Newick) -> int:
-    tree = get_tree_object(newick_str)
-    return tree.count_terminals()
+
+@dataclasses.dataclass
+class NewickTree:
+    newick_str: NewickString
+    number_of_taxa: int
+    total_branch_length: float
+    average_branch_length: float
+    stdev_branch_length: float
+    all_branch_lengths: List[float]
+    min_branch_length: float
+    max_branch_length: float
 
 
-def get_total_branch_length_for_tree(newick_str: Newick) -> float:
-    tree = get_tree_object(newick_str)
-    return tree.total_branch_length()
+def parse_newick_string(newick_string: NewickString) -> NewickTree:
+    trees = list(Phylo.NewickIO.Parser.from_string(newick_string).parse())
+    tree = trees[0]
+
+    num_taxa = tree.count_terminals()
+    total_brlen = tree.total_branch_length()
+    all_brlens = [node.branch_length for node in tree.find_clades(branch_length=True)]
+
+    return NewickTree(
+        newick_str=newick_string,
+        number_of_taxa=num_taxa,
+        total_branch_length=total_brlen,
+        average_branch_length=total_brlen / num_taxa,
+        stdev_branch_length=np.std(all_brlens),
+        all_branch_lengths=all_brlens,
+        min_branch_length=min(all_brlens),
+        max_branch_length=max(all_brlens)
+    )
+
+# def get_tree_object(newick_str: NewickString) -> Phylo.NewickString.Tree:
+#     trees = list(Phylo.NewickIO.Parser.from_string(newick_str).parse())
+#     return trees[0]
+#
+#
+# def get_number_of_taxa_for_tree(newick_str: NewickString) -> int:
+#     tree = get_tree_object(newick_str)
+#     return tree.count_terminals()
 
 
-def get_average_branch_length_for_tree(newick_str: Newick) -> float:
-    total_brlen = get_total_branch_length_for_tree(newick_str)
-    num_taxa = get_number_of_taxa_for_tree(newick_str)
-    return total_brlen / num_taxa
+# def get_total_branch_length_for_tree(newick_str: NewickString) -> float:
+#     tree = get_tree_object(newick_str)
+#     return tree.total_branch_length()
 
 
-def get_all_branch_lengths_for_tree(newick_str: Newick) -> List[float]:
-    tree = get_tree_object(newick_str)
-    return [node.branch_length for node in tree.find_clades(branch_length=True)]
+# def get_average_branch_length_for_tree(newick_str: NewickString) -> float:
+#     total_brlen = get_total_branch_length_for_tree(newick_str)
+#     num_taxa = get_number_of_taxa_for_tree(newick_str)
+#     return total_brlen / num_taxa
+
+#
+# def get_all_branch_lengths_for_tree(newick_str: NewickString) -> List[float]:
+#     tree = get_tree_object(newick_str)
+#     return [node.branch_length for node in tree.find_clades(branch_length=True)]
 
 
-def get_min_branch_length_for_tree(newick_str: Newick) -> float:
+def get_min_branch_length_for_tree(newick_str: NewickString) -> float:
     all_brlens = get_all_branch_lengths_for_tree(newick_str)
     return min(all_brlens)
 
 
-def get_max_branch_length_for_tree(newick_str: Newick) -> float:
+def get_max_branch_length_for_tree(newick_str: NewickString) -> float:
     all_brlens = get_all_branch_lengths_for_tree(newick_str)
     return max(all_brlens)
 
 
-def get_std_branch_lenghts_for_tree(newick_str: Newick) -> float:
+def get_std_branch_lenghts_for_tree(newick_str: NewickString) -> float:
     all_brlens = get_all_branch_lengths_for_tree(newick_str)
     return np.std(all_brlens)
 

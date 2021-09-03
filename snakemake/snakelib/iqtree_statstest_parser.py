@@ -156,7 +156,7 @@ def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
         assert len(test_names) == len(test_results)
 
         data = {}
-        data["tree_id"] = int(tree_id)
+        #data["tree_id"] = int(tree_id)
         data["logL"] = float(llh)
         data["deltaL"] = float(deltaL)
         data["tests"] = {}

@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 
+
 def save_best_tree_and_log(tree_file, all_llhs, all_runtimes, out_tree, out_log):
     with open(tree_file) as f:
         all_trees = f.readlines()

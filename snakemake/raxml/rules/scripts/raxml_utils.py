@@ -96,7 +96,7 @@ def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
 
 
 def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
-    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d+)\s*")
+    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s*")
     tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
         line_regex, raw_line
     ).groups()

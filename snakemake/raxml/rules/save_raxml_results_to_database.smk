@@ -18,16 +18,6 @@ rule save_raxml_results_to_database:
         eval_log        = expand(f"{full_file_path_raxml}.allEvalLogs", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
         best_eval_tree  = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
 
-        ##### rfdistances
-        treesearch_rfDist_log   = expand(f"{full_file_path_raxml}.raxml.rfDistances.log", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
-        treesearch_rfDist       = expand(f"{full_file_path_raxml}.raxml.rfDistances", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
-
-        all_best_treesearch_trees     = f"{base_dir_raxml}bestTreesCollected",
-        rfDist_best_treesearch_trees  = f"{base_dir_raxml}bestTrees.raxml.rfDistances",
-
-        all_best_eval_trees           = f"{base_dir_raxml}bestEvalTreesCollected",
-        rfDist_best_eval_trees        = f"{base_dir_raxml}bestEvalTrees.raxml.rfDistances",
-
         ##### iqtree significance tests
         #best_overall_eval_tree      = f"{base_dir_raxml}bestOverallEvalTree",
         #iqtree_significance_summary = f"{base_dir_raxml}significance.iqtree",

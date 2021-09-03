@@ -11,8 +11,8 @@ class BaseProgram(P.Model):
     blmax = P.FloatField(null=True)
     lh_eps = P.FloatField(null=True)
 
-    num_pars_trees = P.IntegerField()
-    num_rand_trees = P.IntegerField()
+    num_pars_trees = P.IntegerField(null=True)
+    num_rand_trees = P.IntegerField(null=True)
     best_treesearch_llh = P.FloatField()
     best_evaluation_llh = P.FloatField(null=True)
     treesearch_total_time = P.FloatField()
@@ -23,10 +23,6 @@ class Raxmlng(BaseProgram):
     branch_length_smoothing = P.IntegerField()
     spr_lh_epsilon = P.FloatField()
     bfgs_factor = P.FloatField()
-
-    avg_abs_rfdist_treesearch = P.FloatField()
-    avg_rel_rfdist_treesearch = P.FloatField()
-    num_unique_topos_treesearch = P.IntegerField()
 
     class Meta:
         database = raxml_db
@@ -84,7 +80,7 @@ class RaxmlEvalTree(EvalTree):
     eval_raxml_param_epsilon = P.FloatField()
     eval_raxml_brlen_smoothings = P.IntegerField()
     eval_spr_lh_epsilon = P.FloatField()
-    eval_bgfs_factor = P.FloatField()
+    eval_bfgs_factor = P.FloatField()
 
     class Meta:
         database = raxml_db
@@ -94,27 +90,6 @@ class IqtreeEvalTree(EvalTree):
     eval_model_param_epsilon = P.FloatField()
     class Meta:
         database = iqtree_db
-
-
-class BaseRFDistance(P.Model):
-    plain_rfdist = P.FloatField()
-    normalized_rfdist = P.FloatField()
-
-
-class RFDistTreesearchTree(BaseRFDistance):
-    tree1 = P.ForeignKeyField(TreesearchTree)
-    tree2 = P.ForeignKeyField(TreesearchTree)
-
-    class Meta:
-        database = raxml_db
-
-
-class RFDistEvalTree(BaseRFDistance):
-    tree1 = P.ForeignKeyField(EvalTree)
-    tree2 = P.ForeignKeyField(EvalTree)
-
-    class Meta:
-        database = raxml_db
 
 
 class BaseTreeStatsTest(P.Model):

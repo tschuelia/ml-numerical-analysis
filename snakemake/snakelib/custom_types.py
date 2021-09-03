@@ -1,7 +1,7 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 FilePath = str
-Newick = str
+NewickString = str
 IqTreeMetrics = Dict
 
 TreeIndex = int
