@@ -40,7 +40,7 @@ rule save_fasttree_settings_in_file:
         data = {}
         data["blmin"] = wildcards.blmin
         data["lh_eps"] = wildcards.lh_eps
-        data["num_trees"] = params.num_pars_trees
+        data["num_pars_trees"] = params.num_pars_trees
         with open(output.params, 'w') as f:
             json.dump(data, f)
 

@@ -46,9 +46,9 @@ for i in range(num_runs):
 
     fasttree_db = db.Fasttree.create(
         blmin   = fasttree.blmin,
-        lh_eps  = fasttree.lh_eps,
-        num_pars_trees          = fasttree.num_trees,
-        num_rand_trees          = 0,
+        lh_eps  = fasttree.lh_epsilon,
+        num_pars_trees          = fasttree.num_pars_trees,
+        num_rand_trees          = fasttree.num_rand_trees,
         best_treesearch_llh     = fasttree.best_treesearch_llh,
         treesearch_total_time   = fasttree.treesearch_total_time,
     )
@@ -57,25 +57,24 @@ for i in range(num_runs):
     # FasttreeTreesearchTree
     fasttree.db_best_treesearch_tree_object = None
 
-    for tree_idx in range(fasttree.get_num_of_trees()):
+    for tree_idx in range(fasttree.get_number_of_trees()):
         tree_values = {}
         # fmt: off
-        tree_values["llh"]          = fasttree.get_treesearch_llh_for_tree_index(tree_idx)
-        tree_values["compute_time"] = fasttree.get_treesearch_compute_time_for_tree_index(tree_idx)
-        tree_values["newick_tree"]  = fasttree.get_newick_tree_for_tree_index(tree_idx)
+        tree_values["llh"]          = fasttree.treesearch_llhs[tree_idx]
+        tree_values["compute_time"] = fasttree.treesearch_compute_times[tree_idx]
+        tree_values["newick_tree"]  = fasttree.treesearch_trees[tree_idx].newick_str
 
         is_best = (
             fasttree.tree_for_index_is_best(tree_idx)
             and not fasttree.db_best_treesearch_tree_object
         )
         tree_values["is_best"]  = is_best
+        tree_values["number_of_taxa"]       = fasttree.treesearch_trees[tree_idx].number_of_taxa
+        tree_values["total_branch_length"]  = fasttree.treesearch_trees[tree_idx].total_branch_length
+        tree_values["average_branch_length"] = fasttree.treesearch_trees[tree_idx].average_branch_length
 
         tree_values["program"]  = fasttree_db
-        tree_values["seed"]     = fasttree.get_treesearch_seed_for_tree_index(tree_idx)
-        tree_values["number_of_taxa"]       = fasttree.get_number_of_taxa_for_tree_index(tree_idx)
-        tree_values["total_branch_length"]  = fasttree.get_total_branch_length_for_tree_index(tree_idx)
-        tree_values["average_branch_length"] = fasttree.get_average_branch_length_for_tree_index(tree_idx)
-
+        tree_values["seed"]     = fasttree.treeseach_seeds[tree_idx]
         # fmt: on
 
         fasttree_treesearch_tree = db.FasttreeTreesearchTree.create(**tree_values)

@@ -51,7 +51,7 @@ def create_iqtree(
         treesearch_total_time   = get_iqtree_treesearch_cpu_time_entire_run(treesearch_log_file_path),
 
         # Tree search
-        best_treesearch_tree        = parse_newick_string(read_file_contents(best_tree_file_path)[0],),
+        best_treesearch_tree        = parse_newick_string(read_file_contents(best_tree_file_path)[0]),
         treeseach_seeds             = get_iqtree_run_param_values_from_file(treesearch_log_file_path, "seed"),
         treesearch_trees            = treesearch_trees,
         treesearch_llhs             = get_all_iqtree_llhs(treesearch_log_file_path),

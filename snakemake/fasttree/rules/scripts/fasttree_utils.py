@@ -31,7 +31,7 @@ def get_best_fasttree_llh(fasttree_log: FilePath):
     return max(all_llhs)
 
 
-def get_fasttree_runtimes(fasttree_log: FilePath) -> float:
+def get_fasttree_runtimes(fasttree_log: FilePath) -> TreeIndexed[float]:
     content = read_file_contents(fasttree_log)
     line_re = r"Total time:\s*(\d+(?:\.\d+)?(?:[e][-+]?\d+)?).*"
     line_regex = regex.compile(line_re)
@@ -55,7 +55,7 @@ def get_fasttree_treesearch_entire_run(fasttree_log: FilePath):
     return sum(get_fasttree_runtimes(fasttree_log))
 
 
-def get_fasttree_run_param_values_from_file(fasttree_log: FilePath, param_identifier: str) -> float:
+def get_fasttree_run_param_values_from_file(fasttree_log: FilePath, param_identifier: str) -> TreeIndexed[float]:
     content = read_file_contents(fasttree_log)
     values = []
     for line in content:

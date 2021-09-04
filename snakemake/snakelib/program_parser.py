@@ -51,19 +51,21 @@ class Program:
 
         # some sanity checks
         assert len(self.treeseach_seeds) == len(self.treesearch_trees) == len(self.treesearch_llhs) == len(self.treesearch_compute_times)
-        assert len(self.eval_trees) == len(self.eval_llhs) == len(self.eval_compute_times)
 
-        for param in [
-            self.eval_blmins,
-            self.eval_blmaxs,
-            self.eval_lh_epsilons,
-            self.eval_model_param_epsilons,
-            self.eval_raxml_brlen_smoothings,
-            self.eval_spr_lh_epsilons,
-            self.eval_bfgs_factors
-        ]:
-            if param:
-                assert len(param) == len(self.eval_trees)
+        if self.eval_trees:
+            assert len(self.eval_trees) == len(self.eval_llhs) == len(self.eval_compute_times)
+
+            for param in [
+                self.eval_blmins,
+                self.eval_blmaxs,
+                self.eval_lh_epsilons,
+                self.eval_model_param_epsilons,
+                self.eval_raxml_brlen_smoothings,
+                self.eval_spr_lh_epsilons,
+                self.eval_bfgs_factors
+            ]:
+                if param:
+                    assert len(param) == len(self.eval_trees)
 
     def get_number_of_trees(self) -> int:
         num_pars = self.num_pars_trees if self.num_pars_trees else 0
