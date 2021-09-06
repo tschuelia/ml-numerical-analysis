@@ -53,7 +53,7 @@ rule collect_best_trees:
     Rule to collect the best tree search tree for each parameter combination and write them all into a single file.
     """
     input:  
-        trees = expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        trees = expand(f"{full_file_path_raxml}.bestTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
     output:
         best_trees_all_runs = f"{base_dir_raxml}bestTreesCollected",
     script:
@@ -65,7 +65,7 @@ rule collect_best_eval_trees:
     Rule to collect the best eval tree for each parameter combination and write them all into a single file.
     """
     input:  
-        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
     output:
         best_trees_all_runs = f"{base_dir_raxml}bestEvalTreesCollected",
     script:
@@ -78,8 +78,8 @@ rule collect_best_overall_eval_tree:
     The best eval tree is the one with the highest llh score with lowest runtime.
     """
     input:
-        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
-        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_param_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
     output:
         best_overall_tree = f"{base_dir_raxml}bestOverallEvalTree",
     script:

@@ -19,7 +19,7 @@ rule iqtree_pars_tree:
         "-ninit 1 "
         "-blmin {wildcards.blmin} "
         "-blmax {wildcards.blmax} "
-        "-me {wildcards.model_param_epsilon} "
+        "-me {wildcards.model_epsilon} "
         "-eps {wildcards.lh_eps} "
         "-seed {wildcards.seed} "
         "-pre {params.prefix_tmp} "

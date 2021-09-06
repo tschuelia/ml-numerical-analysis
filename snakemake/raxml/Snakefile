@@ -4,7 +4,7 @@ iqtree_command   = config["parameters"]["iqtree"]["command"]
 blmin_opts      = config["parameters"]["blmin"]
 blmax_opts      = config["parameters"]["blmax"]
 lh_eps_opts     = config["parameters"]["lh_eps"]
-model_param_epsilon_opts    = config["parameters"]["model_param_epsilon"]
+model_param_epsilon_opts    = config["parameters"]["model_epsilon"]
 raxml_brlen_smoothings_opts = config["parameters"]["branch_length_smoothing"]
 spr_lh_eps_opts         = config["parameters"]["spr_lh_epsilon"]
 bfgs_fac_opts            = config["parameters"]["bfgs_factor"]
@@ -12,7 +12,7 @@ bfgs_fac_opts            = config["parameters"]["bfgs_factor"]
 blmin_eval_opts = config["parameters"]["eval"]["blmin"]
 blmax_eval_opts = config["parameters"]["eval"]["blmax"]
 lh_eps_eval_opts = config["parameters"]["eval"]["lh_eps"]
-model_param_epsilon_eval_opts    = config["parameters"]["eval"]["model_param_epsilon"]
+model_param_epsilon_eval_opts    = config["parameters"]["eval"]["model_epsilon"]
 raxml_brlen_smoothings_eval_opts = config["parameters"]["eval"]["branch_length_smoothing"]
 spr_lh_eps_eval_opts         = config["parameters"]["eval"]["spr_lh_epsilon"]
 bfgs_fac_eval_opts         = config["parameters"]["eval"]["bfgs_factor"]
@@ -25,7 +25,7 @@ rand_seeds = list(range(num_pars_trees, num_pars_trees + num_rand_trees))
 
 base_dir = config["data"]["outdir"]
 base_dir_raxml = base_dir + "raxml/"
-base_name_raxml = "bi{blmin}_ba{blmax}_le{lh_eps}_re{model_param_epsilon}_bls{raxml_brlen_smoothings}_sprle{spr_lh_eps}_bfgs{bfgs_fac}"
+base_name_raxml = "bi{blmin}_ba{blmax}_le{lh_eps}_re{model_epsilon}_bls{raxml_brlen_smoothings}_sprle{spr_lh_eps}_bfgs{bfgs_fac}"
 full_dir_raxml = base_dir_raxml + base_name_raxml + "/"
 
 base_name_pars  = "pars_s{seed}_"
@@ -63,7 +63,7 @@ rule save_raxml_settings_in_file:
         data["blmin"] = wildcards.blmin
         data["blmax"] = wildcards.blmax
         data["lh_eps"] = wildcards.lh_eps
-        data["model_param_epsilon"] = wildcards.model_param_epsilon
+        data["model_epsilon"] = wildcards.model_epsilon
         data["raxml_brlen_smoothings"] = wildcards.raxml_brlen_smoothings
         data["spr_lh_epsilon"] = wildcards.spr_lh_eps
         data["bfgs_factor"] = wildcards.bfgs_fac

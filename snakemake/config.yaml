@@ -1,28 +1,28 @@
 data:
-  input: /home/schmidja/MasterThesis/test-Datasets/DNA-Data/1604/1604.phy
+  #input: /home/schmidja/MasterThesis/test-Datasets/DNA-Data/1604/1604.phy
   #input: /Users/julia/Desktop/Masterarbeit/BioinfProtocols/dataset/027.phy
   #outdir: /Users/julia/Desktop/Masterarbeit/DatenCluster/cascade/027/results_17May21/
-  outdir: /hits/basement/cme/schmidja/MasterThesis/data/1604/results_22Mar21/
-  #input: data/ng-tutorial/prim.phy
-  #outdir: data/ng-tutorial/results/
+  #outdir: /hits/basement/cme/schmidja/MasterThesis/data/1604/results_22Mar21/
+  input: data/ng-tutorial/prim.phy
+  outdir: data/ng-tutorial/results/
 
 parameters:
   # general parameter settings
   num_pars_trees: 2
   num_rand_trees: 0
-  blmin: [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10]
-  blmax: [100] #[10, 100]
-  lh_eps: [0.001, 0.01, 0.1, 1, 10, 100, 1000]
-  model_param_epsilon: [ 0.001,]# 0.01, 0.1]
-  branch_length_smoothing: [32] #[16, 32, 64]
-  spr_lh_epsilon:  [0.001, 0.01, 0.1, 1, 10, 100, 1000]
-  bfgs_factor: [1e5, 1e7, 1e9]
+  blmin: [1e-2, 1e-3] #, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10]
+  blmax: [10, 100]
+  lh_eps: [0.001, 0.01] #, 0.1, 1, 10, 100, 1000]
+  model_epsilon: [ 0.001, 0.01] #, 0.1]
+  branch_length_smoothing: [16] #, 32, 64]
+  spr_lh_epsilon:  [0.001] #, 0.01] #, 0.1, 1, 10, 100, 1000]
+  bfgs_factor: [1e5] #, 1e7, 1e9]
 
   eval:
     blmin: [1e-10]
     blmax: [100]
     lh_eps: [0.001]
-    model_param_epsilon: [0.001]
+    model_epsilon: [0.001]
     branch_length_smoothing: [64]
     spr_lh_epsilon: [0.001]
     bfgs_factor: [1e7]

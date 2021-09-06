@@ -34,7 +34,7 @@ def create_fasttree(
         blmin                   = get_parameter_value(parameter_file_path, "blmin"),
         blmax                   = None,
         lh_epsilon              = get_parameter_value(parameter_file_path, "lh_eps"),
-        model_param_epsilon     = None,
+        model_epsilon     = None,
         branch_length_smoothing = None,
         spr_lh_epsilon          = None,
         bfgs_factor             = None,

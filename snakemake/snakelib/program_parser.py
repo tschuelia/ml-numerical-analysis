@@ -12,7 +12,7 @@ class Program:
     blmin: Optional[float]
     blmax: Optional[float]
     lh_epsilon: Optional[float]
-    model_param_epsilon: Optional[float]
+    model_epsilon: Optional[float]
     branch_length_smoothing: Optional[int]
     spr_lh_epsilon: Optional[float]
     bfgs_factor: Optional[float]

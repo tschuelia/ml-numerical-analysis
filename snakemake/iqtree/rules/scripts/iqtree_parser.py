@@ -39,7 +39,7 @@ def create_iqtree(
         blmin                   = get_parameter_value(parameter_file_path, "blmin"),
         blmax                   = get_parameter_value(parameter_file_path, "blmax"),
         lh_epsilon              = get_parameter_value(parameter_file_path, "lh_eps"),
-        model_param_epsilon     = get_parameter_value(parameter_file_path, "model_param_epsilon"),
+        model_epsilon     = get_parameter_value(parameter_file_path, "model_epsilon"),
         branch_length_smoothing = None,
         spr_lh_epsilon          = None,
         bfgs_factor             = None,

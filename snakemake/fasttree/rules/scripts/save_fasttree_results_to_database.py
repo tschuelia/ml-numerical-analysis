@@ -5,6 +5,7 @@ sys.path.append(snakemake.scriptdir + "/../../..")
 from peewee import chunked
 
 from snakelib import database as db
+from snakelib.database import insert_program_data, insert_treesarch_data
 
 from fasttree_parser import create_fasttree, create_Experiment
 
@@ -44,44 +45,15 @@ for i in range(num_runs):
         all_treesearch_trees_file_path  = treesearch_trees_file_paths[i],
     )
 
-    fasttree_db = db.Fasttree.create(
-        blmin   = fasttree.blmin,
-        lh_eps  = fasttree.lh_epsilon,
-        num_pars_trees          = fasttree.num_pars_trees,
-        num_rand_trees          = fasttree.num_rand_trees,
-        best_treesearch_llh     = fasttree.best_treesearch_llh,
-        treesearch_total_time   = fasttree.treesearch_total_time,
-    )
     # fmt: on
 
+    fasttree_db = insert_program_data(fasttree, db.Fasttree)
+
     # FasttreeTreesearchTree
-    fasttree.db_best_treesearch_tree_object = None
 
-    for tree_idx in range(fasttree.get_number_of_trees()):
-        tree_values = {}
-        # fmt: off
-        tree_values["llh"]          = fasttree.treesearch_llhs[tree_idx]
-        tree_values["compute_time"] = fasttree.treesearch_compute_times[tree_idx]
-        tree_values["newick_tree"]  = fasttree.treesearch_trees[tree_idx].newick_str
-
-        is_best = (
-            fasttree.tree_for_index_is_best(tree_idx)
-            and not fasttree.db_best_treesearch_tree_object
-        )
-        tree_values["is_best"]  = is_best
-        tree_values["number_of_taxa"]       = fasttree.treesearch_trees[tree_idx].number_of_taxa
-        tree_values["total_branch_length"]  = fasttree.treesearch_trees[tree_idx].total_branch_length
-        tree_values["average_branch_length"] = fasttree.treesearch_trees[tree_idx].average_branch_length
-
-        tree_values["program"]  = fasttree_db
-        tree_values["seed"]     = fasttree.treeseach_seeds[tree_idx]
-        # fmt: on
-
-        fasttree_treesearch_tree = db.FasttreeTreesearchTree.create(**tree_values)
-
-        if is_best:
-            fasttree.db_best_treesearch_tree_object = fasttree_treesearch_tree
-            best_tree_objects.append(fasttree_treesearch_tree)
+    tree_objects, best_tree = insert_treesarch_data(fasttree, fasttree_db, db.FasttreeTreesearchTree)
+    fasttree.db_best_treesearch_tree_object = best_tree
+    best_tree_objects += [t for t in tree_objects if t.is_best]
 
 # # Iqtree significance tests
 # # fmt: off
