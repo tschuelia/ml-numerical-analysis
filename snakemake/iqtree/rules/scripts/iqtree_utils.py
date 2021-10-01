@@ -16,15 +16,29 @@ def get_iqtree_run_param_value(line: str, param_identifier: str) -> float:
 
 
 def get_iqtree_run_param_values_from_file(
-    iqtree_log: FilePath, param_identifier: str
+        iqtree_log: FilePath, param_identifier: str
 ) -> TreeIndexed[float]:
     content = read_file_contents(iqtree_log)
 
     values = []
 
-    for line in content:
+    # we need to detect checkpoints, because IQ-Tree logs the command again after resuming
+    encountered_checkpoint = False
+
+    for i, line in enumerate(content):
+        # check for checkpoint:
+        if (line.startswith("*****") and
+                i < len(content) - 1 and  # check that we can look one line ahead
+                content[i + 1].startswith("CHECKPOINT")):  # check that next line says CHECKPOINT
+            encountered_checkpoint = True
+
         if line.startswith("Command:"):
-            values.append(get_iqtree_run_param_value(line, param_identifier))
+            if encountered_checkpoint:
+                # If the command is after the checkpoint call, do not store the value
+                encountered_checkpoint = False
+                continue
+            else:
+                values.append(get_iqtree_run_param_value(line, param_identifier))
 
     return values
 
@@ -62,3 +76,4 @@ def get_iqtree_cpu_time(log_file: FilePath) -> TreeIndexed[float]:
 
 def get_iqtree_treesearch_cpu_time_entire_run(log_file: FilePath) -> float:
     return sum(get_iqtree_cpu_time(log_file))
+
