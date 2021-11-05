@@ -19,8 +19,8 @@ rule save_raxml_results_to_database:
         best_eval_tree  = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
 
         ##### iqtree significance tests
-        #best_overall_eval_tree      = f"{base_dir_raxml}bestOverallEvalTree",
-        #iqtree_significance_summary = f"{base_dir_raxml}significance.iqtree",
+        filtered_trees_clusters     = f"{base_dir_raxml}filteredEvalTreesClusters",
+        iqtree_statstests_results   = f"{base_dir_raxml}significance.iqtree",
     output:
         database = f"{base_dir}raxml_results.sqlite3", 
     params:

@@ -2,6 +2,7 @@ from snakelib.custom_types import *
 from typing import Dict, List, Tuple
 
 import regex
+import warnings
 
 # define some regex stuff
 blanks = r"\s+"  # matches >=1  subsequent whitespace characters
@@ -131,6 +132,42 @@ def _get_cleaned_table_entries(
     return entries
 
 
+def _get_default_entry():
+    return {
+                "deltaL": 0,
+                "tests": {
+                    'bp-RELL': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'p-KH': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'p-SH': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'p-WKH': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'p-WSH': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'c-ELW': {
+                        'score': 1,
+                        'significant': True
+                    },
+                    'p-AU': {
+                        'score': 1,
+                        'significant': True
+                    }
+                }
+            }
+
+
 def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
     """
     Returns a list of dicts, each dict contains the iqtree test results for the respective tree.
@@ -142,21 +179,21 @@ def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
         A list of dicts. Each dict contains the tree_id, llh, deltaL and all results of the performed
             iqtree tests.
     """
-    results = []
-
     try:
         section = _get_relevant_section(iqtree_file)
         entries = _get_cleaned_table_entries(section)
         test_names = _get_names_of_performed_tests(section)
-    except:
-        return [{}]
+    except ValueError as e:
+        warnings.warn(str(e))
+        warnings.warn("Falling back to default case.")
+        return [_get_default_entry()]
 
+    results = []
 
     for tree_id, llh, deltaL, test_results in entries:
         assert len(test_names) == len(test_results)
 
         data = {}
-        #data["tree_id"] = int(tree_id)
         data["logL"] = float(llh)
         data["deltaL"] = float(deltaL)
         data["tests"] = {}
@@ -171,5 +208,4 @@ def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
             data["tests"][test]["significant"] = True if significant == "+" else False
 
         results.append(data)
-
     return results

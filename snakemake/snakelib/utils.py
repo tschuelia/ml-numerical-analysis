@@ -3,7 +3,10 @@ import json
 from Bio import Phylo
 import numpy as np
 from .custom_types import *
-
+from tempfile import TemporaryDirectory
+import subprocess
+import regex
+import pickle
 
 def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
     with open(filename) as f:
@@ -62,8 +65,6 @@ def read_file_contents(file_path: FilePath) -> List[str]:
     return [l.strip() for l in content]
 
 
-
-
 @dataclasses.dataclass
 class NewickTree:
     newick_str: NewickString
@@ -95,47 +96,6 @@ def parse_newick_string(newick_string: NewickString) -> NewickTree:
         max_branch_length=max(all_brlens)
     )
 
-# def get_tree_object(newick_str: NewickString) -> Phylo.NewickString.Tree:
-#     trees = list(Phylo.NewickIO.Parser.from_string(newick_str).parse())
-#     return trees[0]
-#
-#
-# def get_number_of_taxa_for_tree(newick_str: NewickString) -> int:
-#     tree = get_tree_object(newick_str)
-#     return tree.count_terminals()
-
-
-# def get_total_branch_length_for_tree(newick_str: NewickString) -> float:
-#     tree = get_tree_object(newick_str)
-#     return tree.total_branch_length()
-
-
-# def get_average_branch_length_for_tree(newick_str: NewickString) -> float:
-#     total_brlen = get_total_branch_length_for_tree(newick_str)
-#     num_taxa = get_number_of_taxa_for_tree(newick_str)
-#     return total_brlen / num_taxa
-
-#
-# def get_all_branch_lengths_for_tree(newick_str: NewickString) -> List[float]:
-#     tree = get_tree_object(newick_str)
-#     return [node.branch_length for node in tree.find_clades(branch_length=True)]
-
-
-def get_min_branch_length_for_tree(newick_str: NewickString) -> float:
-    all_brlens = get_all_branch_lengths_for_tree(newick_str)
-    return min(all_brlens)
-
-
-def get_max_branch_length_for_tree(newick_str: NewickString) -> float:
-    all_brlens = get_all_branch_lengths_for_tree(newick_str)
-    return max(all_brlens)
-
-
-def get_std_branch_lenghts_for_tree(newick_str: NewickString) -> float:
-    all_brlens = get_all_branch_lengths_for_tree(newick_str)
-    return np.std(all_brlens)
-
-
 def cat_input_to_output(input_files, output_file):
     output = []
 
@@ -146,3 +106,179 @@ def cat_input_to_output(input_files, output_file):
 
     with open(output_file, "w") as f:
         f.write("\n".join(output))
+
+
+def get_raxml_abs_rf_distance(log_file: FilePath) -> float:
+    STR = "Average absolute RF distance in this tree set:"
+    return get_single_value_from_file(log_file, STR)
+
+
+def get_raxml_rel_rf_distance(log_file: FilePath) -> float:
+    STR = "Average relative RF distance in this tree set:"
+    return get_single_value_from_file(log_file, STR)
+
+
+def get_raxml_num_unique_topos(log_file: FilePath) -> int:
+    STR = "Number of unique topologies in this tree set:"
+    return get_single_value_from_file(log_file, STR)
+
+
+def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
+    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s*")
+    tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
+        line_regex, raw_line
+    ).groups()
+    return int(tree_idx1), int(tree_idx2), float(plain_dist), float(normalized_dist)
+
+
+def read_rfdistances(
+        rfdistances_file_path,
+):
+    with open(rfdistances_file_path) as f:
+        rfdistances = f.readlines()
+
+    abs_res = {}
+    rel_res = {}
+
+    for line in rfdistances:
+        idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
+        abs_res[(idx1, idx2)] = plain
+        rel_res[(idx1, idx2)] = norm
+
+    return abs_res, rel_res
+
+
+def raxml_rfdist(
+        tree_strings,
+        raxml_command,
+        get_num_topos=False,
+        get_rfdist=False,
+        get_pairwise_rfdists=False
+):
+    with TemporaryDirectory() as tmp_dir:
+        trees = tmp_dir + "/trees"
+
+        with open(trees, "w") as f:
+            f.write("\n".join(tree_strings))
+
+        cmd = [
+            raxml_command,
+            "--rfdist",
+            trees,
+            "--redo"
+        ]
+
+        subprocess.check_output(cmd, encoding='utf-8', stderr=subprocess.STDOUT)
+
+        log_pth = trees + ".raxml.log"
+        rfdist_pth = trees + ".raxml.rfDistances"
+
+        num_topos = get_raxml_num_unique_topos(log_pth) if get_num_topos else None
+        abs_rfdist = get_raxml_abs_rf_distance(log_pth) if get_rfdist else None
+        rel_rfdist = get_raxml_rel_rf_distance(log_pth) if get_rfdist else None
+        abs_pairwise, rel_pairwise = read_rfdistances(rfdist_pth) if get_pairwise_rfdists else (None, None)
+
+    return num_topos, abs_rfdist, rel_rfdist, abs_pairwise, rel_pairwise
+
+
+def get_rfdist_clusters(rfdistances, trees):
+    # instead of indexing via the eval_tree.id
+    # use the newick string
+    # this is slower but more robust
+    clusters = []
+    for (t1, t2), dist in rfdistances.items():
+        tree1 = trees[t1].strip()
+        tree2 = trees[t2].strip()
+        seen_t1 = False
+        seen_t2 = False
+        for s in clusters:
+            if tree1 in s:
+                seen_t1 = True
+                if dist == 0:
+                    s.add(tree2)
+                    seen_t2 = True
+
+            if tree2 in s:
+                seen_t2 = True
+                if dist == 0:
+                    s.add(tree1)
+                    seen_t1 = True
+
+        if not seen_t1:
+            if dist == 0:
+                clusters.append({tree1, tree2})
+                seen_t1 = True
+                seen_t2 = True
+            else:
+                clusters.append({tree1})
+                seen_t1 = True
+
+        if not seen_t2:
+            clusters.append({tree2})
+            seen_t2 = True
+
+    # remove duplicates
+    removed_duplicates = []
+    for s in clusters:
+        if s not in removed_duplicates:
+            removed_duplicates.append(s)
+
+    # check if sets are disjoint
+    union = set().union(*removed_duplicates)
+    n = sum(len(s) for s in removed_duplicates)
+    assert n == len(union)
+
+    return removed_duplicates
+
+
+def filter_tree_topologies(
+        raxml_command: str,
+        eval_trees: List[NewickString],
+        filtered_trees_path: FilePath,
+        clusters_path: FilePath
+):
+    """
+    Helper method to filter out duplicate tree topologies in the eval_trees.
+    """
+    num_trees = len(eval_trees)
+
+    if num_trees > 1:
+        num_topos, _, _, abs_pairwise, _ = raxml_rfdist(
+            eval_trees,
+            raxml_command,
+            get_num_topos=True,
+            get_rfdist=False,
+            get_pairwise_rfdists=True
+        )
+
+        if num_topos == 1:
+            clusters = [set(eval_trees)]
+
+        else:
+            clusters = get_rfdist_clusters(abs_pairwise, eval_trees)
+
+    else:
+        clusters = [set(eval_trees)]
+        num_topos = 1
+
+    # for each cluster: keep only one tree as representative of the cluster
+    unique_trees = [next(iter(cluster)) for cluster in clusters]
+
+    # sanity checks
+    assert len(clusters) == num_topos
+    assert len(unique_trees) == num_topos
+    assert sum([len(s) for s in clusters]) <= num_trees
+
+    open(filtered_trees_path, "w").write("\n".join(unique_trees))
+
+    with open(clusters_path, "wb") as f:
+        pickle.dump(clusters, f)
+
+
+def get_iqtree_results_for_eval_tree_str(iqtree_results, eval_tree_str, clusters):
+    # returns the results for this eval_tree_id as well as the cluster ID
+    for i, cluster in enumerate(clusters):
+        if eval_tree_str.strip() in cluster:
+            return iqtree_results[i], i
+
+    raise ValueError("This newick_string belongs to no cluster. newick_str: ", eval_tree_str[:10])

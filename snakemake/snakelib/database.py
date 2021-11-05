@@ -1,7 +1,7 @@
 import peewee as P
 
 from .program_parser import Program
-from .custom_types import TreeIndexed
+from .custom_types import TreeIndexed, Dict
 
 raxml_db = P.SqliteDatabase(None)
 iqtree_db = P.SqliteDatabase(None)
@@ -92,14 +92,10 @@ class IqtreeEvalTree(EvalTree):
 
 
 class BaseTreeStatsTest(P.Model):
-    # all tests are performed respective this tree
-    reference_tree_id = P.IntegerField()
-    # tree results
+    # id of the respective eval tree
     tree_id = P.IntegerField()
-    iqtree_llh = P.FloatField(null=True)
-    deltaL = P.FloatField(
-        null=True
-    )  # llh difference to max llh in the set according to iqtree run
+    # id of the cluster (unique topologies cluster; this is useful for debugging)
+    cluster_id = P.IntegerField()
 
     bpRell = P.FloatField(null=True)  # bootstrap proportion using RELL method.
     # True denotes the 95% confidence sets.
@@ -246,3 +242,48 @@ def insert_eval_data(
             best_eval_trees.append(eval_tree)
 
     return best_eval_trees, best_eval_tree
+
+
+def insert_statstest_data(
+        eval_trees: TreeIndexed[EvalTree],
+        statstest_results: TreeIndexed[Dict],
+        cluster_ids: TreeIndexed[int],
+        database_table: BaseTreeStatsTest,
+):
+    for i, eval_tree in enumerate(eval_trees):
+        tests = statstest_results[i]["tests"]
+        statstest_values = {}
+        statstest_values["tree_id"] = eval_tree
+        statstest_values["cluster_id"] = cluster_ids[i]
+
+        if "bp-RELL" in tests:
+            statstest_values["bpRell"] = tests["bp-RELL"]["score"]
+            statstest_values["bpRell_significant"] = tests["bp-RELL"]["significant"]
+
+        if "p-KH" in tests:
+            statstest_values["pKH"] = tests["p-KH"]["score"]
+            statstest_values["pKH_significant"] = tests["p-KH"]["significant"]
+
+        if "p-SH" in tests:
+            statstest_values["pSH"] = tests["p-SH"]["score"]
+            statstest_values["pSH_significant"] = tests["p-SH"]["significant"]
+
+        if "p-WKH" in tests:
+            statstest_values["pWKH"] = tests["p-WKH"]["score"]
+            statstest_values["pWKH_significant"] = tests["p-WKH"]["significant"]
+
+        if "p-WSH" in tests:
+            statstest_values["pWSH"] = tests["p-WSH"]["score"]
+            statstest_values["pWSH_significant"] = tests["p-WSH"]["significant"]
+
+        if "c-ELW" in tests:
+            statstest_values["cELW"] = tests["c-ELW"]["score"]
+            statstest_values["cELW_significant"] = tests["c-ELW"]["significant"]
+
+        if "p-AU" in tests:
+            statstest_values["pAU"] = tests["p-AU"]["score"]
+            statstest_values["pAU_significant"] = tests["p-AU"]["significant"]
+
+        database_table.create(**statstest_values)
+
+

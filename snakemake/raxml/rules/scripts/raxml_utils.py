@@ -46,21 +46,6 @@ def get_best_raxml_llh(raxml_file: FilePath) -> float:
     return max(all_llhs)
 
 
-def get_raxml_abs_rf_distance(log_file: FilePath) -> float:
-    STR = "Average absolute RF distance in this tree set:"
-    return get_single_value_from_file(log_file, STR)
-
-
-def get_raxml_rel_rf_distance(log_file: FilePath) -> float:
-    STR = "Average relative RF distance in this tree set:"
-    return get_single_value_from_file(log_file, STR)
-
-
-def get_raxml_num_unique_topos(log_file: FilePath) -> int:
-    STR = "Number of unique topologies in this tree set:"
-    return get_single_value_from_file(log_file, STR)
-
-
 def get_raxml_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
     content = read_file_contents(log_file)
 
@@ -93,25 +78,3 @@ def get_raxml_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
 
 def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
     return sum(get_raxml_elapsed_time(log_file))
-
-
-def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
-    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s*")
-    tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
-        line_regex, raw_line
-    ).groups()
-    return int(tree_idx1), int(tree_idx2), float(plain_dist), float(normalized_dist)
-
-
-def read_rfdistances(
-    rfdistances_file_path: FilePath,
-) -> TreeTreeIndexed:
-    rfdistances = read_file_contents(rfdistances_file_path)
-
-    res = {}
-
-    for line in rfdistances:
-        idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
-        res[(idx1, idx2)] = res[(idx2, idx1)] = (plain, norm)
-
-    return res
