@@ -1,6 +1,6 @@
 rule iqtree_filter_unique_tree_topologies:
     input:
-        all_trees = rules.collect_best_iqtree_eval_trees.output.best_trees_all_runs,
+        all_trees = rules.collect_all_iqtree_eval_trees.output.all_trees,
     output:
         filtered_trees  = f"{base_dir_iqtree}filteredEvalTrees",
         clusters        = f"{base_dir_iqtree}filteredEvalTreesClusters",

@@ -1,7 +1,7 @@
 rule re_eval_best_iqtree_tree:
     input:
         msa                 = config["data"]["input"],
-        best_tree_of_run    = f"{full_file_path_iqtree}.bestTreeOfRun",
+        best_tree_of_run    = f"{full_file_path_iqtree_pars}.treefile",
     output:
         iqtree_done = touch(f"{full_file_path_iqtree_eval}.done"),
     params:
@@ -9,7 +9,11 @@ rule re_eval_best_iqtree_tree:
         threads         = config["parameters"]["iqtree"]["threads"],
         prefix_tmp      = full_file_path_iqtree_eval_tmp,
         tmp_dir         = full_dir_iqtree_eval_tmp,
-        eval_log        = f"{full_file_path_iqtree_eval_tmp}.iqtree.eval.log"
+        eval_log        = f"{full_file_path_iqtree_eval_tmp}.iqtree.eval.log",
+        blmin_eval      = blmin_eval,
+        blmax_eval      = blmax_eval,
+        lh_eps_eval     = lh_eps_eval,
+        model_param_epsilon_eval = model_param_epsilon_eval,
     log:
         f"{full_file_path_iqtree_eval}.snakelog"
     shell:
@@ -18,10 +22,10 @@ rule re_eval_best_iqtree_tree:
         "-m {params.model} "
         "-s {input.msa} "
         "-te {input.best_tree_of_run} "
-        "-blmin {wildcards.blmin_eval} "
-        "-blmax {wildcards.blmax_eval} "
-        "-me {wildcards.model_param_epsilon_eval} "
-        "-eps {wildcards.lh_eps_eval} "
+        "-blmin {params.blmin_eval} "
+        "-blmax {params.blmax_eval} "
+        "-me {params.model_param_epsilon_eval} "
+        "-eps {params.lh_eps_eval} "
         "-pre {params.prefix_tmp} "
         "-nt {params.threads} "
         ">> {params.eval_log} "

@@ -50,16 +50,20 @@ for i in range(num_runs):
         all_treesearch_trees_file_path  = treesearch_trees_file_paths[i],
         best_eval_tree_file_path        = best_eval_tree_file_paths[i],
         all_eval_trees_file_path        = eval_trees_file_paths[i],
+        blmin_eval                      = snakemake.params.blmin_eval,
+        blmax_eval                      = snakemake.params.blmax_eval,
+        lh_eps_eval                     = snakemake.params.lh_eps_eval,
+        model_param_epsilon_eval        = snakemake.params.model_param_epsilon_eval,
     )
 
     iqtree_db = insert_program_data(iqtree, db.Iqtree)
 
     # IqtreeTreesearchTree
-    _, best_tree = insert_treesarch_data(iqtree, iqtree_db, db.IqtreeTreesearchTree)
+    treesearch_trees, best_tree = insert_treesarch_data(iqtree, iqtree_db, db.IqtreeTreesearchTree)
     iqtree.db_best_treesearch_tree_object = best_tree
 
     # IqtreeEvalTree for best IqtreeTreesearchTree (iqtree.db_best_treesearch_tree_object)
-    eval_trees, best_eval_tree = insert_eval_data(iqtree, iqtree.db_best_treesearch_tree_object, db.IqtreeEvalTree)
+    eval_trees, best_eval_tree = insert_eval_data(iqtree, treesearch_trees, db.IqtreeEvalTree)
     eval_tree_objects += eval_trees
     iqtree.db_best_eval_tree = best_eval_tree
 
