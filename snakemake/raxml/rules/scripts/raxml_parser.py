@@ -29,12 +29,25 @@ def create_raxml(
         best_eval_tree_file_path: FilePath,
         raxml_command: str,
         all_eval_trees_file_path: FilePath,
+        blmin_eval: float = None,
+        blmax_eval: float = None,
+        lh_eps_eval: float = None,
+        model_param_epsilon_eval: float = None,
+        raxml_brlen_smoothings_eval: float = None,
+        bfgs_fac_eval: float = None,
 ):
     treesearch_trees_file_content = read_file_contents(all_treesearch_trees_file_path)
     treesearch_trees = [parse_newick_string(newick_str) for newick_str in treesearch_trees_file_content]
 
     eval_trees_file_content = read_file_contents(all_eval_trees_file_path)
     eval_trees = [parse_newick_string(newick_str) for newick_str in eval_trees_file_content]
+
+    eval_blmins = [blmin_eval] * len(eval_trees) if blmin_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmin")
+    eval_blmaxs = [blmax_eval] * len(eval_trees) if blmax_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmax")
+    eval_lh_epsilons = [lh_eps_eval] * len(eval_trees) if lh_eps_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "lh-epsilon")
+    eval_model_param_epsilons = [model_param_epsilon_eval] * len(eval_trees) if model_param_epsilon_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "param-eps")
+    eval_raxml_brlen_smoothings = [raxml_brlen_smoothings_eval] * len(eval_trees) if raxml_brlen_smoothings_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "brlen-smoothings")
+    eval_bfgs_factors = [bfgs_fac_eval] * len(eval_trees) if bfgs_fac_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "bfgs-factor")
 
     raxml = Program(
         blmin                   = get_parameter_value(parameter_file_path, "blmin"),
@@ -60,13 +73,12 @@ def create_raxml(
 
         # Eval
         best_eval_tree              = parse_newick_string(read_file_contents(best_eval_tree_file_path)[0]),
-        eval_blmins                 = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmin"),
-        eval_blmaxs                 = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmax"),
-        eval_lh_epsilons            = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "lh-epsilon"),
-        eval_model_param_epsilons   = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "param-eps"),
-        eval_raxml_brlen_smoothings = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "brlen-smoothings"),
-        eval_spr_lh_epsilons        = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "spr-lheps"),
-        eval_bfgs_factors           = get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "bfgs-factor"),
+        eval_blmins                 = eval_blmins,
+        eval_blmaxs                 = eval_blmaxs,
+        eval_lh_epsilons            = eval_lh_epsilons,
+        eval_model_param_epsilons   = eval_model_param_epsilons,
+        eval_raxml_brlen_smoothings = eval_raxml_brlen_smoothings,
+        eval_bfgs_factors           = eval_bfgs_factors,
 
         eval_trees          = eval_trees,
         eval_llhs           = get_all_raxml_llhs(eval_log_file_path),

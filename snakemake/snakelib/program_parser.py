@@ -37,7 +37,6 @@ class Program:
     eval_lh_epsilons: Optional[TreeIndexed[float]]
     eval_model_param_epsilons: Optional[TreeIndexed[float]]
     eval_raxml_brlen_smoothings: Optional[TreeIndexed[int]]
-    eval_spr_lh_epsilons: Optional[TreeIndexed[float]]
     eval_bfgs_factors: Optional[TreeIndexed[float]]
 
     eval_trees: Optional[TreeIndexed[NewickTree]]
@@ -61,7 +60,6 @@ class Program:
                 self.eval_lh_epsilons,
                 self.eval_model_param_epsilons,
                 self.eval_raxml_brlen_smoothings,
-                self.eval_spr_lh_epsilons,
                 self.eval_bfgs_factors
             ]:
                 if param:

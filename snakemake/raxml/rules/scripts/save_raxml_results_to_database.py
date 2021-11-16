@@ -22,7 +22,6 @@ db.raxml_db.create_tables(
     ]
 )
 
-
 # fmt: off
 params_file_paths = snakemake.input.params_file
 
@@ -52,16 +51,22 @@ for i in range(num_runs):
         best_eval_tree_file_path        = best_eval_tree_log_file_paths[i],
         raxml_command                   = snakemake.params.raxml_command,
         all_eval_trees_file_path        = eval_trees_file_paths[i],
+        blmin_eval                      = snakemake.params.blmin_eval,
+        blmax_eval                      = snakemake.params.blmax_eval,
+        lh_eps_eval                     = snakemake.params.lh_eps_eval,
+        model_param_epsilon_eval        = snakemake.params.model_param_epsilon_eval,
+        raxml_brlen_smoothings_eval     = snakemake.params.raxml_brlen_smoothings_eval,
+        bfgs_fac_eval                   = snakemake.params.bfgs_fac_eval,
     )
     # fmt: on
     raxml_db = insert_program_data(raxml, db.Raxmlng)
 
     # RaxmlTreesearchTree
-    _, best_tree = insert_treesarch_data(raxml, raxml_db, db.RaxmlTreesearchTree)
+    treesearch_trees, best_tree = insert_treesarch_data(raxml, raxml_db, db.RaxmlTreesearchTree)
     raxml.db_best_treesearch_tree_object = best_tree
 
     # RaxmlEvalTree for best RaxmlTreesearchTree (raxml.db_best_treesearch_tree_object)
-    eval_trees, best_eval_tree = insert_eval_data(raxml, raxml.db_best_treesearch_tree_object, db.RaxmlEvalTree)
+    eval_trees, best_eval_tree = insert_eval_data(raxml, treesearch_trees, db.RaxmlEvalTree)
     eval_tree_objects += eval_trees
     raxml.db_best_eval_tree = best_eval_tree
 

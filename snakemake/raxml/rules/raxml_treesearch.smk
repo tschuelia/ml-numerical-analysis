@@ -24,7 +24,7 @@ rule raxml_pars_tree:
         "--param-eps {wildcards.model_epsilon} "
         "--brlen-smoothings {wildcards.raxml_brlen_smoothings} "
         "--spr-lheps {wildcards.spr_lh_eps} "
-        "--bfgs-factor {wildcards.bfgs_fac}"
+        "--bfgs-factor {wildcards.bfgs_fac} "
         "--threads {params.threads} "
         "--seed {wildcards.seed} "
         "--tree pars{{1}} "

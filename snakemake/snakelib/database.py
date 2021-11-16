@@ -77,7 +77,6 @@ class EvalTree(BaseTree):
     eval_lh_epsilon = P.FloatField(null=True)
     eval_model_epsilon = P.FloatField(null=True)
     eval_raxml_brlen_smoothings = P.IntegerField(null=True)
-    eval_spr_lh_epsilon = P.FloatField(null=True)
     eval_bfgs_factor = P.FloatField(null=True)
 
 
@@ -202,7 +201,7 @@ def insert_treesarch_data(
 
 def insert_eval_data(
         program: Program,
-        start_tree_database_object: TreesearchTree,
+        start_tree_database_objects: TreeIndexed[TreesearchTree],
         database_table: EvalTree) -> (TreeIndexed[EvalTree], EvalTree):
     """
     This function inserts all eval trees corresponding to the given Program object
@@ -213,36 +212,38 @@ def insert_eval_data(
         database_table: Database table where the data should be inserted into
 
     Returns:
-        The list of database objects of the inserted eval trees and the tree(s) marked as best tree
+        The list of database objects of the inserted eval trees and the tree marked as best tree
     """
     best_eval_tree = None
-    best_eval_trees = []
+    eval_trees = []
     for eval_tree_idx in range(program.get_number_of_eval_trees()):
         is_best = program.eval_tree_for_index_is_best(eval_tree_idx)
 
+        # fmt: off
         eval_tree = database_table.create(
-            start_tree=start_tree_database_object,
-            llh=program.eval_llhs[eval_tree_idx],
-            newick_tree=program.eval_trees[eval_tree_idx].newick_str,
-            compute_time=program.eval_compute_times[eval_tree_idx],
-            is_best=is_best,
-            number_of_taxa=program.eval_trees[eval_tree_idx].number_of_taxa,
-            total_branch_length=program.eval_trees[eval_tree_idx].total_branch_length,
-            average_branch_length=program.eval_trees[eval_tree_idx].average_branch_length,
-            eval_blmin=program.eval_blmins[eval_tree_idx] if program.eval_blmins else None,
-            eval_blmax=program.eval_blmaxs[eval_tree_idx] if program.eval_blmaxs else None,
-            eval_lh_epsilon=program.eval_lh_epsilons[eval_tree_idx] if program.eval_lh_epsilons else None,
-            eval_model_epsilon=program.eval_model_param_epsilons[eval_tree_idx] if program.eval_model_param_epsilons else None,
-            eval_raxml_brlen_smoothings=program.eval_raxml_brlen_smoothings[eval_tree_idx] if program.eval_raxml_brlen_smoothings else None,
-            eval_spr_lh_epsilon=program.eval_spr_lh_epsilons[eval_tree_idx] if program.eval_spr_lh_epsilons else None,
-            eval_bfgs_factor=program.eval_bfgs_factors[eval_tree_idx] if program.eval_bfgs_factors else None
+            start_tree                  = start_tree_database_objects[eval_tree_idx],
+            llh                         = program.eval_llhs[eval_tree_idx],
+            newick_tree                 = program.eval_trees[eval_tree_idx].newick_str,
+            compute_time                = program.eval_compute_times[eval_tree_idx],
+            is_best                     = is_best,
+            number_of_taxa              = program.eval_trees[eval_tree_idx].number_of_taxa,
+            total_branch_length         = program.eval_trees[eval_tree_idx].total_branch_length,
+            average_branch_length       = program.eval_trees[eval_tree_idx].average_branch_length,
+            eval_blmin                  = program.eval_blmins[eval_tree_idx] if program.eval_blmins else None,
+            eval_blmax                  = program.eval_blmaxs[eval_tree_idx] if program.eval_blmaxs else None,
+            eval_lh_epsilon             = program.eval_lh_epsilons[eval_tree_idx] if program.eval_lh_epsilons else None,
+            eval_model_epsilon          = program.eval_model_param_epsilons[eval_tree_idx] if program.eval_model_param_epsilons else None,
+            eval_raxml_brlen_smoothings = program.eval_raxml_brlen_smoothings[eval_tree_idx] if program.eval_raxml_brlen_smoothings else None,
+            eval_bfgs_factor            = program.eval_bfgs_factors[eval_tree_idx] if program.eval_bfgs_factors else None
         )
+        # fmt: on
+
+        eval_trees.append(eval_tree)
 
         if is_best:
             best_eval_tree = eval_tree
-            best_eval_trees.append(eval_tree)
 
-    return best_eval_trees, best_eval_tree
+    return eval_trees, best_eval_tree
 
 
 def insert_statstest_data(

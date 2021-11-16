@@ -1,6 +1,6 @@
 rule raxml_filter_unique_tree_topologies:
     input:
-        all_trees = rules.collect_best_eval_trees.output.best_trees_all_runs,
+        all_trees = rules.collect_all_raxml_eval_trees.output.all_trees,
     output:
         filtered_trees  = f"{base_dir_raxml}filteredEvalTrees",
         clusters        = f"{base_dir_raxml}filteredEvalTreesClusters",
