@@ -50,6 +50,7 @@ def create_fasttree(
         treesearch_trees            = treesearch_trees,
         treesearch_llhs             = get_all_fasttree_llhs(treesearch_log_file_path),
         treesearch_compute_times    = get_fasttree_runtimes(treesearch_log_file_path),
+        starting_tree_types         = None,
 
         # Eval
         best_eval_tree              = None,
@@ -58,7 +59,6 @@ def create_fasttree(
         eval_lh_epsilons            = None,
         eval_model_param_epsilons   = None,
         eval_raxml_brlen_smoothings = None,
-        eval_spr_lh_epsilons        = None,
         eval_bfgs_factors           = None,
 
         eval_trees          = None,

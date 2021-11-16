@@ -191,7 +191,7 @@ def insert_treesarch_data(
             average_branch_length=program.treesearch_trees[tree_idx].average_branch_length,
             program=program_database_object,
             seed=program.treeseach_seeds[tree_idx],
-            starting_tree_type=program.starting_tree_types[tree_idx]
+            starting_tree_type=program.starting_tree_types[tree_idx] if program.starting_tree_types else "parsimony"
         )
         treesarch_objects.append(tree)
 

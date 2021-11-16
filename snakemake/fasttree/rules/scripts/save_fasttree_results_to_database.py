@@ -52,7 +52,7 @@ for i in range(num_runs):
     # FasttreeTreesearchTree
     tree_objects, best_tree = insert_treesarch_data(fasttree, fasttree_db, db.FasttreeTreesearchTree)
     fasttree.db_best_treesearch_tree_object = best_tree
-    best_tree_objects += tree_objects #[t for t in tree_objects if t.is_best]
+    best_tree_objects += tree_objects
 
 with open(filtered_trees_clusters, "rb") as f:
     clusters = pickle.load(f)

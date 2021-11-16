@@ -64,7 +64,7 @@ class Program:
                 self.eval_bfgs_factors
             ]:
                 if param:
-                    assert len(param) == len(self.eval_trees)
+                    assert len(param) == len(self.eval_trees), param[0]
 
     def get_number_of_trees(self) -> int:
         num_pars = self.num_pars_trees if self.num_pars_trees else 0
