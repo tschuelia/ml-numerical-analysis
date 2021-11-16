@@ -78,3 +78,17 @@ def get_raxml_elapsed_time(log_file: FilePath) -> TreeIndexed[float]:
 
 def get_raxml_treesearch_elapsed_time_entire_run(log_file: FilePath) -> float:
     return sum(get_raxml_elapsed_time(log_file))
+
+
+def get_raxml_starting_tree_types(log_file: FilePath) -> TreeIndexed[str]:
+    content = read_file_contents(log_file)
+
+    all_types = []
+
+    for line in content:
+        if not line.startswith("start tree"):
+            continue
+        # start tree(s): random (1)
+        all_types.append(line.split()[2].strip())
+
+    return all_types

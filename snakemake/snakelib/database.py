@@ -53,6 +53,7 @@ class BaseTree(P.Model):
 class TreesearchTree(BaseTree):
     program = P.ForeignKeyField(BaseProgram)
     seed = P.FloatField()
+    starting_tree_type = P.CharField(choices=[("parsimony", "parsimony"), ("random", "random")], default="parsimony")
 
 
 class RaxmlTreesearchTree(TreesearchTree):
@@ -159,7 +160,8 @@ def insert_program_data(program: Program, database_table: BaseProgram) -> BasePr
 def insert_treesarch_data(
         program: Program,
         program_database_object: BaseProgram,
-        database_table: TreesearchTree) -> (TreeIndexed[TreesearchTree], TreesearchTree):
+        database_table: TreesearchTree
+) -> (TreeIndexed[TreesearchTree], TreesearchTree):
     """
     This function inserts all treesearch trees corresponding to the given Program object
 
@@ -188,7 +190,8 @@ def insert_treesarch_data(
             total_branch_length=program.treesearch_trees[tree_idx].total_branch_length,
             average_branch_length=program.treesearch_trees[tree_idx].average_branch_length,
             program=program_database_object,
-            seed=program.treeseach_seeds[tree_idx]
+            seed=program.treeseach_seeds[tree_idx],
+            starting_tree_type=program.starting_tree_types[tree_idx]
         )
         treesarch_objects.append(tree)
 

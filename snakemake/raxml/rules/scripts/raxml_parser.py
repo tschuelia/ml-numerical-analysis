@@ -17,6 +17,7 @@ from raxml_utils import (
     get_raxml_run_param_values_from_file,
     get_raxml_elapsed_time,
     get_raxml_treesearch_elapsed_time_entire_run,
+    get_raxml_starting_tree_types
 )
 
 
@@ -70,6 +71,7 @@ def create_raxml(
         treesearch_trees            = treesearch_trees,
         treesearch_llhs             = get_all_raxml_llhs(treesearch_log_file_path),
         treesearch_compute_times    = get_raxml_elapsed_time(treesearch_log_file_path),
+        starting_tree_types         = get_raxml_starting_tree_types(treesearch_log_file_path),
 
         # Eval
         best_eval_tree              = parse_newick_string(read_file_contents(best_eval_tree_file_path)[0]),

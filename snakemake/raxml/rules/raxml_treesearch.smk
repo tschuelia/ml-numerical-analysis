@@ -57,7 +57,7 @@ rule raxml_rand_tree:
         "--param-eps {wildcards.model_epsilon} "
         "--brlen-smoothings {wildcards.raxml_brlen_smoothings} "
         "--spr-lheps {wildcards.spr_lh_eps} "
-        "--bfgs-factor {wildcards.bfgs_fac}"
+        "--bfgs-factor {wildcards.bfgs_fac} "
         "--seed {wildcards.seed} "
         "--tree rand{{1}} "
         "> {output.raxml_log} "

@@ -16,7 +16,6 @@ model_param_epsilon_eval    = float(config["parameters"]["eval"]["model_epsilon"
 raxml_brlen_smoothings_eval = float(config["parameters"]["eval"]["branch_length_smoothing"])
 bfgs_fac_eval         = float(config["parameters"]["eval"]["bfgs_factor"])
 
-
 num_pars_trees = config["parameters"]["num_pars_trees"]
 num_rand_trees = config["parameters"]["num_rand_trees"]
 pars_seeds = list(range(num_pars_trees))

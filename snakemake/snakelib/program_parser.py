@@ -29,6 +29,7 @@ class Program:
     treesearch_trees: TreeIndexed[NewickTree]
     treesearch_llhs: TreeIndexed[float]
     treesearch_compute_times: TreeIndexed[float]
+    starting_tree_types: TreeIndexed[str]
 
     # Eval
     best_eval_tree: Optional[NewickTree]
