@@ -196,6 +196,7 @@ def insert_treesarch_data(
         if is_best:
             best_treesearch_object = tree
 
+    assert best_treesearch_object
     return treesarch_objects, best_treesearch_object
 
 

@@ -9,7 +9,6 @@ from snakelib.utils import (
 )
 
 from snakelib.program_parser import Program
-from snakelib.iqtree_statstest_parser import get_iqtree_results
 
 from fasttree_utils import (
     get_all_fasttree_llhs,
@@ -53,7 +52,7 @@ def create_fasttree(
         treesearch_compute_times    = get_fasttree_runtimes(treesearch_log_file_path),
 
         # Eval
-        best_eval_tree              =None,
+        best_eval_tree              = None,
         eval_blmins                 = None,
         eval_blmaxs                 = None,
         eval_lh_epsilons            = None,
@@ -70,45 +69,3 @@ def create_fasttree(
     # fmt: on
 
     return fasttree
-
-@dataclasses.dataclass
-class Experiment:
-    # fmt: off
-    best_trees                  : RunIndexed[NewickString]
-    best_overall_eval_tree      : NewickString
-    iqtree_statstests_results   : TreeIndexed[IqTreeMetrics]
-    # fmt: on
-
-    def _get_idx_for_newick(self, newick_str: NewickString) -> int:
-        return self.best_trees.index(newick_str)
-
-    def eval_tree_is_overall_best(self, newick_str: NewickString) -> bool:
-        return newick_str == self.best_overall_eval_tree
-
-    def get_iqtree_llh_for_eval_tree(self, newick_str: NewickString) -> float:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["logL"]
-
-    def get_iqtree_deltaL_for_eval_tree(self, newick_str: NewickString) -> float:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["deltaL"]
-
-    def get_iqtree_test_results_for_eval_tree(self, newick_str: NewickString) -> Dict:
-        i = self._get_idx_for_newick(newick_str)
-        results_for_tree_index = self.iqtree_statstests_results[i]
-        return results_for_tree_index["tests"]
-
-# fmt: off
-def create_Experiment(
-        best_trees_file_path                : FilePath,
-        best_overall_eval_tree_file_path    : FilePath,
-        iqtree_statstest_results_file_path  : FilePath,
-):
-    return Experiment(
-        best_trees=read_file_contents(best_trees_file_path),
-        best_overall_eval_tree=read_file_contents(best_overall_eval_tree_file_path)[0],
-        iqtree_statstests_results=get_iqtree_results(iqtree_statstest_results_file_path),
-    )
-# fmt: on
