@@ -76,4 +76,3 @@ def get_iqtree_cpu_time(log_file: FilePath) -> TreeIndexed[float]:
 
 def get_iqtree_treesearch_cpu_time_entire_run(log_file: FilePath) -> float:
     return sum(get_iqtree_cpu_time(log_file))
-

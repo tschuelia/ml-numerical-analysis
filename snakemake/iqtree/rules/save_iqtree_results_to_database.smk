@@ -15,9 +15,8 @@ rule save_iqtree_results_to_database:
         best_eval_tree  = expand(f"{full_file_path_iqtree}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, model_epsilon=model_param_epsilon_opts, lh_eps=lh_eps_opts),
 
         ##### iqtree significance tests
-        # all_best_eval_trees = f"{base_dir_iqtree}bestEvalTreesCollected",
-        # best_overall_eval_tree = f"{base_dir_iqtree}bestOverallEvalTree",
-        # iqtree_significance_summary = f"{base_dir_iqtree}significance.iqtree",
+        filtered_trees_clusters     = f"{base_dir_iqtree}filteredEvalTreesClusters",
+        iqtree_statstests_results   = f"{base_dir_iqtree}significance.iqtree",
 
     output:
         database = f"{base_dir}iqtree_results.sqlite3"

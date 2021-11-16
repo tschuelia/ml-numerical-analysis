@@ -1,4 +1,4 @@
-rule filter_unique_tree_topologies:
+rule raxml_filter_unique_tree_topologies:
     input:
         all_trees = rules.collect_best_eval_trees.output.best_trees_all_runs,
     output:
@@ -13,7 +13,7 @@ rule filter_unique_tree_topologies:
 rule iqtree_statstest_on_raxml_eval_trees:
     input:
         msa             = config["data"]["input"],
-        filtered_trees  = rules.filter_unique_tree_topologies.output.filtered_trees,
+        filtered_trees  = rules.raxml_filter_unique_tree_topologies.output.filtered_trees,
         best_tree       = rules.collect_best_overall_eval_tree.output.best_overall_tree,
 
     output:
