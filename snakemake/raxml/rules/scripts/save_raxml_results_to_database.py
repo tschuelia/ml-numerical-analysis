@@ -51,12 +51,10 @@ for i in range(num_runs):
         best_eval_tree_file_path        = best_eval_tree_log_file_paths[i],
         raxml_command                   = snakemake.params.raxml_command,
         all_eval_trees_file_path        = eval_trees_file_paths[i],
-        blmin_eval                      = snakemake.params.blmin_eval,
-        blmax_eval                      = snakemake.params.blmax_eval,
-        lh_eps_eval                     = snakemake.params.lh_eps_eval,
-        model_param_epsilon_eval        = snakemake.params.model_param_epsilon_eval,
-        raxml_brlen_smoothings_eval     = snakemake.params.raxml_brlen_smoothings_eval,
-        bfgs_fac_eval                   = snakemake.params.bfgs_fac_eval,
+        blmin_eval                      = 1e-6,
+        blmax_eval                      = 100,
+        raxml_brlen_smoothings_eval     = 32,
+        bfgs_fac_eval                   = 1e7,
     )
     # fmt: on
     raxml_db = insert_program_data(raxml, db.Raxmlng)

@@ -45,19 +45,24 @@ def create_raxml(
 
     eval_blmins = [blmin_eval] * len(eval_trees) if blmin_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmin")
     eval_blmaxs = [blmax_eval] * len(eval_trees) if blmax_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmax")
-    eval_lh_epsilons = [lh_eps_eval] * len(eval_trees) if lh_eps_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "lh-epsilon")
-    eval_model_param_epsilons = [model_param_epsilon_eval] * len(eval_trees) if model_param_epsilon_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "param-eps")
     eval_raxml_brlen_smoothings = [raxml_brlen_smoothings_eval] * len(eval_trees) if raxml_brlen_smoothings_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "brlen-smoothings")
     eval_bfgs_factors = [bfgs_fac_eval] * len(eval_trees) if bfgs_fac_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "bfgs-factor")
+    eval_lh_epsilon_autos = [0.1] * len(eval_trees)
+    eval_lh_epsilon_fasts = [0.1] * len(eval_trees)
+    eval_lh_epsilon_slows = [0.1] * len(eval_trees)
+    eval_lh_epsilon_brlen_fulls = [0.1] * len(eval_trees)
+    eval_lh_epsilon_brlen_triplets = [0.1] * len(eval_trees)
 
     raxml = Program(
-        blmin                   = get_parameter_value(parameter_file_path, "blmin"),
-        blmax                   = get_parameter_value(parameter_file_path, "blmax"),
-        lh_epsilon              = get_parameter_value(parameter_file_path, "lh_eps"),
-        model_epsilon     = get_parameter_value(parameter_file_path, "model_epsilon"),
-        branch_length_smoothing = int(get_parameter_value(parameter_file_path, "raxml_brlen_smoothings")),
-        spr_lh_epsilon          = get_parameter_value(parameter_file_path, "spr_lh_epsilon"),
-        bfgs_factor             = get_parameter_value(parameter_file_path, "bfgs_factor"),
+        blmin                   = 1e-6,
+        blmax                   = 100,
+        branch_length_smoothing = 32,
+        bfgs_factor             = 1e7,
+        lh_epsilon_auto         = get_parameter_value(parameter_file_path, "lheps_auto"),
+        lh_epsilon_fast         = get_parameter_value(parameter_file_path, "lheps_fast"),
+        lh_epsilon_slow         = get_parameter_value(parameter_file_path, "lheps_slow"),
+        lh_epsilon_brlen_full   = get_parameter_value(parameter_file_path, "lheps_full"),
+        lh_epsilon_brlen_triplet= get_parameter_value(parameter_file_path, "lheps_trip"),
 
         num_pars_trees          = int(get_parameter_value(parameter_file_path, "num_pars_trees")),
         num_rand_trees          = int(get_parameter_value(parameter_file_path, "num_rand_trees")),
@@ -77,10 +82,13 @@ def create_raxml(
         best_eval_tree              = parse_newick_string(read_file_contents(best_eval_tree_file_path)[0]),
         eval_blmins                 = eval_blmins,
         eval_blmaxs                 = eval_blmaxs,
-        eval_lh_epsilons            = eval_lh_epsilons,
-        eval_model_param_epsilons   = eval_model_param_epsilons,
         eval_raxml_brlen_smoothings = eval_raxml_brlen_smoothings,
         eval_bfgs_factors           = eval_bfgs_factors,
+        eval_lh_epsilon_autos       = eval_lh_epsilon_autos,
+        eval_lh_epsilon_fasts       = eval_lh_epsilon_fasts,
+        eval_lh_epsilon_slows       = eval_lh_epsilon_slows,
+        eval_lh_epsilon_brlen_fulls = eval_lh_epsilon_brlen_fulls,
+        eval_lh_epsilon_brlen_triplets = eval_lh_epsilon_brlen_triplets,
 
         eval_trees          = eval_trees,
         eval_llhs           = get_all_raxml_llhs(eval_log_file_path),

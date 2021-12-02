@@ -10,12 +10,6 @@ rule reevaluate_raxml_pars_tree:
         model           = config["parameters"]["model"]["raxml-ng"],
         threads         = config["parameters"]["raxml-ng"]["threads"],
         prefix          = full_file_path_raxml_eval_pars,
-        blmin_eval      = blmin_eval,
-        blmax_eval      = blmax_eval,
-        lh_eps_eval     = lh_eps_eval,
-        model_param_epsilon_eval    = model_param_epsilon_eval,
-        raxml_brlen_smoothings_eval = raxml_brlen_smoothings_eval,
-        bfgs_fac_eval               = bfgs_fac_eval,
     log:
         f"{full_file_path_raxml_eval_pars}.snakelog"
     shell:
@@ -25,12 +19,11 @@ rule reevaluate_raxml_pars_tree:
         "--msa {input.msa} "
         "--model {params.model} "
         "--prefix {params.prefix} "
-        "--blmin {params.blmin_eval} "
-        "--blmax {params.blmax_eval} "
-        "--lh-epsilon {params.lh_eps_eval} "
-        "--param-eps {params.model_param_epsilon_eval} "
-        "--brlen-smoothings {params.raxml_brlen_smoothings_eval} "
-        "--bfgs-factor {params.bfgs_fac_eval} "
+        "--lh-epsilon-auto 0.1 "
+        "--lh-epsilon-fast 0.1 "
+        "--lh-epsilon-slow 0.1 "
+        "--lh-epsilon-brlen-full 0.1 "
+        "--lh-epsilon-brlen-triple 0.1 "
         "--threads {params.threads} "
         "> {output.eval_log} "
 
@@ -44,15 +37,9 @@ rule reevaluate_raxml_rand_tree:
         best_tree   = f"{full_file_path_raxml_eval_rand}.raxml.bestTree",
         eval_log    = f"{full_file_path_raxml_eval_rand}.raxml.eval.log",
     params:
-        model=config["parameters"]["model"]["raxml-ng"],
-        threads=config["parameters"]["raxml-ng"]["threads"],
-        prefix=full_file_path_raxml_eval_rand,
-        blmin_eval=blmin_eval,
-        blmax_eval=blmax_eval,
-        lh_eps_eval=lh_eps_eval,
-        model_param_epsilon_eval=model_param_epsilon_eval,
-        raxml_brlen_smoothings_eval=raxml_brlen_smoothings_eval,
-        bfgs_fac_eval=bfgs_fac_eval,
+        model   = config["parameters"]["model"]["raxml-ng"],
+        threads = config["parameters"]["raxml-ng"]["threads"],
+        prefix  = full_file_path_raxml_eval_rand,
     log:
         f"{full_file_path_raxml_eval_rand}.snakelog"
     shell:
@@ -62,11 +49,10 @@ rule reevaluate_raxml_rand_tree:
         "--msa {input.msa} "
         "--model {params.model} "
         "--prefix {params.prefix} "
-        "--blmin {params.blmin_eval} "
-        "--blmax {params.blmax_eval} "
-        "--lh-epsilon {params.lh_eps_eval} "
-        "--param-eps {params.model_param_epsilon_eval} "
-        "--brlen-smoothings {params.raxml_brlen_smoothings_eval} "
-        "--bfgs-factor {params.bfgs_fac_eval} "
+        "--lh-epsilon-auto 0.1 "
+        "--lh-epsilon-fast 0.1 "
+        "--lh-epsilon-slow 0.1 "
+        "--lh-epsilon-brlen-full 0.1 "
+        "--lh-epsilon-brlen-triple 0.1 "
         "--threads {params.threads} "
         "> {output.eval_log} "
