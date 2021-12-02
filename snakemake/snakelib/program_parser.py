@@ -11,11 +11,13 @@ class Program:
     # Runs
     blmin: Optional[float]
     blmax: Optional[float]
-    lh_epsilon: Optional[float]
-    model_epsilon: Optional[float]
     branch_length_smoothing: Optional[int]
-    spr_lh_epsilon: Optional[float]
     bfgs_factor: Optional[float]
+    lh_epsilon_auto: Optional[float]
+    lh_epsilon_fast: Optional[float]
+    lh_epsilon_slow: Optional[float]
+    lh_epsilon_brlen_full: Optional[float]
+    lh_epsilon_brlen_triplet: Optional[float]
 
     num_pars_trees: Optional[int]
     num_rand_trees: Optional[int]
@@ -35,10 +37,13 @@ class Program:
     best_eval_tree: Optional[NewickTree]
     eval_blmins: Optional[TreeIndexed[float]]
     eval_blmaxs: Optional[TreeIndexed[float]]
-    eval_lh_epsilons: Optional[TreeIndexed[float]]
-    eval_model_param_epsilons: Optional[TreeIndexed[float]]
     eval_raxml_brlen_smoothings: Optional[TreeIndexed[int]]
     eval_bfgs_factors: Optional[TreeIndexed[float]]
+    eval_lh_epsilon_autos: Optional[TreeIndexed[float]]
+    eval_lh_epsilon_fasts: Optional[TreeIndexed[float]]
+    eval_lh_epsilon_slows: Optional[TreeIndexed[float]]
+    eval_lh_epsilon_brlen_fulls: Optional[TreeIndexed[float]]
+    eval_lh_epsilon_brlen_triplets: Optional[TreeIndexed[float]]
 
     eval_trees: Optional[TreeIndexed[NewickTree]]
     eval_llhs: Optional[TreeIndexed[float]]
@@ -58,10 +63,13 @@ class Program:
             for param in [
                 self.eval_blmins,
                 self.eval_blmaxs,
-                self.eval_lh_epsilons,
-                self.eval_model_param_epsilons,
                 self.eval_raxml_brlen_smoothings,
-                self.eval_bfgs_factors
+                self.eval_bfgs_factors,
+                self.eval_lh_epsilon_autos,
+                self.eval_lh_epsilon_fasts,
+                self.eval_lh_epsilon_slows,
+                self.eval_lh_epsilon_brlen_fulls,
+                self.eval_lh_epsilon_brlen_triplets
             ]:
                 if param:
                     assert len(param) == len(self.eval_trees), param[0]

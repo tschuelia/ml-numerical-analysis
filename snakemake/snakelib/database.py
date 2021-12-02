@@ -1,4 +1,5 @@
 import peewee as P
+import uuid
 
 from .program_parser import Program
 from .custom_types import TreeIndexed, Dict
@@ -10,13 +11,16 @@ fasttree_db = P.SqliteDatabase(None)
 
 class BaseProgram(P.Model):
     # parameter values
+    uuid = P.UUIDField()
     blmin = P.FloatField(null=True)
     blmax = P.FloatField(null=True)
-    lh_epsilon = P.FloatField(null=True)
-    model_epsilon = P.FloatField(null=True)
     branch_length_smoothing = P.IntegerField(null=True)
-    spr_lh_epsilon = P.FloatField(null=True)
     bfgs_factor = P.FloatField(null=True)
+    lh_epsilon_auto = P.FloatField(null=True)
+    lh_epsilon_fast = P.FloatField(null=True)
+    lh_epsilon_slow = P.FloatField(null=True)
+    lh_epsilon_brlen_full = P.FloatField(null=True)
+    lh_epsilon_brlen_triplet = P.FloatField(null=True)
 
     num_pars_trees = P.IntegerField(null=True)
     num_rand_trees = P.IntegerField(null=True)
@@ -41,6 +45,7 @@ class Fasttree(BaseProgram):
 
 
 class BaseTree(P.Model):
+    uuid = P.UUIDField()
     llh = P.FloatField()
     compute_time = P.FloatField()
     newick_tree = P.CharField()
@@ -52,6 +57,7 @@ class BaseTree(P.Model):
 
 class TreesearchTree(BaseTree):
     program = P.ForeignKeyField(BaseProgram)
+    program_uuid = P.UUIDField()
     seed = P.FloatField()
     starting_tree_type = P.CharField(choices=[("parsimony", "parsimony"), ("random", "random")], default="parsimony")
 
@@ -73,12 +79,16 @@ class FasttreeTreesearchTree(TreesearchTree):
 
 class EvalTree(BaseTree):
     start_tree = P.ForeignKeyField(TreesearchTree)
+    start_tree_uuid = P.UUIDField()
     eval_blmin = P.FloatField(null=True)
     eval_blmax = P.FloatField(null=True)
-    eval_lh_epsilon = P.FloatField(null=True)
-    eval_model_epsilon = P.FloatField(null=True)
     eval_raxml_brlen_smoothings = P.IntegerField(null=True)
     eval_bfgs_factor = P.FloatField(null=True)
+    eval_lh_epsilon_auto = P.FloatField(null=True)
+    eval_lh_epsilon_fast = P.FloatField(null=True)
+    eval_lh_epsilon_slow = P.FloatField(null=True)
+    eval_lh_epsilon_brlen_full = P.FloatField(null=True)
+    eval_lh_epsilon_brlen_triplet = P.FloatField(null=True)
 
 
 class RaxmlEvalTree(EvalTree):
@@ -93,7 +103,9 @@ class IqtreeEvalTree(EvalTree):
 
 class BaseTreeStatsTest(P.Model):
     # id of the respective eval tree
-    tree_id = P.IntegerField()
+    tree = P.ForeignKeyField(EvalTree)
+    tree_uuid = P.UUIDField()
+    plausible = P.BooleanField()
     # id of the cluster (unique topologies cluster; this is useful for debugging)
     cluster_id = P.IntegerField()
 
@@ -141,13 +153,16 @@ class FasttreeEvalTreeStatsTest(BaseTreeStatsTest):
 
 def insert_program_data(program: Program, database_table: BaseProgram) -> BaseProgram:
     return database_table.create(
+        uuid=uuid.uuid4().hex,
         blmin=program.blmin,
         blmax=program.blmax,
-        lh_epsilon=program.lh_epsilon,
-        model_epsilon=program.model_epsilon,
         branch_length_smoothing=program.branch_length_smoothing,
-        spr_lh_epsilon=program.spr_lh_epsilon,
         bfgs_factor=program.bfgs_factor,
+        lh_epsilon_auto=program.lh_epsilon_auto,
+        lh_epsilon_fast=program.lh_epsilon_fast,
+        lh_epsilon_slow=program.lh_epsilon_slow,
+        lh_epsilon_brlen_full=program.lh_epsilon_brlen_full,
+        lh_epsilon_brlen_triplet=program.lh_epsilon_brlen_triplet,
 
         num_pars_trees=program.num_pars_trees,
         num_rand_trees=program.num_rand_trees,
@@ -182,6 +197,7 @@ def insert_treesarch_data(
         )
 
         tree = database_table.create(
+            uuid=uuid.uuid4().hex,
             llh=program.treesearch_llhs[tree_idx],
             compute_time=program.treesearch_compute_times[tree_idx],
             newick_tree=program.treesearch_trees[tree_idx].newick_str,
@@ -190,6 +206,7 @@ def insert_treesarch_data(
             total_branch_length=program.treesearch_trees[tree_idx].total_branch_length,
             average_branch_length=program.treesearch_trees[tree_idx].average_branch_length,
             program=program_database_object,
+            program_uuid=program_database_object.uuid,
             seed=program.treeseach_seeds[tree_idx],
             starting_tree_type=program.starting_tree_types[tree_idx] if program.starting_tree_types else "parsimony"
         )
@@ -224,7 +241,9 @@ def insert_eval_data(
 
         # fmt: off
         eval_tree = database_table.create(
+            uuid                        = uuid.uuid4().hex,
             start_tree                  = start_tree_database_objects[eval_tree_idx],
+            start_tree_uuid             =start_tree_database_objects[eval_tree_idx].uuid,
             llh                         = program.eval_llhs[eval_tree_idx],
             newick_tree                 = program.eval_trees[eval_tree_idx].newick_str,
             compute_time                = program.eval_compute_times[eval_tree_idx],
@@ -234,10 +253,13 @@ def insert_eval_data(
             average_branch_length       = program.eval_trees[eval_tree_idx].average_branch_length,
             eval_blmin                  = program.eval_blmins[eval_tree_idx] if program.eval_blmins else None,
             eval_blmax                  = program.eval_blmaxs[eval_tree_idx] if program.eval_blmaxs else None,
-            eval_lh_epsilon             = program.eval_lh_epsilons[eval_tree_idx] if program.eval_lh_epsilons else None,
-            eval_model_epsilon          = program.eval_model_param_epsilons[eval_tree_idx] if program.eval_model_param_epsilons else None,
             eval_raxml_brlen_smoothings = program.eval_raxml_brlen_smoothings[eval_tree_idx] if program.eval_raxml_brlen_smoothings else None,
-            eval_bfgs_factor            = program.eval_bfgs_factors[eval_tree_idx] if program.eval_bfgs_factors else None
+            eval_bfgs_factor            = program.eval_bfgs_factors[eval_tree_idx] if program.eval_bfgs_factors else None,
+            eval_lh_epsilon_auto        = program.eval_lh_epsilon_autos[eval_tree_idx] if program.eval_lh_epsilon_autos else None,
+            eval_lh_epsilon_fast        = program.eval_lh_epsilon_fasts[eval_tree_idx] if program.eval_lh_epsilon_fasts else None,
+            eval_lh_epsilon_slow        = program.eval_lh_epsilon_slows[eval_tree_idx] if program.eval_lh_epsilon_slows else None,
+            eval_lh_epsilon_brlen_full  = program.eval_lh_epsilon_brlen_fulls[eval_tree_idx] if program.eval_lh_epsilon_brlen_fulls else None,
+            eval_lh_epsilon_brlen_triplet= program.eval_lh_epsilon_brlen_triplets[eval_tree_idx] if program.eval_lh_epsilon_brlen_triplets else None,
         )
         # fmt: on
 
@@ -258,8 +280,10 @@ def insert_statstest_data(
     for i, eval_tree in enumerate(eval_trees):
         tests = statstest_results[i]["tests"]
         statstest_values = {}
-        statstest_values["tree_id"] = eval_tree
+        statstest_values["tree"] = eval_tree
+        statstest_values["tree_uuid"] = eval_tree.uuid
         statstest_values["cluster_id"] = cluster_ids[i]
+        statstest_values["plausible"] = statstest_results[i]["plausible"]
 
         if "bp-RELL" in tests:
             statstest_values["bpRell"] = tests["bp-RELL"]["score"]

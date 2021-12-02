@@ -52,7 +52,7 @@ rule collect_all_raxml_eval_logs_per_combination:
 
 rule collect_all_raxml_eval_trees:
     input:
-        trees = expand(f"{full_file_path_raxml}.allEvalTreesCollected", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        trees = expand(f"{full_file_path_raxml}.allEvalTreesCollected", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
     output:
         all_trees=f"{base_dir_raxml}allEvalTreesCollected",
     shell:
@@ -65,8 +65,8 @@ rule collect_best_overall_eval_tree:
     The best eval tree is the one with the highest llh score with lowest runtime.
     """
     input:
-        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
-        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", blmin=blmin_opts, blmax=blmax_opts, lh_eps=lh_eps_opts, model_epsilon=model_param_epsilon_opts, raxml_brlen_smoothings=raxml_brlen_smoothings_opts, spr_lh_eps=spr_lh_eps_opts, bfgs_fac=bfgs_fac_opts,),
+        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
+        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
     output:
         best_overall_tree = f"{base_dir_raxml}bestOverallEvalTree",
     script:

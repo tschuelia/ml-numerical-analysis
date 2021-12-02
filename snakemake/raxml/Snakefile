@@ -1,29 +1,21 @@
 raxml_command   = config["parameters"]["raxml-ng"]["command"]
 iqtree_command   = config["parameters"]["iqtree"]["command"]
 
-blmin_opts      = config["parameters"]["blmin"]
-blmax_opts      = config["parameters"]["blmax"]
-lh_eps_opts     = config["parameters"]["lh_eps"]
-model_param_epsilon_opts    = config["parameters"]["model_epsilon"]
-raxml_brlen_smoothings_opts = config["parameters"]["branch_length_smoothing"]
-spr_lh_eps_opts         = config["parameters"]["spr_lh_epsilon"]
-bfgs_fac_opts            = config["parameters"]["bfgs_factor"]
-
-blmin_eval = float(config["parameters"]["eval"]["blmin"])
-blmax_eval = float(config["parameters"]["eval"]["blmax"])
-lh_eps_eval = float(config["parameters"]["eval"]["lh_eps"])
-model_param_epsilon_eval    = float(config["parameters"]["eval"]["model_epsilon"])
-raxml_brlen_smoothings_eval = float(config["parameters"]["eval"]["branch_length_smoothing"])
-bfgs_fac_eval         = float(config["parameters"]["eval"]["bfgs_factor"])
-
 num_pars_trees = config["parameters"]["num_pars_trees"]
 num_rand_trees = config["parameters"]["num_rand_trees"]
 pars_seeds = list(range(num_pars_trees))
 rand_seeds = list(range(num_pars_trees, num_pars_trees + num_rand_trees))
 
+auto_opts = config["parameters"]["lh_eps_auto"]
+fast_opts = config["parameters"]["lh_eps_fast"]
+slow_opts = config["parameters"]["lh_eps_slow"]
+full_opts = config["parameters"]["lh_eps_full"]
+trip_opts = config["parameters"]["lh_eps_trip"]
+
 base_dir = config["data"]["outdir"]
 base_dir_raxml = base_dir + "raxml/"
-base_name_raxml = "bi{blmin}_ba{blmax}_le{lh_eps}_re{model_epsilon}_bls{raxml_brlen_smoothings}_sprle{spr_lh_eps}_bfgs{bfgs_fac}"
+base_name_raxml = "la{lheps_auto}_lf{lheps_fast}_ls{lheps_slow}_lbf_{lheps_full}_lbt{lheps_trip}"
+
 full_dir_raxml = base_dir_raxml + base_name_raxml + "/"
 
 base_name_pars  = "pars_s{seed}_"
@@ -60,13 +52,11 @@ rule save_raxml_settings_in_file:
     run:
         import json
         data = {}
-        data["blmin"] = wildcards.blmin
-        data["blmax"] = wildcards.blmax
-        data["lh_eps"] = wildcards.lh_eps
-        data["model_epsilon"] = wildcards.model_epsilon
-        data["raxml_brlen_smoothings"] = wildcards.raxml_brlen_smoothings
-        data["spr_lh_epsilon"] = wildcards.spr_lh_eps
-        data["bfgs_factor"] = wildcards.bfgs_fac
+        data["lheps_auto"] = wildcards.lheps_auto
+        data["lheps_fast"] = wildcards.lheps_fast
+        data["lheps_slow"] = wildcards.lheps_slow
+        data["lheps_full"] = wildcards.lheps_full
+        data["lheps_trip"] = wildcards.lheps_trip
 
         data["num_pars_trees"] = params.num_pars_trees
         data["num_rand_trees"] = params.num_rand_trees
