@@ -1,5 +1,3 @@
-import dataclasses
-
 from snakelib.custom_types import *
 from snakelib.utils import (
     NewickTree,
@@ -25,15 +23,16 @@ def create_raxml(
         parameter_file_path: FilePath,
         treesearch_log_file_path: FilePath,
         eval_log_file_path: FilePath,
+        starting_eval_log_file_path: FilePath,
         best_tree_file_path: FilePath,
         all_treesearch_trees_file_path: FilePath,
         best_eval_tree_file_path: FilePath,
         raxml_command: str,
         all_eval_trees_file_path: FilePath,
+        all_starting_trees_file_path: FilePath,
+        all_starting_eval_trees_file_path: FilePath,
         blmin_eval: float = None,
         blmax_eval: float = None,
-        lh_eps_eval: float = None,
-        model_param_epsilon_eval: float = None,
         raxml_brlen_smoothings_eval: float = None,
         bfgs_fac_eval: float = None,
 ):
@@ -42,6 +41,12 @@ def create_raxml(
 
     eval_trees_file_content = read_file_contents(all_eval_trees_file_path)
     eval_trees = [parse_newick_string(newick_str) for newick_str in eval_trees_file_content]
+
+    starting_trees_file_content = read_file_contents(all_starting_trees_file_path)
+    starting_trees = [parse_newick_string(newick_str) for newick_str in starting_trees_file_content]
+
+    starting_eval_trees_file_content = read_file_contents(all_starting_eval_trees_file_path)
+    starting_eval_trees = [parse_newick_string(newick_str) for newick_str in starting_eval_trees_file_content]
 
     eval_blmins = [blmin_eval] * len(eval_trees) if blmin_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmin")
     eval_blmaxs = [blmax_eval] * len(eval_trees) if blmax_eval else get_raxml_run_param_values_from_file(eval_log_file_path, raxml_command, "blmax")
@@ -76,6 +81,7 @@ def create_raxml(
         treesearch_trees            = treesearch_trees,
         treesearch_llhs             = get_all_raxml_llhs(treesearch_log_file_path),
         treesearch_compute_times    = get_raxml_elapsed_time(treesearch_log_file_path),
+        starting_trees              = starting_trees,
         starting_tree_types         = get_raxml_starting_tree_types(treesearch_log_file_path),
 
         # Eval
@@ -93,6 +99,11 @@ def create_raxml(
         eval_trees          = eval_trees,
         eval_llhs           = get_all_raxml_llhs(eval_log_file_path),
         eval_compute_times  = get_raxml_elapsed_time(eval_log_file_path),
+
+        # Starting Eval
+        starting_eval_trees         = starting_eval_trees,
+        starting_eval_llhs          = get_all_raxml_llhs(starting_eval_log_file_path),
+        starting_eval_compute_times = get_raxml_elapsed_time(starting_eval_log_file_path),
     )
     return raxml
 # fmt: on
