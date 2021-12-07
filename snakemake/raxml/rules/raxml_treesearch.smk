@@ -4,6 +4,7 @@ rule raxml_pars_tree:
     output:
         raxml_best_tree       = f"{full_file_path_raxml_pars}.raxml.bestTree",
         raxml_best_model      = f"{full_file_path_raxml_pars}.raxml.bestModel",
+        raxml_start_tree      = f"{full_file_path_raxml_pars}.raxml.startTree",
         raxml_log             = f"{full_file_path_raxml_pars}.raxml.treesearch.log",
     params:
         # general params
@@ -34,6 +35,7 @@ rule raxml_rand_tree:
     output:
         raxml_best_tree       = f"{full_file_path_raxml_rand}.raxml.bestTree",
         raxml_best_model      = f"{full_file_path_raxml_rand}.raxml.bestModel",
+        raxml_start_tree      = f"{full_file_path_raxml_rand}.raxml.startTree",
         raxml_log             = f"{full_file_path_raxml_rand}.raxml.treesearch.log",
     params:
         # general params

@@ -49,7 +49,7 @@ class BaseTree(P.Model):
     llh = P.FloatField()
     compute_time = P.FloatField()
     newick_tree = P.CharField()
-    is_best = P.BooleanField()
+    is_best = P.BooleanField(null=True)
     number_of_taxa = P.IntegerField(null=True)
     total_branch_length = P.FloatField(null=True)
     average_branch_length = P.FloatField(null=True)
@@ -59,6 +59,7 @@ class TreesearchTree(BaseTree):
     program = P.ForeignKeyField(BaseProgram)
     program_uuid = P.UUIDField()
     seed = P.FloatField()
+    newick_starting_tree = P.CharField()
     starting_tree_type = P.CharField(choices=[("parsimony", "parsimony"), ("random", "random")], default="parsimony")
 
 
@@ -92,6 +93,11 @@ class EvalTree(BaseTree):
 
 
 class RaxmlEvalTree(EvalTree):
+    class Meta:
+        database = raxml_db
+
+
+class RaxmlEvalStartingTree(EvalTree):
     class Meta:
         database = raxml_db
 
@@ -137,6 +143,11 @@ class BaseTreeStatsTest(P.Model):
 
 
 class RaxmlEvalTreeStatsTest(BaseTreeStatsTest):
+    class Meta:
+        database = raxml_db
+
+
+class RaxmlEvalAndStartingTreeStatsTest(BaseTreeStatsTest):
     class Meta:
         database = raxml_db
 
@@ -208,6 +219,7 @@ def insert_treesarch_data(
             program=program_database_object,
             program_uuid=program_database_object.uuid,
             seed=program.treeseach_seeds[tree_idx],
+            newick_starting_tree=program.starting_trees[tree_idx],
             starting_tree_type=program.starting_tree_types[tree_idx] if program.starting_tree_types else "parsimony"
         )
         treesarch_objects.append(tree)
@@ -222,7 +234,8 @@ def insert_treesarch_data(
 def insert_eval_data(
         program: Program,
         start_tree_database_objects: TreeIndexed[TreesearchTree],
-        database_table: EvalTree) -> (TreeIndexed[EvalTree], EvalTree):
+        database_table: EvalTree
+) -> (TreeIndexed[EvalTree], EvalTree):
     """
     This function inserts all eval trees corresponding to the given Program object
 
@@ -243,7 +256,7 @@ def insert_eval_data(
         eval_tree = database_table.create(
             uuid                        = uuid.uuid4().hex,
             start_tree                  = start_tree_database_objects[eval_tree_idx],
-            start_tree_uuid             =start_tree_database_objects[eval_tree_idx].uuid,
+            start_tree_uuid             = start_tree_database_objects[eval_tree_idx].uuid,
             llh                         = program.eval_llhs[eval_tree_idx],
             newick_tree                 = program.eval_trees[eval_tree_idx].newick_str,
             compute_time                = program.eval_compute_times[eval_tree_idx],
@@ -269,6 +282,42 @@ def insert_eval_data(
             best_eval_tree = eval_tree
 
     return eval_trees, best_eval_tree
+
+
+def insert_starting_eval_data(
+        program: Program,
+        start_tree_database_objects: TreeIndexed[TreesearchTree],
+        database_table: EvalTree
+) -> (TreeIndexed[EvalTree], EvalTree):
+    """
+    This function inserts all eval trees corresponding to the given Program object
+
+    Arguments:
+        program: Program object that contains the entire data (runs, treesearch, eval, starting_eval)
+        start_tree_database_objects: Reference to the corresponding treesearch tree
+        database_table: Database table where the data should be inserted into
+
+    Returns:
+        The list of database objects of the inserted starting eval trees and the tree marked as best tree
+    """
+
+    eval_trees = []
+    for eval_tree_idx in range(program.get_number_of_eval_trees()):
+
+        # fmt: off
+        eval_tree = database_table.create(
+            uuid            = uuid.uuid4().hex,
+            start_tree      = start_tree_database_objects[eval_tree_idx],
+            start_tree_uuid = start_tree_database_objects[eval_tree_idx].uuid,
+            llh             = program.starting_eval_llhs[eval_tree_idx],
+            newick_tree     = program.starting_eval_trees[eval_tree_idx].newick_str,
+            compute_time    = program.starting_eval_compute_times[eval_tree_idx],
+        )
+        # fmt: on
+
+        eval_trees.append(eval_tree)
+
+    return eval_trees
 
 
 def insert_statstest_data(
