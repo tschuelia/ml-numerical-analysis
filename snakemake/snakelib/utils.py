@@ -86,7 +86,7 @@ def parse_newick_string(newick_string: NewickString) -> NewickTree:
     all_brlens = [node.branch_length for node in tree.find_clades(branch_length=True)]
 
     return NewickTree(
-        newick_str=newick_string,
+        newick_str=newick_string.strip(),
         number_of_taxa=num_taxa,
         total_branch_length=total_brlen,
         average_branch_length=total_brlen / num_taxa,
@@ -96,13 +96,16 @@ def parse_newick_string(newick_string: NewickString) -> NewickTree:
         max_branch_length=max(all_brlens)
     )
 
+
 def cat_input_to_output(input_files, output_file):
     output = []
 
     for tree_file in input_files:
         with open(tree_file) as f:
-            content = f.readlines()[0]
-            output.append(content.strip())
+            content = f.readlines()
+            content = [l.strip() for l in content]
+            content = [l for l in content if l]
+            output += content
 
     with open(output_file, "w") as f:
         f.write("\n".join(output))
@@ -278,7 +281,7 @@ def filter_tree_topologies(
 def get_iqtree_results_for_eval_tree_str(iqtree_results, eval_tree_str, clusters):
     # returns the results for this eval_tree_id as well as the cluster ID
     for i, cluster in enumerate(clusters):
-        if eval_tree_str.strip() in cluster:
+        if eval_tree_str in cluster:
             return iqtree_results[i], i
 
-    raise ValueError("This newick_string belongs to no cluster. newick_str: ", eval_tree_str[:10])
+    raise ValueError("This newick_string belongs to no cluster. newick_str: ", eval_tree_str[:100])
