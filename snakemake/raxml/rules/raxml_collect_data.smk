@@ -55,8 +55,8 @@ rule collect_all_raxml_eval_trees:
         trees = expand(f"{full_file_path_raxml}.allEvalTreesCollected", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
     output:
         all_trees=f"{base_dir_raxml}allEvalTreesCollected",
-    shell:
-        "cat {input.trees} > {output.all_trees}"
+    script:
+        "scripts/cat.py"
 
 
 rule collect_best_overall_eval_tree:
