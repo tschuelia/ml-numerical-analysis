@@ -140,15 +140,25 @@ def read_rfdistances(
     with open(rfdistances_file_path) as f:
         rfdistances = f.readlines()
 
-    abs_res = {}
-    rel_res = {}
+    rfdistances = [l.strip() for l in rfdistances if l]
+
+    # based on the number of lines in the rfdistances file
+    # we can compute the number of trees that were compared
+    # for n trees there are n(n-1)/2 unique pairs
+    # so based on this, we can compute n as
+    # [1 + sqrt(1 + 8 * len(rfdistances))] / 2
+    size = (1 + np.sqrt(1 + 8 * len(rfdistances))) / 2
+    assert int(size) == size # this needs to be an int, otherwise we computed something wrong
+    size = int(size)
+    abs_res = np.zeros((size, size))
 
     for line in rfdistances:
+        # TODO: das hier als numpy matrix -> OOM
         idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
-        abs_res[(idx1, idx2)] = plain
-        rel_res[(idx1, idx2)] = norm
+        abs_res[idx1][idx2] = plain
+        abs_res[idx2][idx1] = plain
 
-    return abs_res, rel_res
+    return abs_res
 
 
 def raxml_rfdist(
@@ -179,9 +189,9 @@ def raxml_rfdist(
         num_topos = get_raxml_num_unique_topos(log_pth) if get_num_topos else None
         abs_rfdist = get_raxml_abs_rf_distance(log_pth) if get_rfdist else None
         rel_rfdist = get_raxml_rel_rf_distance(log_pth) if get_rfdist else None
-        abs_pairwise, rel_pairwise = read_rfdistances(rfdist_pth) if get_pairwise_rfdists else (None, None)
+        abs_pairwise = read_rfdistances(rfdist_pth) if get_pairwise_rfdists else None
 
-    return num_topos, abs_rfdist, rel_rfdist, abs_pairwise, rel_pairwise
+    return num_topos, abs_rfdist, rel_rfdist, abs_pairwise
 
 
 def get_rfdist_clusters(rfdistances, trees):
@@ -189,36 +199,41 @@ def get_rfdist_clusters(rfdistances, trees):
     # use the newick string
     # this is slower but more robust
     clusters = []
-    for (t1, t2), dist in rfdistances.items():
-        tree1 = trees[t1].strip()
-        tree2 = trees[t2].strip()
-        seen_t1 = False
-        seen_t2 = False
-        for s in clusters:
-            if tree1 in s:
-                seen_t1 = True
-                if dist == 0:
-                    s.add(tree2)
-                    seen_t2 = True
+    size_x, size_y = rfdistances.shape
+    for t1 in range(size_x):
+        for t2 in range(size_y):
+            if t1 >= t2:
+                continue
+            dist = rfdistances[t1][t2]
+            tree1 = trees[t1].strip()
+            tree2 = trees[t2].strip()
+            seen_t1 = False
+            seen_t2 = False
+            for s in clusters:
+                if tree1 in s:
+                    seen_t1 = True
+                    if dist == 0:
+                        s.add(tree2)
+                        seen_t2 = True
 
-            if tree2 in s:
-                seen_t2 = True
+                if tree2 in s:
+                    seen_t2 = True
+                    if dist == 0:
+                        s.add(tree1)
+                        seen_t1 = True
+
+            if not seen_t1:
                 if dist == 0:
-                    s.add(tree1)
+                    clusters.append({tree1, tree2})
+                    seen_t1 = True
+                    seen_t2 = True
+                else:
+                    clusters.append({tree1})
                     seen_t1 = True
 
-        if not seen_t1:
-            if dist == 0:
-                clusters.append({tree1, tree2})
-                seen_t1 = True
+            if not seen_t2:
+                clusters.append({tree2})
                 seen_t2 = True
-            else:
-                clusters.append({tree1})
-                seen_t1 = True
-
-        if not seen_t2:
-            clusters.append({tree2})
-            seen_t2 = True
 
     # remove duplicates
     removed_duplicates = []
@@ -246,7 +261,7 @@ def filter_tree_topologies(
     num_trees = len(eval_trees)
 
     if num_trees > 1:
-        num_topos, _, _, abs_pairwise, _ = raxml_rfdist(
+        num_topos, _, _, abs_pairwise = raxml_rfdist(
             eval_trees,
             raxml_command,
             get_num_topos=True,
