@@ -10,6 +10,7 @@ import pickle
 import tqdm.contrib.concurrent
 from itertools import product
 
+
 def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
     with open(filename) as f:
         data = json.load(f)
@@ -128,95 +129,10 @@ def get_raxml_num_unique_topos(log_file: FilePath) -> int:
     return get_single_value_from_file(log_file, STR)
 
 
-def get_cleaned_rf_dist(raw_line: str) -> Tuple[int, int, float, float]:
-    line_regex = regex.compile(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s*")
-    tree_idx1, tree_idx2, plain_dist, normalized_dist = regex.search(
-        line_regex, raw_line
-    ).groups()
-    return int(tree_idx1), int(tree_idx2), float(plain_dist), float(normalized_dist)
-
-
-def read_rfdistances(
-        rfdistances_file_path,
-):
-    with open(rfdistances_file_path) as f:
-        rfdistances = f.readlines()
-
-    rfdistances = [l.strip() for l in rfdistances if l]
-
-    # based on the number of lines in the rfdistances file
-    # we can compute the number of trees that were compared
-    # for n trees there are n(n-1)/2 unique pairs
-    # so based on this, we can compute n as
-    # [1 + sqrt(1 + 8 * len(rfdistances))] / 2
-    size = (1 + np.sqrt(1 + 8 * len(rfdistances))) / 2
-    assert int(size) == size # this needs to be an int, otherwise we computed something wrong
-    size = int(size)
-    abs_res = np.zeros((size, size))
-
-    for line in rfdistances:
-        # TODO: das hier als numpy matrix -> OOM
-        idx1, idx2, plain, norm = get_cleaned_rf_dist(line)
-        abs_res[idx1][idx2] = plain
-        abs_res[idx2][idx1] = plain
-
-    return abs_res
-
-
 def raxml_rfdist(
-    tree_strings,
-    raxml_command,
-):
-    multiple_topos = False
-    rfdistances = np.zeros((len(tree_strings), len(tree_strings)))
-
-    def _get_distance(arg):
-        t1, t2 = arg
-        nonlocal multiple_topos
-        if t1 >= t2:
-            return
-
-        tree1 = tree_strings[t1]
-        tree2 = tree_strings[t2]
-
-        with TemporaryDirectory() as tmp_dir:
-            trees = tmp_dir + "/trees"
-
-            with open(trees, "w") as f:
-                f.write("\n".join([tree1, tree2]))
-
-            cmd = [
-                raxml_command,
-                "--rfdist",
-                trees,
-                "--redo"
-            ]
-
-            subprocess.check_output(cmd, encoding='utf-8', stderr=subprocess.STDOUT)
-
-            log_pth = trees + ".raxml.log"
-            num_topos = get_raxml_num_unique_topos(log_pth)
-            multiple_topos = multiple_topos or num_topos > 1
-
-            rfdist_pth = trees + ".raxml.rfDistances"
-            line = open(rfdist_pth).readline()
-            _, _, plain, _ = get_cleaned_rf_dist(line)
-            rfdistances[t1][t2] = plain
-            rfdistances[t2][t1] = plain
-
-        return multiple_topos, plain
-
-    tqdm.contrib.concurrent.thread_map(_get_distance, product(range(len(tree_strings)), range(len(tree_strings))), total=len(tree_strings) ** 2)
-
-    return multiple_topos, rfdistances
-
-
-def raxml_rfdist_full(
         tree_strings,
         raxml_command,
-        get_num_topos=False,
-        get_rfdist=False,
-        get_pairwise_rfdists=False
+        log_path,
 ):
     with TemporaryDirectory() as tmp_dir:
         trees = tmp_dir + "/trees"
@@ -228,82 +144,49 @@ def raxml_rfdist_full(
             raxml_command,
             "--rfdist",
             trees,
-            "--redo"
+            "--nofiles",
+            "--redo",
         ]
 
-        subprocess.check_output(cmd, encoding='utf-8', stderr=subprocess.STDOUT)
+        out = subprocess.check_output(cmd, encoding='utf-8')
 
-        log_pth = trees + ".raxml.log"
-        rfdist_pth = trees + ".raxml.rfDistances"
+        with open(log_path, "w")as f:
+            f.write(out)
 
-        num_topos = get_raxml_num_unique_topos(log_pth) if get_num_topos else None
-        abs_rfdist = get_raxml_abs_rf_distance(log_pth) if get_rfdist else None
-        rel_rfdist = get_raxml_rel_rf_distance(log_pth) if get_rfdist else None
-        abs_pairwise = read_rfdistances(rfdist_pth) if get_pairwise_rfdists else None
+        num_topos = get_raxml_num_unique_topos(log_path)
+        abs_rfdist = get_raxml_abs_rf_distance(log_path)
 
-    return num_topos, abs_rfdist, rel_rfdist, abs_pairwise
+        return num_topos, abs_rfdist
 
 
-def get_rfdist_clusters(rfdistances, trees):
-    # instead of indexing via the eval_tree.id
-    # use the newick string
-    # this is slower but more robust
+def get_rfdist_clusters(log_path, all_trees):
+    content = read_file_contents(log_path)
     clusters = []
-    size_x, size_y = rfdistances.shape
-    for t1 in range(size_x):
-        for t2 in range(size_y):
-            if t1 >= t2:
-                continue
-            dist = rfdistances[t1][t2]
-            tree1 = trees[t1].strip()
-            tree2 = trees[t2].strip()
-            seen_t1 = False
-            seen_t2 = False
-            for s in clusters:
-                if tree1 in s:
-                    seen_t1 = True
-                    if dist == 0:
-                        s.add(tree2)
-                        seen_t2 = True
 
-                if tree2 in s:
-                    seen_t2 = True
-                    if dist == 0:
-                        s.add(tree1)
-                        seen_t1 = True
+    for line in content:
+        line = line.strip()
+        if not line.startswith("["):
+            continue
+        # the line is a string representation of a list of ints
+        # like this: [1, 2, 3, 4, ]
+        tree_ids = eval(line)
+        cluster = set()
 
-            if not seen_t1:
-                if dist == 0:
-                    clusters.append({tree1, tree2})
-                    seen_t1 = True
-                    seen_t2 = True
-                else:
-                    clusters.append({tree1})
-                    seen_t1 = True
+        for id in tree_ids:
+            cluster.add(all_trees[id])
 
-            if not seen_t2:
-                clusters.append({tree2})
-                seen_t2 = True
+        clusters.append(cluster)
 
-    # remove duplicates
-    removed_duplicates = []
-    for s in clusters:
-        if s not in removed_duplicates:
-            removed_duplicates.append(s)
+    return clusters
 
-    # check if sets are disjoint
-    union = set().union(*removed_duplicates)
-    n = sum(len(s) for s in removed_duplicates)
-    assert n == len(union)
-
-    return removed_duplicates
 
 
 def filter_tree_topologies(
         raxml_command: str,
         eval_trees: List[NewickString],
         filtered_trees_path: FilePath,
-        clusters_path: FilePath
+        clusters_path: FilePath,
+        log_path: FilePath,
 ):
     """
     Helper method to filter out duplicate tree topologies in the eval_trees.
@@ -311,13 +194,16 @@ def filter_tree_topologies(
     num_trees = len(eval_trees)
 
     if num_trees > 1:
-        multiple_topos, abs_pairwise = raxml_rfdist(
+        num_topos, abs_rfdist = raxml_rfdist(
             eval_trees,
             raxml_command,
+            log_path,
         )
 
-        if multiple_topos:
-            clusters = get_rfdist_clusters(abs_pairwise, eval_trees)
+        if num_topos > 1:
+            clusters = get_rfdist_clusters(log_path, eval_trees)
+
+            assert len(clusters) == num_topos
         else:
             clusters = [set(eval_trees)]
 
