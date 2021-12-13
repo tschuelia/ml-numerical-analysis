@@ -5,8 +5,9 @@ rule raxml_filter_unique_tree_topologies:
     input:
         all_trees = rules.collect_all_raxml_eval_trees.output.all_trees,
     output:
-        filtered_trees  = f"{base_dir_raxml}filteredEvalTrees",
-        clusters        = f"{base_dir_raxml}filteredEvalTreesClusters",
+        raxml_rfdist_log    = f"{base_dir_raxml}filteredEvalTrees.raxml.log",
+        filtered_trees      = f"{base_dir_raxml}filteredEvalTrees",
+        clusters            = f"{base_dir_raxml}filteredEvalTreesClusters",
     params:
         raxml_command = raxml_command
     script:
@@ -52,8 +53,9 @@ rule raxml_filter_unique_tree_topologies_eval_and_starting:
     input:
         all_trees = rules.collect_raxml_starting_eval_and_eval_trees.output.all_trees,
     output:
-        filtered_trees  = f"{base_dir_raxml}filteredEvalAndStartingTrees",
-        clusters        = f"{base_dir_raxml}filteredEvalAndStartingTreesClusters",
+        raxml_rfdist_log    = f"{base_dir_raxml}filteredEvalAndStartingTrees.raxml.log",
+        filtered_trees      = f"{base_dir_raxml}filteredEvalAndStartingTrees",
+        clusters            = f"{base_dir_raxml}filteredEvalAndStartingTreesClusters",
     params:
         raxml_command = raxml_command
     script:
