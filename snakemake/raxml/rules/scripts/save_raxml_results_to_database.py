@@ -3,6 +3,7 @@ import sys
 sys.path.append(snakemake.scriptdir + "/../../..")
 
 import pickle
+import json
 
 from snakelib import database as db
 from snakelib.database import insert_program_data, insert_treesarch_data, insert_eval_data, insert_statstest_data, insert_starting_eval_data
@@ -21,6 +22,8 @@ db.raxml_db.create_tables(
         db.RaxmlEvalStartingTree,
         db.RaxmlEvalTreeStatsTest,
         db.RaxmlEvalAndStartingTreeStatsTest,
+        db.RaxmlPairwiseEvalTreeStatsTest,
+        db.RaxmlPairwiseEvalAndStartingTreeStatsTest,
     ]
 )
 
@@ -42,8 +45,15 @@ starting_eval_trees_file_paths  = snakemake.input.starting_eval_trees
 filtered_trees_clusters     = snakemake.input.filtered_trees_clusters
 iqtree_statstests_results   = get_iqtree_results(snakemake.input.iqtree_statstests_results)
 
+with open(snakemake.input.pairwise_iqtree_statstests_results) as f:
+    pairwise_iqtree_statstests_results = json.load(f)
+
+
 filtered_trees_clusters_ev_st   = snakemake.input.filtered_trees_clusters_ev_starting
 iqtree_statstests_results_ev_st = get_iqtree_results(snakemake.input.iqtree_statstests_results_ev_starting)
+
+with open(snakemake.input.pairwise_iqtree_statstests_results_ev_starting) as f:
+    pairwise_iqtree_statstests_results_ev_starting = json.load(f)
 
 # fmt: on
 num_runs = len(params_file_paths)
@@ -92,10 +102,17 @@ with open(filtered_trees_clusters, "rb") as f:
 all_results = []
 cluster_ids = []
 
+pairwise_all_results = []
+pairwise_cluster_ids = []
+
 for tree in eval_tree_objects:
     results, cluster_id = get_iqtree_results_for_eval_tree_str(iqtree_statstests_results, tree.newick_tree, clusters)
     all_results.append(results)
     cluster_ids.append(cluster_id)
+
+    pairwise_results, pairwise_cluster_id = get_iqtree_results_for_eval_tree_str(pairwise_iqtree_statstests_results, tree.newick_tree, clusters)
+    pairwise_all_results.append(pairwise_results)
+    pairwise_cluster_ids.append(pairwise_cluster_id)
 
 insert_statstest_data(
     eval_trees=eval_tree_objects,
@@ -104,6 +121,14 @@ insert_statstest_data(
     database_table=db.RaxmlEvalTreeStatsTest
 )
 
+insert_statstest_data(
+    eval_trees=eval_tree_objects,
+    statstest_results=pairwise_all_results,
+    cluster_ids=pairwise_cluster_ids,
+    database_table=db.RaxmlPairwiseEvalTreeStatsTest
+)
+
+
 # Iqtree significance tests for eval and starting trees
 with open(filtered_trees_clusters_ev_st, "rb") as f:
     clusters = pickle.load(f)
@@ -111,11 +136,18 @@ with open(filtered_trees_clusters_ev_st, "rb") as f:
 all_results = []
 cluster_ids = []
 
+pairwise_all_results = []
+pairwise_cluster_ids = []
+
 # for eval trees
 for tree in eval_tree_objects:
     results, cluster_id = get_iqtree_results_for_eval_tree_str(iqtree_statstests_results_ev_st, tree.newick_tree, clusters)
     all_results.append(results)
     cluster_ids.append(cluster_id)
+
+    pairwise_results, pairwise_cluster_id = get_iqtree_results_for_eval_tree_str(pairwise_iqtree_statstests_results_ev_starting, tree.newick_tree, clusters)
+    pairwise_all_results.append(pairwise_results)
+    pairwise_cluster_ids.append(pairwise_cluster_id)
 
 # for re-evaluated starting trees
 for tree in starting_eval_tree_objects:
@@ -123,10 +155,20 @@ for tree in starting_eval_tree_objects:
     all_results.append(results)
     cluster_ids.append(cluster_id)
 
+    pairwise_results, pairwise_cluster_id = get_iqtree_results_for_eval_tree_str(pairwise_iqtree_statstests_results_ev_starting, tree.newick_tree, clusters)
+    pairwise_all_results.append(pairwise_results)
+    pairwise_cluster_ids.append(pairwise_cluster_id)
 
 insert_statstest_data(
     eval_trees=eval_tree_objects + starting_eval_tree_objects,
     statstest_results=all_results,
     cluster_ids=cluster_ids,
     database_table=db.RaxmlEvalAndStartingTreeStatsTest
+)
+
+insert_statstest_data(
+    eval_trees=eval_tree_objects + starting_eval_tree_objects,
+    statstest_results=pairwise_all_results,
+    cluster_ids=pairwise_cluster_ids,
+    database_table=db.RaxmlPairwiseEvalAndStartingTreeStatsTest
 )
