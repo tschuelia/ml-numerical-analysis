@@ -5,10 +5,10 @@ import numpy as np
 from .custom_types import *
 from tempfile import TemporaryDirectory
 import subprocess
-import regex
 import pickle
 import tqdm.contrib.concurrent
-from itertools import product
+
+from .iqtree_statstest_parser import get_iqtree_results
 
 
 def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
@@ -232,3 +232,55 @@ def get_iqtree_results_for_eval_tree_str(iqtree_results, eval_tree_str, clusters
             return iqtree_results[i], i
 
     raise ValueError("This newick_string belongs to no cluster. newick_str: ", eval_tree_str[:100])
+
+
+def run_pairwise_iqtree(arg):
+    iqtree_command, tree, best_tree, msa, model = arg
+    with TemporaryDirectory() as tmpdir:
+        fp = tmpdir + "/trees"
+        best = tmpdir + "/best"
+        log_path = fp + ".significance.iqtree"
+
+        with open(fp, "w") as f:
+            f.write(f"{best_tree.strip()}\n{tree.strip()}")
+
+        with open(best, "w") as f:
+            f.write(best_tree.strip())
+
+        cmd = [
+            iqtree_command,
+            "-s",
+            msa,
+            "-m",
+            model,
+            "-pre",
+            fp + ".significance",
+            "-redo",
+            "-z",
+            fp,
+            "-te",
+            best,
+            "-n",
+            "0",
+            "-zb",
+            "1000",
+            "-zw",
+            "-au",
+            "-nt",
+            "2",
+            "-seed",
+            "0",
+            "-safe"
+        ]
+        subprocess.check_output(cmd, encoding='utf-8')
+
+        results = get_iqtree_results(log_path)
+        assert len(results) == 2, "Length of pairwise iqtree comparison results does not match."
+
+        return results[1]
+
+
+def pairwise_iqtree(iqtree_command, filtered_trees, best_tree, msa, model, max_workers):
+    argument_list = [(iqtree_command, tree, best_tree, msa, model) for tree in filtered_trees]
+    all_results = tqdm.contrib.concurrent.thread_map(run_pairwise_iqtree, argument_list, max_workers=max_workers, total=len(filtered_trees))
+    return all_results
