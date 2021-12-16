@@ -152,6 +152,16 @@ class RaxmlEvalAndStartingTreeStatsTest(BaseTreeStatsTest):
         database = raxml_db
 
 
+class RaxmlPairwiseEvalTreeStatsTest(BaseTreeStatsTest):
+    class Meta:
+        database = raxml_db
+
+
+class RaxmlPairwiseEvalAndStartingTreeStatsTest(BaseTreeStatsTest):
+    class Meta:
+        database = raxml_db
+
+
 class IqtreeEvalTreeStatsTest(BaseTreeStatsTest):
     class Meta:
         database = iqtree_db

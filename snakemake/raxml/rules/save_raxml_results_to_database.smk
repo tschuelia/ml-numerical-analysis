@@ -28,9 +28,15 @@ rule save_raxml_results_to_database:
         filtered_trees_clusters     = f"{base_dir_raxml}filteredEvalTreesClusters",
         iqtree_statstests_results   = f"{base_dir_raxml}significance.iqtree",
 
+        # pairwise results
+        pairwise_iqtree_statstests_results= f"{base_dir_raxml}pairwiseSignificanceEval.json",
+
         ##### iqtree significance tests for eval and starting
         filtered_trees_clusters_ev_starting     = f"{base_dir_raxml}filteredEvalAndStartingTreesClusters",
         iqtree_statstests_results_ev_starting   = f"{base_dir_raxml}significanceEvalAndStarting.iqtree",
+
+        # pairwise results
+        pairwise_iqtree_statstests_results_ev_starting= f"{base_dir_raxml}pairwiseSignificanceEvalAndStarting.json",
     output:
         database = f"{base_dir}raxml_results.sqlite3", 
     params:

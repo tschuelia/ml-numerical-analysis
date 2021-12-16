@@ -93,3 +93,48 @@ rule iqtree_statstest_on_raxml_eval_and_starting_trees:
         "-seed 0 "
         "> {output.iqtree_log} "
 
+
+"""
+Since the IQ-Tree test results change with the order of the input trees we compare
+each tree to the best tree in a pairwise comparison instead 
+"""
+max_workers = 2
+
+rule pairwise_iqtree_statstest_on_raxml_eval_trees:
+    """
+    In order to save time, we use the filtered trees from above
+    Trees with the same topology should yield the same test results so we can map this back 
+    later on
+    """
+    input:
+        msa             = config["data"]["input"],
+        filtered_trees  = rules.raxml_filter_unique_tree_topologies.output.filtered_trees,
+        best_tree       = rules.collect_best_overall_eval_tree.output.best_overall_tree,
+    output:
+        iqtree_results = f"{base_dir_raxml}pairwiseSignificanceEval.json",
+    params:
+        iqtree_command  = iqtree_command,
+        model           = config["parameters"]["model"]["iqtree"],
+        max_workers     = max_workers,
+    script:
+        "scripts/pairwise_iqtree.py"
+
+
+rule pairwise_iqtree_statstest_on_raxml_eval_and_starting_trees:
+    """
+    In order to save time, we use the filtered trees from above
+    Trees with the same topology should yield the same test results so we can map this back 
+    later on
+    """
+    input:
+        msa             = config["data"]["input"],
+        filtered_trees  = rules.raxml_filter_unique_tree_topologies_eval_and_starting.output.filtered_trees,
+        best_tree       = rules.collect_best_overall_eval_tree.output.best_overall_tree,
+    output:
+        iqtree_results = f"{base_dir_raxml}pairwiseSignificanceEvalAndStarting.json",
+    params:
+        iqtree_command  = iqtree_command,
+        model           = config["parameters"]["model"]["iqtree"],
+        max_workers     = max_workers,
+    script:
+        "scripts/pairwise_iqtree.py"
