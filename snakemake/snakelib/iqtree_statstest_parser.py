@@ -132,7 +132,7 @@ def _get_cleaned_table_entries(
     return entries
 
 
-def _get_default_entry():
+def get_default_entry():
     return {
                 "deltaL": 0,
                 "plausible": 1,
@@ -187,7 +187,7 @@ def get_iqtree_results(iqtree_file: FilePath) -> TreeIndexed[IqTreeMetrics]:
     except ValueError as e:
         warnings.warn(str(e))
         warnings.warn("Falling back to default case.")
-        return [_get_default_entry()]
+        return [get_default_entry()]
 
     results = []
 
