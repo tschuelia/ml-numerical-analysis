@@ -8,7 +8,7 @@ import subprocess
 import pickle
 import tqdm.contrib.concurrent
 
-from .iqtree_statstest_parser import get_iqtree_results
+from .iqtree_statstest_parser import get_iqtree_results, get_default_entry
 
 
 def get_parameter_value(filename: FilePath, param_identifier: str) -> float:
@@ -236,6 +236,8 @@ def get_iqtree_results_for_eval_tree_str(iqtree_results, eval_tree_str, clusters
 
 def run_pairwise_iqtree(arg):
     iqtree_command, tree, best_tree, msa, model = arg
+    if tree == best_tree:
+        return get_default_entry()
     with TemporaryDirectory() as tmpdir:
         fp = tmpdir + "/trees"
         best = tmpdir + "/best"
