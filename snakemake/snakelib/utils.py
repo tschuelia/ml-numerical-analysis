@@ -235,7 +235,7 @@ def get_iqtree_results_for_eval_tree_str(iqtree_results, eval_tree_str, clusters
 
 
 def run_pairwise_iqtree(arg):
-    iqtree_command, tree, best_tree, msa, model = arg
+    iqtree_command, tree, best_tree, msa, model, partitioned = arg
     if tree == best_tree:
         return get_default_entry()
     with TemporaryDirectory() as tmpdir:
@@ -253,7 +253,7 @@ def run_pairwise_iqtree(arg):
             iqtree_command,
             "-s",
             msa,
-            "-m",
+            "-p" if partitioned else "-m",
             model,
             "-pre",
             fp + ".significance",
@@ -282,7 +282,7 @@ def run_pairwise_iqtree(arg):
         return results[1]
 
 
-def pairwise_iqtree(iqtree_command, filtered_trees, best_tree, msa, model, max_workers):
-    argument_list = [(iqtree_command, tree, best_tree, msa, model) for tree in filtered_trees]
+def pairwise_iqtree(iqtree_command, filtered_trees, best_tree, msa, model, partitioned, max_workers):
+    argument_list = [(iqtree_command, tree, best_tree, msa, model, partitioned) for tree in filtered_trees]
     all_results = tqdm.contrib.concurrent.thread_map(run_pairwise_iqtree, argument_list, max_workers=max_workers, total=len(filtered_trees))
     return all_results

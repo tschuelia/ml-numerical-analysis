@@ -9,11 +9,12 @@ filtered_trees = open(snakemake.input.filtered_trees).readlines()
 best_tree = open(snakemake.input.best_tree).readline()
 iqtree_command = snakemake.params.iqtree_command
 model = snakemake.params.model
+partitioned = snakemake.params.partitioned
 max_workers = snakemake.params.max_workers
 
 output = snakemake.output.iqtree_results
 
-all_results = pairwise_iqtree(iqtree_command, filtered_trees, best_tree, msa, model, max_workers)
+all_results = pairwise_iqtree(iqtree_command, filtered_trees, best_tree, msa, model, partitioned, max_workers)
 
 with open(output, "w") as f:
     json.dump(all_results, f)

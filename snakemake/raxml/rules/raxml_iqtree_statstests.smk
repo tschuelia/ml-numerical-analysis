@@ -1,3 +1,6 @@
+model = config["parameters"]["model"]["iqtree"]
+partitioned = "/" in model
+
 """
 IQ-Tree significance tests for only the eval trees
 """
@@ -25,7 +28,8 @@ rule iqtree_statstest_on_raxml_eval_trees:
         iqtree_log  = f"{base_dir_raxml}significance.iqtree.log",
 
     params:
-        model           = config["parameters"]["model"]["iqtree"],
+        model           = model,
+        model_str       = "-p" if partitioned else "-m",
         threads         = config["parameters"]["iqtree"]["threads"],
         prefix          = f"{base_dir_raxml}significance",
     log:
@@ -33,7 +37,7 @@ rule iqtree_statstest_on_raxml_eval_trees:
     shell:
         "{iqtree_command} "
         "-s {input.msa} "
-        "-m {params.model} "
+        "{params.model_str} {params.model} "
         "-pre {params.prefix} "
         "-z {input.filtered_trees} "
         "-te {input.best_tree} "
@@ -73,7 +77,8 @@ rule iqtree_statstest_on_raxml_eval_and_starting_trees:
         iqtree_log  = f"{base_dir_raxml}significanceEvalAndStarting.iqtree.log",
 
     params:
-        model           = config["parameters"]["model"]["iqtree"],
+        model           = model,
+        model_str       = "-p" if partitioned else "-m",
         threads         = config["parameters"]["iqtree"]["threads"],
         prefix          = f"{base_dir_raxml}significanceEvalAndStarting",
     log:
@@ -81,7 +86,7 @@ rule iqtree_statstest_on_raxml_eval_and_starting_trees:
     shell:
         "{iqtree_command} "
         "-s {input.msa} "
-        "-m {params.model} "
+        "{params.model_str} {params.model} "
         "-pre {params.prefix} "
         "-z {input.filtered_trees} "
         "-te {input.best_tree} "
@@ -114,7 +119,8 @@ rule pairwise_iqtree_statstest_on_raxml_eval_trees:
         iqtree_results = f"{base_dir_raxml}pairwiseSignificanceEval.json",
     params:
         iqtree_command  = iqtree_command,
-        model           = config["parameters"]["model"]["iqtree"],
+        model           = model,
+        partitioned     = partitioned,
         max_workers     = max_workers,
     script:
         "scripts/pairwise_iqtree.py"
@@ -134,7 +140,8 @@ rule pairwise_iqtree_statstest_on_raxml_eval_and_starting_trees:
         iqtree_results = f"{base_dir_raxml}pairwiseSignificanceEvalAndStarting.json",
     params:
         iqtree_command  = iqtree_command,
-        model           = config["parameters"]["model"]["iqtree"],
+        model           = model,
+        partitioned     = partitioned,
         max_workers     = max_workers,
     script:
         "scripts/pairwise_iqtree.py"
