@@ -3,6 +3,7 @@ import sys
 sys.path.append(snakemake.scriptdir + "/../../..")
 
 import pickle
+import json
 
 from snakelib import database as db
 from snakelib.database import insert_program_data, insert_treesarch_data, insert_eval_data, insert_statstest_data
@@ -18,7 +19,8 @@ db.iqtree_db.create_tables(
         db.Iqtree,
         db.IqtreeTreesearchTree,
         db.IqtreeEvalTree,
-        db.IqtreeEvalTreeStatsTest
+        db.IqtreeEvalTreeStatsTest,
+        db.IQTreePairwiseEvalTreeStatsTest,
     ]
 )
 
@@ -35,6 +37,10 @@ eval_trees_file_paths        = snakemake.input.eval_trees
 
 filtered_trees_clusters     = snakemake.input.filtered_trees_clusters
 iqtree_statstests_results   = get_iqtree_results(snakemake.input.iqtree_statstests_results)
+
+with open(snakemake.input.pairwise_iqtree_statstests_results) as f:
+    pairwise_iqtree_statstests_results = json.load(f)
+
 # fmt: on
 
 num_runs = len(params_file_paths)
@@ -50,10 +56,6 @@ for i in range(num_runs):
         all_treesearch_trees_file_path  = treesearch_trees_file_paths[i],
         best_eval_tree_file_path        = best_eval_tree_file_paths[i],
         all_eval_trees_file_path        = eval_trees_file_paths[i],
-        blmin_eval                      = snakemake.params.blmin_eval,
-        blmax_eval                      = snakemake.params.blmax_eval,
-        lh_eps_eval                     = snakemake.params.lh_eps_eval,
-        model_param_epsilon_eval        = snakemake.params.model_param_epsilon_eval,
     )
 
     iqtree_db = insert_program_data(iqtree, db.Iqtree)
@@ -74,15 +76,30 @@ with open(filtered_trees_clusters, "rb") as f:
 all_results = []
 cluster_ids = []
 
+pairwise_all_results = []
+pairwise_cluster_ids = []
+
 for tree in eval_tree_objects:
     results, cluster_id = get_iqtree_results_for_eval_tree_str(iqtree_statstests_results, tree.newick_tree, clusters)
     all_results.append(results)
     cluster_ids.append(cluster_id)
+
+    pairwise_results, pairwise_cluster_id = get_iqtree_results_for_eval_tree_str(pairwise_iqtree_statstests_results,
+                                                                                 tree.newick_tree, clusters)
+    pairwise_all_results.append(pairwise_results)
+    pairwise_cluster_ids.append(pairwise_cluster_id)
 
 insert_statstest_data(
     eval_trees=eval_tree_objects,
     statstest_results=all_results,
     cluster_ids=cluster_ids,
     database_table=db.IqtreeEvalTreeStatsTest
+)
+
+insert_statstest_data(
+    eval_trees=eval_tree_objects,
+    statstest_results=pairwise_all_results,
+    cluster_ids=pairwise_cluster_ids,
+    database_table=db.IQTreePairwiseEvalTreeStatsTest
 )
 

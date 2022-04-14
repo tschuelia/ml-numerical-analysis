@@ -1,22 +1,14 @@
 iqtree_command = config["parameters"]["iqtree"]["command"]
 raxml_command = config["parameters"]["raxml-ng"]["command"]
 
-blmin_opts      = config["parameters"]["blmin"]
-blmax_opts      = config["parameters"]["blmax"]
 lh_eps_opts     = config["parameters"]["lh_eps"]
-model_param_epsilon_opts     = config["parameters"]["model_epsilon"]
-
-blmin_eval = float(config["parameters"]["eval"]["blmin"])
-blmax_eval = float(config["parameters"]["eval"]["blmax"])
-lh_eps_eval = float(config["parameters"]["eval"]["lh_eps"])
-model_param_epsilon_eval    = float(config["parameters"]["eval"]["model_epsilon"])
 
 num_pars_trees  = config["parameters"]["num_pars_trees"]
 pars_seeds      = list(range(num_pars_trees))
 
 base_dir            = config["data"]["outdir"]
 base_dir_iqtree     = base_dir + "iqtree/"
-base_name_iqtree    = "bi{blmin}_ba{blmax}_me{model_epsilon}_le{lh_eps}"
+base_name_iqtree    = "le{lh_eps}"
 full_dir_iqtree     = base_dir_iqtree + base_name_iqtree + "/"
 
 base_name_pars  = "pars_s{seed}_"
@@ -51,10 +43,7 @@ rule save_iqtree_settings_in_file:
     run:
         import json
         data = {}
-        data["blmin"] = wildcards.blmin
-        data["blmax"] = wildcards.blmax
         data["lh_eps"] = wildcards.lh_eps
-        data["model_epsilon"] = wildcards.model_epsilon
         data["num_pars_trees"] = params.num_pars_trees
         with open(output.params, 'w') as f:
             json.dump(data, f)
