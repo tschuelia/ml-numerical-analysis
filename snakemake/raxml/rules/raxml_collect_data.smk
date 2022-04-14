@@ -91,7 +91,7 @@ rule collect_all_raxml_eval_logs_per_combination:
 
 rule collect_all_raxml_eval_trees:
     input:
-        trees = expand(f"{full_file_path_raxml}.allEvalTreesCollected", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
+        trees = expand(f"{full_file_path_raxml}.allEvalTreesCollected", lheps=lheps_opts, lheps_trip=lheps_trip_opts),
     output:
         all_trees=f"{base_dir_raxml}allEvalTreesCollected",
     script:
@@ -100,7 +100,7 @@ rule collect_all_raxml_eval_trees:
 
 rule collect_all_raxml_eval_starting_trees:
     input:
-        trees = expand(f"{full_file_path_raxml}.allStartingEvalTreesCollected", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
+        trees = expand(f"{full_file_path_raxml}.allStartingEvalTreesCollected", lheps=lheps_opts, lheps_trip=lheps_trip_opts),
     output:
         all_trees = f"{base_dir_raxml}allStartingEvalTreesCollected",
     script:
@@ -123,8 +123,8 @@ rule collect_best_overall_eval_tree:
     The best eval tree is the one with the highest llh score with lowest runtime.
     """
     input:
-        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
-        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", lheps_auto=auto_opts, lheps_fast=fast_opts, lheps_slow=slow_opts, lheps_full=full_opts, lheps_trip=trip_opts),
+        trees = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun", lheps=lheps_opts, lheps_trip=lheps_trip_opts),
+        logs = expand(f"{full_file_path_raxml}.bestEvalTreeOfRun.json", lheps=lheps_opts, lheps_trip=lheps_trip_opts),
     output:
         best_overall_tree = f"{base_dir_raxml}bestOverallEvalTree",
     script:
