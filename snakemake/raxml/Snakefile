@@ -6,15 +6,12 @@ num_rand_trees = config["parameters"]["num_rand_trees"]
 pars_seeds = list(range(num_pars_trees))
 rand_seeds = list(range(num_pars_trees, num_pars_trees + num_rand_trees))
 
-auto_opts = config["parameters"]["lh_eps_auto"]
-fast_opts = config["parameters"]["lh_eps_fast"]
-slow_opts = config["parameters"]["lh_eps_slow"]
-full_opts = config["parameters"]["lh_eps_full"]
-trip_opts = config["parameters"]["lh_eps_trip"]
+lheps_opts = config["parameters"]["lh_eps"]
+lheps_trip_opts = config["parameters"]["lh_eps_trip"]
 
 base_dir = config["data"]["outdir"]
 base_dir_raxml = base_dir + "raxml/"
-base_name_raxml = "la{lheps_auto}_lf{lheps_fast}_ls{lheps_slow}_lbf_{lheps_full}_lbt{lheps_trip}"
+base_name_raxml = "lh{lheps}_lbt{lheps_trip}"
 
 full_dir_raxml = base_dir_raxml + base_name_raxml + "/"
 
@@ -58,10 +55,10 @@ rule save_raxml_settings_in_file:
     run:
         import json
         data = {}
-        data["lheps_auto"] = wildcards.lheps_auto
-        data["lheps_fast"] = wildcards.lheps_fast
-        data["lheps_slow"] = wildcards.lheps_slow
-        data["lheps_full"] = wildcards.lheps_full
+        data["lheps_auto"] = wildcards.lheps
+        data["lheps_fast"] = wildcards.lheps
+        data["lheps_slow"] = wildcards.lheps
+        data["lheps_full"] = wildcards.lheps
         data["lheps_trip"] = wildcards.lheps_trip
 
         data["num_pars_trees"] = params.num_pars_trees

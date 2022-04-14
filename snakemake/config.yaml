@@ -1,40 +1,34 @@
 data:
-  input: data/ng-tutorial/prim.phy
-  outdir: data/ng-tutorial/results/
+  input: input.phy
+  outdir: results/
 
 parameters:
   # general parameter settings
-  num_pars_trees: 2
-  num_rand_trees: 2
+  num_pars_trees: 25
+  num_rand_trees: 25
 
-  lh_eps_auto: [0.01, 0.1, 1, 10, 100, 1000]
-  lh_eps_fast: [0.01, 0.1] #, 1, 10, 100, 1000]
-  lh_eps_slow: [0.01, 0.1, 1, 10, 100, 1000]
-  lh_eps_full: [0.01, ] #0.1] #, 1, 10, 100, 1000]
-  lh_eps_trip: [0.01, ] #0.1] #, 1, 10, 100, 1000]
+  lh_eps: [0.01, 0.1, 1, 10, 100, 1000]
+  lh_eps_trip: [0.01, 0.1, 1, 10, 100, 1000]
 
   eval:
     # keep default values here as well
-    lh_eps_auto: 0.1
-    lh_eps_fast: 0.1
-    lh_eps_slow: 0.1
-    lh_eps_full: 0.1
+    lh_eps: 0.01
     lh_eps_trip: 0.1
 
   # if you change the model: make sure to change all models
   model:
     raxml-ng: GTR+G
-    iqtree: GTR+FO+G4
+    iqtree: GTR+G4+FO 
     fasttree: gtr
 
   # iqtree specific settings
   iqtree:
-    command: iqtree
+    command:  iqtree2
     threads: 2
 
   # raxml-ng specific settings
   raxml-ng:
-    command: ./software/raxml-ng/bin/raxml-ng
+    command: raxml-ng
     threads: 2
 
   fasttree:
