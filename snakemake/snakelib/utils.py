@@ -265,7 +265,7 @@ def run_pairwise_iqtree(arg):
             "-n",
             "0",
             "-zb",
-            "1000",
+            "10000",
             "-zw",
             "-au",
             "-nt",
