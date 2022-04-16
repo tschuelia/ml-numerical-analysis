@@ -33,5 +33,5 @@ rule reveal_hidden_treesearch_files:
         prefix_tmp = full_file_path_iqtree_pars_tmp, #full_dir_iqtree_pars_tmp,
         prefix = full_dir_iqtree_pars
     shell:
-        "cp {params.prefix_tmp}* {params.prefix}"
+        "mv {params.prefix_tmp}* {params.prefix}"
 

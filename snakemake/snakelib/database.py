@@ -163,7 +163,7 @@ class FasttreeEvalTreeStatsTest(BaseTreeStatsTest):
 def insert_program_data(program: Program, database_table: BaseProgram) -> BaseProgram:
     return database_table.create(
         uuid=uuid.uuid4().hex,
-        lh_epsilo=program.lh_epsilon,
+        lh_epsilon=program.lh_epsilon,
 
         num_pars_trees=program.num_pars_trees,
         num_rand_trees=program.num_rand_trees,
