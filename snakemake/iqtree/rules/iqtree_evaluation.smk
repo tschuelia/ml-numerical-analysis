@@ -36,4 +36,4 @@ rule reveal_hidden_eval_files:
         prefix_tmp = full_dir_iqtree_eval_tmp,
         prefix = full_dir_iqtree_eval
     shell:
-        "mv {params.prefix_tmp}/* {params.prefix}"
+        "cp {params.prefix_tmp}/* {params.prefix}"
