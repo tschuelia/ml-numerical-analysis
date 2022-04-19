@@ -1,3 +1,6 @@
+model = config["parameters"]["model"]["iqtree"]
+partitioned = "/" in model
+
 rule iqtree_pars_tree:
     input:
         msa = config["data"]["input"],
@@ -5,6 +8,7 @@ rule iqtree_pars_tree:
         iqtree_done = touch(f"{full_file_path_iqtree_pars}.done"),
     params:
         model       = config["parameters"]["model"]["iqtree"],
+        model_str   = "-p" if partitioned else "-m",
         threads     = config["parameters"]["iqtree"]["threads"],
         prefix_tmp  = full_file_path_iqtree_pars_tmp,
         tmp_dir     = full_dir_iqtree_pars_tmp,
@@ -14,7 +18,7 @@ rule iqtree_pars_tree:
     shell:
         "mkdir -p {params.tmp_dir}; "
         "{iqtree_command} "
-        "-m {params.model} "
+        "{params.model_str} {params.model} "
         "-s {input.msa} "
         "-ninit 1 "
         "-eps {wildcards.lh_eps} "
