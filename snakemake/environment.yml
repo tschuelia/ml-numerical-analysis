@@ -1,0 +1,13 @@
+name: numana
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - snakemake
+  - peewee
+  - ca-certificates
+  - certifi
+  - openssl
+  - biopython
+  - regex
+  - tqdm
