@@ -51,3 +51,11 @@ and submit it using ```sbatch job.sh```
 
 ### Using snakemake:
 Follow the instructions [here](https://github.com/tschuelia/snakemake-on-slurm-clusters).
+
+
+# Branches
+This repository consists of 4 branches:
+1. master: This branch contains the pipeline we used to run RAxML-NG, IQ-Tree, and FastTree during Study 1 on Data Collection 1.
+2. raxmlng_new_datasets: This branch contains the pipeline we used to verify our findings for the likelihood epsilon thresholds in RAxML-NG on Data Collection 2.
+3. iqtree_new_datasets: This branch contains the pipeline we used to verify our findings for the likelihood epsilon threshold in IQ-Tree on Data Collection 2.
+4. raxmlng_study2: This branch contains the pipeline we used to analyze the separated likelihood epsilon thresholds in RAxML-NG during Study 2 on Data Collection 2.
