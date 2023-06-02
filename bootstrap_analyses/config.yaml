@@ -1,0 +1,18 @@
+msas: [
+  # [name, file, substitution model]
+  # for example:
+  ["D27", "D27.phy", "GTR+G"],
+  ["D25", "D25.fasta", "GTR+G"],
+]
+
+
+combinations: [
+  # default
+  [0.1, 0.1],
+  # combined changes
+  [10, 1000],
+]
+
+outdir: results
+
+RAxML-NG: path/to/bin/raxml-ng

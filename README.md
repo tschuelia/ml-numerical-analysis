@@ -1,5 +1,7 @@
 # Snakemake Pipeline
+This branch contains the snakemake pipeline to reproduce the results for Study 2 (RAxML-NG) and Study 3 (Bootstrapping). 
 
+## Setup and Running the Pipeline
 1. Clone this repo and cd into the snakemake directory
 2. Create a conda environment using the given environment file by executing
     ```
@@ -7,21 +9,38 @@
     ```
 3. Activate the conda environment
 
-4. In the config.yaml file: 
+### Running Study 2
+1. cd into `snakemake` directory
+2. In the config.yaml file: 
    * specifiy the path to the input data and the output path by changing the variables `data.input` and `data.outdir`
    * Set the `parameters.model` to the substitution model you want to use. Refer to the manuals of RAxML-NG, IQ-Tree, and FastTree to set the correct string. 
-   * Change the software execution paths for RAxML-NG, IQ-Tree, FastTree
+   * Change the software execution paths for RAxML-NG by setting `RAxML-NG`
+   * If you want to test more combinations of likelihood epsilon settings, change the respective parameter
 
-5. In your terminal: check the execution graph and the commands snakemake will execute by running.
+3. In your terminal: check the execution graph and the commands snakemake will execute by running.
     ```
     snakemake -np
     ```
 
-6. Finally, execute the snakemake file with 
+4. Finally, execute the snakemake file with 
     ```
     snakemake --cores [however many cores you have available]
     ```
 
+### Running Study 3
+1. cd into the `bootstrap_analyses` directory
+2. In the config.yaml file: 
+   * specifiy the path to the input data and the output path by changing the variables `msas` and `outdir`
+   * Change the software execution paths for RAxML-NG, IQ-Tree, FastTree
+3. In your terminal: check the execution graph and the commands snakemake will execute by running.
+   ```
+   snakemake -np
+   ```
+
+4. Finally, execute the snakemake file with 
+    ```
+    snakemake --cores [however many cores you have available]
+    ```
 
 <hr>
 

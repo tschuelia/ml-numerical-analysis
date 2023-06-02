@@ -1,0 +1,267 @@
+import os
+import pathlib
+import tempfile
+import statistics
+import scipy.stats
+import shutil
+import pandas as pd
+
+import utils
+
+configfile: "config.yaml"
+
+msa_names = [el[0] for el in config["msas"]]
+msa_files = [el[1] for el in config["msas"]]
+models = [el[2] for el in config["msas"]]
+
+msa_mapping = dict(el for el in zip(msa_names, msa_files))
+model_mapping = dict(el for el in zip(msa_names, models))
+
+RAXMLNG = config["RAxML-NG"]
+
+lheps_combinations = config["combinations"]
+
+lheps_values, lheps_brlen_values = zip(*lheps_combinations)
+
+outdir =  pathlib.Path(config["outdir"])
+outdir_msa = outdir / "{msa_name}"
+filename_base = "lheps_{lheps}_lheps_brlen_{lheps_brlen}"
+outdir_setting = outdir_msa / filename_base
+raxmlng_new_default_ts_path_prefix = outdir_msa / "new_default_values_search"
+
+search_pfx = "search"
+tree_pfx = "tree_{i}"
+bs_pfx = "bootstrap/bootstrap"
+best_pfx = "support/bestTree"
+supp_pfx = f"support/{tree_pfx}"
+
+
+def exp_lheps(fn):
+    return expand(
+        fn,
+        zip,
+        lheps=lheps_values,
+        lheps_brlen=lheps_brlen_values,
+        allow_missing=True
+    )
+
+
+def exp_msa(fn):
+    return expand(fn, msa_name=msa_names, allow_missing=True)
+
+
+def exp_msa_lheps(fn):
+    return exp_msa(exp_lheps(fn))
+
+
+def raxmlng_lheps_string(lheps, lheps_brlen):
+    return  f" --lh-epsilon-auto {lheps} "\
+            f"--lh-epsilon-fast {lheps} "\
+            f"--lh-epsilon-slow {lheps} "\
+            f"--lh-epsilon-brlen-full {lheps} "\
+            f"--lh-epsilon-brlen-triple {lheps_brlen} "
+
+
+def run_raxmlng_support(tree, bootstraps, prefix, log):
+    shell(RAXMLNG + f" --support --tree {tree} --bs-trees {bootstraps} --prefix {prefix} --redo --threads 2 > {log}")
+
+
+rule all:
+    input:
+        # All comparison data collected
+        bootstrap_data = exp_msa(outdir_msa / "bootstrap.parquet"),
+        support_values_correlations = exp_msa(outdir_msa / "support_values_correlation.parquet")
+
+
+rule raxmlng_treesearch_new_default_values:
+    output:
+        # hard code path here so we only infer the tree for the new default settings
+        all_trees = raxmlng_new_default_ts_path_prefix / f"{search_pfx}.raxml.mlTrees",
+    params:
+        msa = lambda wildcards: msa_mapping[wildcards.msa_name],
+        model = lambda wildcards: model_mapping[wildcards.msa_name],
+        prefix = os.path.join(raxmlng_new_default_ts_path_prefix, search_pfx),
+    log:
+        raxmlng_log = raxmlng_new_default_ts_path_prefix / f"{search_pfx}.log",
+    shell:
+        RAXMLNG +
+        raxmlng_lheps_string(10, 1000) +
+        "--msa {params.msa} "
+        "--model {params.model} "
+        "--prefix {params.prefix} "
+        "--threads 2 "
+        "--seed 0 "
+        "> {log.raxmlng_log}"
+
+
+rule store_ml_trees_separately:
+    input:
+        mlTrees = rules.raxmlng_treesearch_new_default_values.output.all_trees
+    output:
+        trees = expand(raxmlng_new_default_ts_path_prefix / "trees" / tree_pfx, i=range(20), allow_missing=True)
+    run:
+        newick_trees = [t.strip() for t in open(input.mlTrees) if t]
+
+        assert len(newick_trees) == len(output.trees), f"Something went wrong, number of ML trees and numer of output files does not match: " \
+                                                       f"Number of ML trees: {len(newick_trees)}, number of output files: {len(output.trees)}"
+
+        for newick, outfile in zip(newick_trees, output.trees):
+            open(outfile, "w").write(newick)
+
+
+rule raxmlng_bootstrap:
+    output:
+        bootstraps =outdir_setting / f"{bs_pfx}.raxml.bootstraps",
+        bootstrap_log =outdir_setting / f"{bs_pfx}.raxml.log"
+    params:
+        msa = lambda wildcards: msa_mapping[wildcards.msa_name],
+        model = lambda wildcards: model_mapping[wildcards.msa_name],
+        prefix = os.path.join(outdir_setting, bs_pfx)
+    log:
+        raxmlng_log = outdir_setting / f"{bs_pfx}.log"
+    # threads: 40  # only when working on a cluster
+    # resources:  # only when working on a cluster
+    #     nodes=10,
+    #     cpus_per_task=20,
+    #     runtime="24:00:00",
+    #     slurm_extra= "B 2:10:1 --ntasks-per-node 1 --hint compute_bound"
+    shell:
+        # "mpirun " +  # only when working on a cluster
+        RAXMLNG +
+        " --bootstrap " +
+        raxmlng_lheps_string("{wildcards.lheps}", "{wildcards.lheps_brlen}") +
+        "--msa {params.msa} "
+        "--model {params.model} "
+        "--bs-trees autoMRE "
+        "--prefix {params.prefix} "
+        "--threads 2 "
+        "--seed 0 "
+        "> {log.raxmlng_log}"
+
+
+rule bootstrap_support_all_trees:
+    input:
+        tree_file = raxmlng_new_default_ts_path_prefix/ "trees" / tree_pfx,
+        bootstraps = rules.raxmlng_bootstrap.output.bootstraps
+    output:
+        trees_with_support =outdir_setting / f"{supp_pfx}.raxml.support"
+    params:
+        prefix = os.path.join(outdir_setting, f"{supp_pfx}")
+    log:
+        raxmlng_log =outdir_setting / f"{supp_pfx}.log"
+    run:
+        run_raxmlng_support(
+            tree=input.tree_file,
+            bootstraps=input.bootstraps,
+            prefix=params.prefix,
+            log=log.raxmlng_log
+        )
+
+
+rule collect_per_setting_results:
+    input:
+        all_trees               = rules.store_ml_trees_separately.output.trees,
+        all_trees_with_support  = expand(
+            rules.bootstrap_support_all_trees.output.trees_with_support,
+            i=range(20),
+            allow_missing=True
+        ),
+        bootstrap_log           = rules.raxmlng_bootstrap.output.bootstrap_log,
+    output:
+        tree_support_values = outdir_setting / "support_values.parquet",
+        bootstrap_summary = outdir_setting / "bootstrap_summary.parquet"
+
+    run:
+        # collect the tree support values data
+        tree_support_values = []
+
+        for tree, tree_with_support in zip(input.all_trees, input.all_trees_with_support):
+            support_values = {
+                "dataset": wildcards.msa_name,
+                "support_values": [utils.get_support_values(tree_with_support)],
+                "newick_tree": [tree],
+                "newick_with_support_values": [tree_with_support]
+            }
+            tree_support_values.append(pd.DataFrame(support_values, index=[0]))
+
+        tree_support_values = pd.concat(tree_support_values, ignore_index=True)  # 20 rows, one row per ML tree
+        tree_support_values.to_parquet(output.tree_support_values)
+
+        bootstrap_summary = {
+            "dataset": wildcards.msa_name,
+            "lh_epsilon": wildcards.lheps,
+            "lh_epsilon_brlen": wildcards.lheps_brlen,
+            "bootstrap_num_replicates_convergence": utils.get_number_of_bs_replicates(input.bootstrap_log),
+            "runtime": utils.get_raxmlng_elapsed_time(input.bootstrap_log),
+        }
+
+        bootstrap_summary = pd.DataFrame(bootstrap_summary, index=[0])  # 1 row -> one row per dataset
+        bootstrap_summary.to_parquet(output.bootstrap_summary)
+
+
+############################
+# Rules comparing settings
+###########################
+rule compare_settings:
+    input:
+        support_values = exp_lheps(rules.collect_per_setting_results.output.tree_support_values),
+        bootstrap_summary = exp_lheps(rules.collect_per_setting_results.output.bootstrap_summary)
+    output:
+        bootstrap_data = outdir_msa / "bootstrap.parquet",
+        support_values_correlations = outdir_msa / "support_values_correlation.parquet"
+    run:
+        comparison_dfs = []
+        # 1. compare the support values per setting using the Pearson Correlation
+        support_values = pd.read_parquet(input.support_values)
+
+        file_default = expand(
+            outdir_setting / "support_values.parquet",
+            lheps=0.1,
+            lheps_brlen=0.1,
+            msa_name=wildcards.msa_name
+        )[0]
+        support_values_default_setting = pd.read_parquet(file_default)
+        support_values_default_setting = support_values_default_setting.support_values.tolist()
+
+        for lheps, lheps_brlen in lheps_combinations:
+            file_new = expand(
+                outdir_setting / "support_values.parquet",
+                lheps=lheps,
+                lheps_brlen=lheps_brlen,
+                msa_name=wildcards.msa_name
+            )[0]
+
+            support_values_new_setting = pd.read_parquet(file_new)
+            support_values_new_setting = support_values_new_setting.support_values.tolist()
+
+            # pearson correlation between support values for all trees
+            pearson_corrleations = []
+            p_values = []
+
+            for sv1, sv2 in zip(support_values_default_setting, support_values_new_setting):
+                corr, pval = scipy.stats.pearsonr(sv1, sv2)
+                pearson_corrleations.append(corr)
+                p_values.append(pval)
+
+            support_values_data = {
+                "dataset": wildcards.msa_name,
+                "comparison_to": "(0.1, 0.1)",
+                "lh_epsilon": lheps,
+                "lh_epsilon_brlen": lheps_brlen,
+                "raw_corr_all_trees": [pearson_corrleations],
+                "raw_pvals_all_trees": [p_values]
+            }
+
+            support_values_data = pd.DataFrame(data=support_values_data,index=[0])
+            comparison_dfs.append(support_values_data)
+
+        comparison_df = pd.concat(comparison_dfs)
+        comparison_df.to_parquet(output.support_values_correlations)
+
+        bootstrap_data = []
+        for f in input.bootstrap_summary:
+            bootstrap_data.append(pd.read_parquet(f))
+
+        bootstrap_data = pd.concat(bootstrap_data)
+        bootstrap_data.to_parquet(output.bootstrap_data)
+
