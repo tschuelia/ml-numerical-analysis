@@ -3,7 +3,7 @@ import re
 
 def get_support_values(treefile):
     newick = open(treefile).readline().strip()
-    r = re.compile(r"(\d+):")
+    r = re.compile(r"\)(\d+):")
     m = re.findall(r, newick)
     support_values = [float(el) for el in m]
 
